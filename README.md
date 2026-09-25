@@ -135,8 +135,26 @@ locais de votação (5,6 MB) e os arquivos leves do produto — índice de estad
 cobertura, validação e diagnóstico.
 
 Dos dados por município vão **dois de amostra**, Alta Floresta D'Oeste e Porto Velho (RO), o
-bastante para abrir a página de demonstração sem rodar nada. Consultar qualquer outro município
-exige rodar o pipeline.
+bastante para abrir a página de demonstração sem rodar nada.
+
+### Baixando os dados prontos
+
+Para consultar qualquer município sem processar nada, o produto completo está anexado à
+[última Release](https://github.com/juliosaulo/como-meus-vizinhos-votam/releases/latest): 227 MB
+compactados, 809 MB depois de abertos.
+
+```bash
+# a partir da pasta do projeto
+curl -L -o publicado.zip https://github.com/juliosaulo/como-meus-vizinhos-votam/releases/latest/download/publicado-brasil-2018-2022.zip
+unzip -o publicado.zip            # Windows (PowerShell): Expand-Archive -Force publicado.zip .
+```
+
+O zip já traz o caminho `publicado/`, então ele se encaixa por cima da pasta que veio do
+repositório. Feito isso, a página de demonstração e o `consulta_regiao.py` funcionam no país
+inteiro.
+
+A alternativa é rodar o pipeline, que reproduz tudo a partir das fontes públicas em cerca de uma
+hora — os dados da Release são exatamente a sua saída.
 
 Para ver o dado funcionando sem escrever código, há uma página de demonstração que consome os JSON
 publicados do mesmo jeito que o site fará:
