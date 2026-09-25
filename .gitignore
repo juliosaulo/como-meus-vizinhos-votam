@@ -33,3 +33,6 @@ __pycache__/
 .pytest_cache/
 .venv/
 .env
+
+# Pacotes de distribuição (vão para Releases, não para o git).
+*.zip
