@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Como votou a minha região — beta</title>
+<style>
+  :root {
+    --fundo: #fbfaf8; --papel: #fff; --tinta: #1c1b19; --suave: #6b6862;
+    --linha: #e4e0d9; --marca: #2f6f4e; --marca-fraca: #eaf2ed; --alerta: #9a6a1f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --fundo: #17181a; --papel: #1f2124; --tinta: #edeceb; --suave: #a3a19c;
+      --linha: #33363a; --marca: #6db892; --marca-fraca: #223029; --alerta: #d6a75a;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fundo); color: var(--tinta);
+         font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .pagina { max-width: 720px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: -0.01em; }
+  .sub { color: var(--suave); font-size: 13px; margin: 0 0 24px; }
+  .cartao { background: var(--papel); border: 1px solid var(--linha); border-radius: 12px;
+            padding: 16px; margin-bottom: 16px; }
+  label { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .06em;
+          color: var(--suave); margin-bottom: 6px; }
+  select, input { width: 100%; padding: 10px 12px; font: inherit; color: inherit;
+                  background: var(--fundo); border: 1px solid var(--linha); border-radius: 8px; }
+  input:focus, select:focus { outline: 2px solid var(--marca); outline-offset: 1px; }
+  .dupla { display: flex; gap: 12px; flex-wrap: wrap; }
+  .dupla > div { flex: 1 1 200px; }
+  .baloes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .balao { border: 1px solid var(--linha); background: var(--fundo); color: inherit;
+           border-radius: 999px; padding: 7px 14px; font: inherit; cursor: pointer; }
+  .balao:hover { border-color: var(--marca); }
+  .balao.ativo { background: var(--marca); border-color: var(--marca); color: #fff; }
+  .balao small { opacity: .75; margin-left: 6px; }
+  .trilha { display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+            font-size: 13px; color: var(--suave); margin-bottom: 12px; }
+  .trilha b { color: var(--tinta); font-weight: 600; }
+  .trilha .seta { opacity: .5; }
+  .contador { display: flex; align-items: baseline; gap: 8px; margin: 0 0 4px; }
+  .contador strong { font-size: 26px; letter-spacing: -0.02em; }
+  .lista { list-style: none; margin: 12px 0 0; padding: 0; }
+  .opcao { display: flex; gap: 12px; align-items: flex-start; width: 100%; text-align: left;
+           background: none; border: 0; border-top: 1px solid var(--linha); padding: 12px 0;
+           font: inherit; color: inherit; cursor: pointer; }
+  .opcao:hover .nome { color: var(--marca); }
+  .barra { flex: 0 0 52px; }
+  .peso { font-variant-numeric: tabular-nums; font-size: 13px; color: var(--suave); }
+  .trilho { height: 4px; background: var(--linha); border-radius: 2px; margin-top: 4px; }
+  .trilho span { display: block; height: 100%; background: var(--marca); border-radius: 2px; }
+  .nome { font-weight: 600; }
+  .endereco { color: var(--suave); font-size: 13px; }
+  .selo { display: inline-block; font-size: 11px; text-transform: uppercase; letter-spacing: .06em;
+          padding: 3px 8px; border-radius: 999px; background: var(--marca-fraca); color: var(--marca); }
+  .selo.aviso { background: transparent; color: var(--alerta); border: 1px solid var(--alerta); }
+  .resultado h2 { font-size: 18px; margin: 0 0 2px; }
+  .mapa { font-size: 12px; color: var(--suave); }
+  .eleicao { margin-top: 18px; }
+  .eleicao h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em;
+                color: var(--suave); margin: 0 0 8px; font-weight: 600; }
+  .voto { display: grid; grid-template-columns: 56px 1fr; gap: 10px; align-items: center;
+          padding: 3px 0; }
+  .pct { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+  .partido { color: var(--suave); font-size: 12px; }
+  .vazio { color: var(--suave); font-size: 13px; }
+  .carregando { color: var(--suave); font-size: 13px; }
+  .erro { color: #b3261e; font-size: 13px; }
+  .rodape { color: var(--suave); font-size: 12px; margin-top: 32px; line-height: 1.6; }
+  .achados { list-style: none; margin: 8px 0 0; padding: 0; max-height: 240px; overflow-y: auto; }
+  .achados button { width: 100%; text-align: left; background: none; border: 0;
+                    border-top: 1px solid var(--linha); padding: 9px 0; font: inherit;
+                    color: inherit; cursor: pointer; }
+  .achados button:hover { color: var(--marca); }
+  .achados .qtd { color: var(--suave); font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="pagina">
+  <h1>Como votou a minha região</h1>
+  <p class="sub">Versão beta, lendo direto os arquivos de <code>publicado/</code> — os mesmos que o site usará.</p>
+
+  <div class="cartao">
+    <div class="dupla">
+      <div>
+        <label for="uf">Estado</label>
+        <select id="uf"><option value="">Carregando…</option></select>
+      </div>
+      <div>
+        <label for="municipio">Município</label>
+        <select id="municipio" disabled><option value="">—</option></select>
+      </div>
+    </div>
+    <div style="margin-top:12px">
+      <label for="rua">Sua rua</label>
+      <input id="rua" type="search" placeholder="digite o nome da rua" autocomplete="off" disabled>
+      <div id="estadoRuas" class="carregando"></div>
+      <ul id="achados" class="achados"></ul>
+    </div>
+  </div>
+
+  <div id="painel"></div>
+
+  <p class="rodape">
+    O número da casa só é pedido quando rua e bairro não bastam. Nada do que você digita sai do
+    navegador: a consulta é feita em arquivos estáticos.
+  </p>
+</div>
+
+<script>
+const BASE = "publicado";
+const norm = s => (s ?? "").toString().toUpperCase().normalize("NFD")
+                    .replace(/[̀-ͯ]/g, "").trim();
+const cache = new Map();
+async function carregar(caminho) {
+  if (!cache.has(caminho)) {
+    cache.set(caminho, fetch(`${BASE}/${caminho}`).then(r => {
+      if (!r.ok) throw new Error(`não encontrei ${caminho}`);
+      return r.json();
+    }));
+  }
+  return cache.get(caminho);
+}
+
+const estado = { municipio: null, ruas: null, regioes: null, rua: null, bairro: null, numero: null };
+const $ = id => document.getElementById(id);
+
+// ---------------------------------------------------------------------------
+// A mesma sequência de decisão de consulta_regiao.py
+// ---------------------------------------------------------------------------
+function opcoesDaRua(rua) {
+  return rua.regioes ? rua.regioes.map(([r, f]) => [r, f])
+                     : [[rua.regiao_provavel, rua.confianca ?? 1]];
+}
+function opcoesDoBairro(rua, bairro) {
+  const alvo = norm(bairro);
+  for (const [nome, regioes] of (rua.bairros ?? [])) {
+    if (norm(nome) === alvo) return regioes.map(([r, f]) => [r, f]);
+  }
+  return null;
+}
+function buscarNoTrecho(trechos, numero, candidatas) {
+  if (!trechos || !trechos.length) return null;
+  const inicios = trechos.map(t => t[0]);
+  let pos = 0;
+  while (pos + 1 < inicios.length && inicios[pos + 1] <= numero) pos++;
+  if (candidatas.has(trechos[pos][1])) return [trechos[pos][1], inicios[pos] === numero];
+  for (let passo = 1; passo < trechos.length; passo++) {
+    for (const i of [pos - passo, pos + passo]) {
+      if (i >= 0 && i < trechos.length && candidatas.has(trechos[i][1])) return [trechos[i][1], false];
+    }
+  }
+  return null;
+}
+function resolver(rua, numero, bairro) {
+  numero = numero && numero > 0 ? numero : null;   // zero é S/N, não um número
+  const saida = { bairroIgnorado: false, conflito: false };
+
+  if (rua.n_regioes === 1) {
+    const opcoes = opcoesDaRua(rua);
+    return { ...saida, id: opcoes[0][0], confianca: "exata", opcoes };
+  }
+  let opcoes = null;
+  if (bairro) {
+    opcoes = opcoesDoBairro(rua, bairro);
+    if (opcoes === null) saida.bairroIgnorado = true;
+  }
+  if (opcoes === null) opcoes = opcoesDaRua(rua);
+
+  const candidatas = new Set(opcoes.map(o => o[0]));
+  if (candidatas.size === 1) return { ...saida, id: opcoes[0][0], confianca: "exata", opcoes };
+
+  if (numero !== null) {
+    const achado = buscarNoTrecho(rua.trechos, numero, candidatas);
+    if (achado) {
+      return { ...saida, id: achado[0], confianca: achado[1] ? "exata" : "interpolada", opcoes };
+    }
+    saida.conflito = Boolean(bairro && !saida.bairroIgnorado);
+  }
+  return { ...saida, id: opcoes[0][0], confianca: "provavel", opcoes };
+}
+
+// ---------------------------------------------------------------------------
+// Seleção de estado e município
+// ---------------------------------------------------------------------------
+async function iniciar() {
+  try {
+    const ufs = await carregar("ufs.json");
+    $("uf").innerHTML = '<option value="">escolha…</option>' +
+      ufs.map(u => `<option value="${u.sigla}">${u.nome}</option>`).join("");
+  } catch (e) {
+    $("uf").innerHTML = '<option value="">erro ao carregar</option>';
+    $("painel").innerHTML = `<div class="cartao erro">Não consegui ler <code>publicado/ufs.json</code>.
+      Rode a página por um servidor local (veja o rodapé do terminal).</div>`;
+  }
+}
+$("uf").addEventListener("change", async e => {
+  const sel = $("municipio");
+  limpar();
+  if (!e.target.value) { sel.disabled = true; sel.innerHTML = "<option>—</option>"; return; }
+  sel.disabled = true; sel.innerHTML = "<option>carregando…</option>";
+  const muns = await carregar(`municipios/${e.target.value}.json`);
+  sel.innerHTML = '<option value="">escolha…</option>' +
+    muns.map(m => `<option value="${m.cd}">${m.nome}</option>`).join("");
+  sel.disabled = false;
+});
+$("municipio").addEventListener("change", async e => {
+  limpar();
+  $("rua").value = ""; $("rua").disabled = true;
+  estado.municipio = e.target.value || null;
+  estado.ruas = estado.regioes = null;
+  if (!estado.municipio) { $("estadoRuas").textContent = ""; return; }
+  $("estadoRuas").textContent = "carregando as ruas do município…";
+  try {
+    const [ruas, regioes] = await Promise.all([
+      carregar(`ruas/${estado.municipio}.json`),
+      carregar(`regioes/${estado.municipio}.json`),
+    ]);
+    estado.ruas = ruas.ruas;
+    estado.regioes = regioes.regioes;
+    estado.ruas.forEach(r => r._n = norm(r.nome));
+    $("estadoRuas").textContent = `${estado.ruas.length.toLocaleString("pt-BR")} ruas carregadas`;
+    $("rua").disabled = false;
+    $("rua").focus();
+  } catch (err) {
+    $("estadoRuas").innerHTML = `<span class="erro">${err.message}</span>`;
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Busca da rua
+// ---------------------------------------------------------------------------
+$("rua").addEventListener("input", e => {
+  const termo = norm(e.target.value);
+  const lista = $("achados");
+  limpar();
+  if (termo.length < 2 || !estado.ruas) { lista.innerHTML = ""; return; }
+  const achados = estado.ruas.filter(r => r._n.includes(termo)).slice(0, 25);
+  lista.innerHTML = achados.length
+    ? achados.map((r, i) => `<li><button data-i="${estado.ruas.indexOf(r)}">${r.nome}
+        <span class="qtd">· ${r.n_regioes === 1 ? "1 local" : r.n_regioes + " locais"}</span>
+      </button></li>`).join("")
+    : '<li class="vazio" style="padding-top:8px">nenhuma rua com esse nome</li>';
+});
+$("achados").addEventListener("click", e => {
+  const botao = e.target.closest("button");
+  if (!botao) return;
+  estado.rua = estado.ruas[Number(botao.dataset.i)];
+  estado.bairro = null; estado.numero = null;
+  $("rua").value = estado.rua.nome;
+  $("achados").innerHTML = "";
+  desenhar();
+});
+
+function limpar() { estado.rua = estado.bairro = estado.numero = null; $("painel").innerHTML = ""; }
+
+// ---------------------------------------------------------------------------
+// Painel: trilha de filtros, opções restantes e resultado
+// ---------------------------------------------------------------------------
+function desenhar() {
+  const rua = estado.rua;
+  if (!rua) { $("painel").innerHTML = ""; return; }
+  const achado = resolver(rua, estado.numero, estado.bairro);
+  const unico = achado.opcoes.length === 1;
+  // "Resolvido" é mais amplo que "único": o número pode apontar um trecho certo
+  // mesmo numa rua que atende vários locais.
+  const resolvido = unico || achado.confianca !== "provavel";
+  const bairros = rua.bairros ?? [];
+  const pedeNumero = !unico && (!bairros.length || estado.bairro);
+
+  const trilha = [`<b>${rua.nome}</b>`];
+  if (estado.bairro) trilha.push(`<b>${estado.bairro}</b>`);
+  if (estado.numero) trilha.push(`<b>nº ${estado.numero}</b>`);
+
+  let html = `<div class="cartao">
+    <div class="trilha">${trilha.join('<span class="seta">›</span>')}</div>
+    <div class="contador"><strong>${resolvido ? 1 : achado.opcoes.length}</strong>
+      <span>${resolvido ? "local de votação" : "locais possíveis"}</span>
+      <span class="selo ${achado.confianca === "provavel" ? "aviso" : ""}">${achado.confianca}</span>
+    </div>
+    <div class="vazio">${explicacao(rua, achado, unico, pedeNumero)}${
+      resolvido && !unico ? ` A rua inteira atende ${achado.opcoes.length} locais.` : ""}</div>`;
+
+  if (achado.bairroIgnorado) html += `<p class="selo aviso" style="margin-top:10px">bairro não existe nesta rua — ignorado</p>`;
+  if (achado.conflito) html += `<p class="selo aviso" style="margin-top:10px">o número não existe no trecho deste bairro — ignorado</p>`;
+
+  if (!unico && bairros.length) {
+    html += `<div style="margin-top:16px"><label>Em que bairro?</label><div class="baloes">` +
+      bairros.map(([nome, regioes]) => `
+        <button class="balao ${norm(nome) === norm(estado.bairro ?? "") ? "ativo" : ""}"
+                data-bairro="${nome.replace(/"/g, "&quot;")}">${nome}
+          <small>${regioes.length === 1 ? "1 local" : regioes.length + " locais"}</small>
+        </button>`).join("") +
+      (estado.bairro ? `<button class="balao" data-bairro="">limpar</button>` : "") +
+      `</div></div>`;
+  }
+
+  if (pedeNumero) {
+    html += `<div style="margin-top:16px"><label for="numero">Número da casa (opcional)</label>
+      <input id="numero" type="number" inputmode="numeric" placeholder="ex.: 2338"
+             value="${estado.numero ?? ""}"></div>`;
+  }
+  html += `</div>`;
+
+  // A lista de regiões possíveis aparece sempre que houver mais de uma — é ela
+  // que encolhe conforme o usuário filtra.
+  if (!unico) {
+    html += `<div class="cartao"><label>${resolvido
+        ? "Todos os locais desta rua, do mais provável ao menos"
+        : "Locais possíveis, do mais provável ao menos"}</label>
+      <ul class="lista">` + achado.opcoes.map(([id, f]) => {
+        const r = estado.regioes[id] ?? {};
+        const destaque = id === achado.id && achado.confianca !== "provavel";
+        return `<li><button class="opcao" data-regiao="${id}">
+          <span class="barra"><span class="peso">${(f * 100).toFixed(1)}%</span>
+            <span class="trilho"><span style="width:${Math.max(f * 100, 2)}%"></span></span></span>
+          <span><span class="nome">${r.local ?? "região " + id}</span>
+            ${destaque ? ' <span class="selo">resposta</span>' : ""}
+            <br><span class="endereco">${r.endereco ?? ""}</span></span>
+        </button></li>`;
+      }).join("") + `</ul></div>`;
+  }
+
+  html += cartaoResultado(achado.id, resolvido);
+  $("painel").innerHTML = html;
+
+  $("painel").querySelectorAll("[data-bairro]").forEach(b =>
+    b.addEventListener("click", () => {
+      estado.bairro = b.dataset.bairro || null;
+      estado.numero = null;
+      desenhar();
+    }));
+  const campo = $("numero");
+  if (campo) {
+    campo.addEventListener("change", () => {
+      estado.numero = campo.value ? Number(campo.value) : null;
+      desenhar();
+      const novo = $("numero");
+      if (novo) { novo.focus(); novo.setSelectionRange(novo.value.length, novo.value.length); }
+    });
+  }
+  $("painel").querySelectorAll("[data-regiao]").forEach(b =>
+    b.addEventListener("click", () => {
+      $("painel").querySelector(".resultado")?.remove();
+      $("painel").insertAdjacentHTML("beforeend", cartaoResultado(Number(b.dataset.regiao), false));
+      $("painel").querySelector(".resultado").scrollIntoView({ behavior: "smooth", block: "start" });
+    }));
+}
+
+function explicacao(rua, achado, unico, pedeNumero) {
+  if (unico && rua.n_regioes === 1) return "Esta rua inteira vota num lugar só.";
+  if (unico && estado.bairro) return "Neste bairro, a rua vota num lugar só.";
+  if (unico) return "Sobrou um local possível.";
+  if (achado.confianca === "interpolada") return "O número está entre dois pontos conhecidos da rua — a resposta é a do trecho anterior.";
+  if (achado.confianca === "exata") return "O número informado existe no cadastro desta rua.";
+  if (pedeNumero) return "Ainda há mais de um local. O número da casa pode resolver.";
+  return "Escolha o bairro para afunilar.";
+}
+
+function cartaoResultado(id, resolvido) {
+  const r = estado.regioes[id];
+  if (!r) return "";
+  const res = r.resultados ?? {};
+  const ultimo = obj => Object.keys(obj ?? {}).sort().pop();
+
+  let html = `<div class="cartao resultado">
+    ${resolvido ? "" : '<label>Resultado do local mais provável</label>'}
+    <h2>${r.local}</h2>
+    <div class="endereco">${r.endereco}</div>
+    <div class="mapa">${r.lat}, ${r.lon}
+      · <a href="https://www.openstreetmap.org/?mlat=${r.lat}&mlon=${r.lon}#map=17/${r.lat}/${r.lon}"
+           target="_blank" rel="noopener">ver no mapa</a></div>
+    ${r.outros_locais?.length ? `<div class="endereco">outros locais no mesmo ponto: ${r.outros_locais.join(", ")}</div>` : ""}`;
+
+  const pres = res.presidente ?? {};
+  for (const ano of Object.keys(pres).sort()) {
+    const turno = ultimo(pres[ano]);
+    html += `<div class="eleicao"><h3>Presidente ${ano} · ${turno}º turno</h3>` +
+      pres[ano][turno].slice(0, 4).map(c => `
+        <div class="voto"><span class="pct">${c.pct.toFixed(1)}%</span>
+          <span>${c.nome} <span class="partido">${c.partido ?? ""}</span></span></div>`).join("") +
+      `</div>`;
+  }
+  const dep = res.deputado_federal ?? {};
+  const anoDep = ultimo(dep);
+  if (anoDep) {
+    const turno = ultimo(dep[anoDep]);
+    html += `<div class="eleicao"><h3>Deputado federal ${anoDep} — mais votados aqui</h3>` +
+      dep[anoDep][turno].map(c => `
+        <div class="voto"><span class="pct">${c.pct.toFixed(1)}%</span>
+          <span>${c.nome} <span class="partido">${c.partido ?? ""}</span></span></div>`).join("") +
+      `</div>`;
+  }
+  if (!Object.keys(pres).length && !anoDep) html += `<p class="vazio">Sem resultados publicados para esta região.</p>`;
+  return html + `</div>`;
+}
+
+iniciar();
+</script>
+</body>
+</html>

@@ -1,0 +1,238 @@
+{
+  "recorte": {
+    "ufs": [
+      "AC",
+      "AL",
+      "AM",
+      "AP",
+      "BA",
+      "CE",
+      "DF",
+      "ES",
+      "GO",
+      "MA",
+      "MG",
+      "MS",
+      "MT",
+      "PA",
+      "PB",
+      "PE",
+      "PI",
+      "PR",
+      "RJ",
+      "RN",
+      "RO",
+      "RR",
+      "RS",
+      "SC",
+      "SE",
+      "SP",
+      "TO"
+    ],
+    "anos": [
+      2018,
+      2022
+    ],
+    "cargos": [
+      "PRESIDENTE",
+      "DEPUTADO FEDERAL"
+    ],
+    "ano_referencia_malha": 2022
+  },
+  "geocodificacao": {
+    "locais_votacao": 93432,
+    "com_coordenada": 78568,
+    "pct": 84.1,
+    "por_uf": [
+      {
+        "sg_uf": "AC",
+        "locais": 697,
+        "com_coordenada": 615,
+        "pct": 88.2
+      },
+      {
+        "sg_uf": "AL",
+        "locais": 1008,
+        "com_coordenada": 826,
+        "pct": 81.9
+      },
+      {
+        "sg_uf": "AM",
+        "locais": 1501,
+        "com_coordenada": 1110,
+        "pct": 74.0
+      },
+      {
+        "sg_uf": "AP",
+        "locais": 353,
+        "com_coordenada": 312,
+        "pct": 88.4
+      },
+      {
+        "sg_uf": "BA",
+        "locais": 9249,
+        "com_coordenada": 7412,
+        "pct": 80.1
+      },
+      {
+        "sg_uf": "CE",
+        "locais": 6716,
+        "com_coordenada": 5640,
+        "pct": 84.0
+      },
+      {
+        "sg_uf": "DF",
+        "locais": 618,
+        "com_coordenada": 329,
+        "pct": 53.2
+      },
+      {
+        "sg_uf": "ES",
+        "locais": 1710,
+        "com_coordenada": 1379,
+        "pct": 80.6
+      },
+      {
+        "sg_uf": "GO",
+        "locais": 2437,
+        "com_coordenada": 1951,
+        "pct": 80.1
+      },
+      {
+        "sg_uf": "MA",
+        "locais": 5711,
+        "com_coordenada": 4332,
+        "pct": 75.9
+      },
+      {
+        "sg_uf": "MG",
+        "locais": 10139,
+        "com_coordenada": 9169,
+        "pct": 90.4
+      },
+      {
+        "sg_uf": "MS",
+        "locais": 1033,
+        "com_coordenada": 932,
+        "pct": 90.2
+      },
+      {
+        "sg_uf": "MT",
+        "locais": 1525,
+        "com_coordenada": 1223,
+        "pct": 80.2
+      },
+      {
+        "sg_uf": "PA",
+        "locais": 5306,
+        "com_coordenada": 3532,
+        "pct": 66.6
+      },
+      {
+        "sg_uf": "PB",
+        "locais": 1754,
+        "com_coordenada": 1558,
+        "pct": 88.8
+      },
+      {
+        "sg_uf": "PE",
+        "locais": 3286,
+        "com_coordenada": 2843,
+        "pct": 86.5
+      },
+      {
+        "sg_uf": "PI",
+        "locais": 3688,
+        "com_coordenada": 3072,
+        "pct": 83.3
+      },
+      {
+        "sg_uf": "PR",
+        "locais": 4758,
+        "com_coordenada": 4239,
+        "pct": 89.1
+      },
+      {
+        "sg_uf": "RJ",
+        "locais": 4831,
+        "com_coordenada": 4098,
+        "pct": 84.8
+      },
+      {
+        "sg_uf": "RN",
+        "locais": 1528,
+        "com_coordenada": 1366,
+        "pct": 89.4
+      },
+      {
+        "sg_uf": "RO",
+        "locais": 633,
+        "com_coordenada": 530,
+        "pct": 83.7
+      },
+      {
+        "sg_uf": "RR",
+        "locais": 336,
+        "com_coordenada": 295,
+        "pct": 87.8
+      },
+      {
+        "sg_uf": "RS",
+        "locais": 8090,
+        "com_coordenada": 7018,
+        "pct": 86.7
+      },
+      {
+        "sg_uf": "SC",
+        "locais": 3550,
+        "com_coordenada": 2943,
+        "pct": 82.9
+      },
+      {
+        "sg_uf": "SE",
+        "locais": 1185,
+        "com_coordenada": 939,
+        "pct": 79.2
+      },
+      {
+        "sg_uf": "SP",
+        "locais": 10933,
+        "com_coordenada": 10198,
+        "pct": 93.3
+      },
+      {
+        "sg_uf": "TO",
+        "locais": 857,
+        "com_coordenada": 707,
+        "pct": 82.5
+      }
+    ],
+    "nota": "Locais sem coordenada não são erro de pareamento: em geral o cadastro do TSE não trazia nome ou endereço aproveitável. Ver dados_importados/PROVENIENCIA.md."
+  },
+  "voto": {
+    "votos_apurados": 720522302,
+    "votos_em_regiao": 629774906,
+    "pct": 87.4,
+    "regioes_com_voto": 74142,
+    "nota": "A diferença são votos dados em locais sem coordenada. Totais eleitorais oficiais não devem ser lidos desta base — ela cobre só o que é espacializável."
+  },
+  "enderecos": {
+    "enderecos": 111090751,
+    "sem_numero": 26463796,
+    "pct_sem_numero": 23.8,
+    "em_chave_ambigua": 17717450,
+    "pct_em_chave_ambigua": 15.9,
+    "acerto_medido_pct": 92.44,
+    "acerto_por_caminho_pct": {
+      "so_rua": 78.29,
+      "so_rua_domicilios": 79.36,
+      "rua_bairro": 87.61,
+      "rua_bairro_domicilios": 88.51,
+      "rua_numero": 92.44,
+      "rua_numero_domicilios": 93.53,
+      "completo": 96.4,
+      "completo_domicilios": 97.1
+    },
+    "nota": "Endereço sem número (S/N) é a principal fonte de imprecisão: rua e número são a chave de consulta, e sem número todos os endereços da rua compartilham a mesma resposta. É mais comum em área rural."
+  }
+}

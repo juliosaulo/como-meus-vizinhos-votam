@@ -1,0 +1,10 @@
+# Versões fixas para o pipeline ser reprodutível.
+# A atribuição endereço → região é vizinho mais próximo (scipy + pyproj).
+# Ver METODOLOGIA.md.
+pandas==3.0.3
+pyarrow==22.0.0
+numpy==2.4.6
+scipy==1.16.2
+pyproj==3.7.2
+requests==2.32.5
+pytest==9.1.1

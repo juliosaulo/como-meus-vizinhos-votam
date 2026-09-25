@@ -1,0 +1,35 @@
+# Dados brutos e intermediários (~8 GB de TSE e CNEFE, mais o que o pipeline
+# gera pelo caminho). Não vão para o repositório: são públicos na origem e
+# reproduzíveis — ver README.
+dados/
+
+# Imagens de trabalho, fora do escopo do repositório.
+screens/
+
+# O produto tem 809 MB em 16.723 arquivos e é reproduzível em cerca de uma hora.
+# Versiona-se o que é leve (índices, cobertura, validações) e dois municípios de
+# amostra, o bastante para abrir `beta.html` sem rodar o pipeline.
+publicado/*
+!publicado/ufs.json
+!publicado/cobertura.json
+!publicado/validacao_indice_ruas.json
+!publicado/diagnostico_distancias.json
+!publicado/municipios/
+!publicado/ruas/
+!publicado/regioes/
+!publicado/bairros/
+publicado/ruas/*
+publicado/regioes/*
+publicado/bairros/*
+!publicado/ruas/1100015.json
+!publicado/ruas/1100205.json
+!publicado/regioes/1100015.json
+!publicado/regioes/1100205.json
+!publicado/bairros/1100015.json
+!publicado/bairros/1100205.json
+
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+.env
