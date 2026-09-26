@@ -508,7 +508,15 @@ consulta baixe só o necessário.
 5. Grava, para cada município, as ruas com o índice de trechos e — nas ambíguas — as listas de
    regiões por rua e por bairro.
 6. Grava, para cada município, o índice de bairros.
-7. Grava os parquets equivalentes para uso analítico.
+7. **Agrega Presidente por município, UF e Brasil**, para o site comparar o local com o entorno.
+8. Grava os metadados (anos, turnos, contagens) e os parquets para uso analítico.
+
+Os agregados saem de `votos_local_votacao`, e não de `votos_regiao`: neles entram **todos** os
+locais, inclusive os sem coordenada. Só assim o percentual reproduz o resultado oficial — a base
+geocodificada cobre 88% dos votos e erra 0,4 ponto percentual, porque o que falta não é um recorte
+aleatório. A linha Brasil vem do total nacional do passo 21, que inclui o voto no exterior, e por
+isso bate voto a voto com o divulgado pelo TSE. Duas guardas conferem isso: cada UF tem que bater
+com a soma dos seus municípios, e o Brasil com `TOTAIS_OFICIAIS_PRESIDENTE`.
 
 Todo JSON é gravado com `allow_nan=False`: `NaN` é aceito pelo Python e recusado pelo `JSON.parse`
 do navegador, então um número indefinido derruba a publicação em vez de gerar um arquivo que o site
@@ -523,6 +531,8 @@ não consegue abrir.
 | `ruas/{cd_municipio}.json` | para cada rua: `nome`, `regiao_provavel`, `n_regioes`, `confianca`, `trechos` e, nas ambíguas, `regioes` e `bairros` |
 | `bairros/{cd_municipio}.json` | para cada bairro: `nome` e `regioes` — o caminho de quem não sabe o nome da rua |
 | `regioes/{cd_municipio}.json` | para cada região: `local`, `endereco`, `lat`, `lon`, `outros_locais`, `resultados` |
+| `agregados/municipios/{cd}.json`, `agregados/ufs/{UF}.json`, `agregados/brasil.json` | Presidente por ano e turno em cada território, para a comparação |
+| `metadados.json` | anos e turnos existentes, ano de referência da malha, contagens |
 | `regioes.parquet` | a dimensão de regiões publicada |
 | `votos_regiao.parquet` | os votos por região |
 | `indice_ruas.parquet` | o índice de trechos |
@@ -633,6 +643,13 @@ os 16.717 arquivos de `publicado/`:
 3. **Percentuais.** Para Presidente, onde todos os candidatos são publicados, a soma dos
    percentuais fecha 100; nenhum percentual sai de 0–100; nenhum voto é negativo.
 4. **Listas de regiões.** As frações somam 1 e vêm em ordem decrescente, na rua e no bairro.
+5. **Agregados.** Nenhum candidato aparece duas vezes na mesma lista, a lista tem tamanho de
+   eleição presidencial (até 40 nomes), os percentuais fecham 100, os válidos não passam do total,
+   e a soma das UFs cabe dentro do Brasil sem ultrapassá-lo.
+
+A quinta checa invariantes que valem para qualquer resultado eleitoral, independentemente de como
+ele foi calculado. É o tipo de conferência que pega o erro mais perigoso deste pipeline: um número
+plausível, com cara de certo, produzido por uma agregação que faltou.
 
 A tolerância da quarta acompanha o tamanho da lista: as frações são publicadas com três casas, então
 uma região de peso desprezível vira `0.0` e a soma fica curta. Numa rua com centenas de regiões — as
@@ -743,12 +760,13 @@ falso positivo em todo município amazônico.
 pytest tests/
 ```
 
-76 testes, cerca de um segundo, com dados fabricados — não precisam dos arquivos brutos.
+87 testes, cerca de um segundo, com dados fabricados — não precisam dos arquivos brutos.
 
 | Arquivo | Cobre |
 |---|---|
 | `tests/test_validacoes.py` | cada guarda de `qualidade/validacoes.py`, com as particularidades do dado bruto que elas tratam |
 | `tests/test_votacao.py` | a classificação do tipo de voto, incluindo a legenda com sequencial vazio do DF em 2018 |
+| `tests/test_publicacao.py` | a agregação de votos por território: soma por candidato, percentual sobre o válido, ordem, separação por ano e turno |
 | `tests/test_validar_publicado.py` | as conferências do produto: região citada que não existe, rua ambígua sem lista, frações que não fecham, lista fora de ordem, percentuais fora da faixa, `NaN` recusado |
 | `tests/test_consulta.py` | a sequência de decisão da consulta: limites de trecho, número abaixo do primeiro, zero como S/N, bairro que resolve, bairro inexistente, número que cai em trecho de outro bairro, ordem das opções |
 

@@ -88,6 +88,40 @@ class TestRegiao:
         assert vp.problemas_da_regiao("1", r) == []
 
 
+def agregado(candidatos, total=None):
+    conteudo = {"presidente": {"2022": {"2": candidatos}}}
+    if total is not None:
+        conteudo["total_votos"] = {"2022": {"2": total}}
+    return conteudo
+
+
+class TestAgregado:
+    BOM = [{"nome": "Fulana", "partido": "AA", "votos": 60, "pct": 60.0},
+           {"nome": "Sicrano", "partido": "BB", "votos": 40, "pct": 40.0}]
+
+    def test_agregado_correto(self):
+        assert vp.problemas_do_agregado("Brasil", agregado(self.BOM, 125)) == []
+
+    def test_candidato_repetido_na_lista(self):
+        # A forma exata do bug: uma linha por local, em vez de uma por candidato.
+        repetido = [{"nome": "Fulana", "partido": "AA", "votos": 30, "pct": 50.0},
+                    {"nome": "Fulana", "partido": "AA", "votos": 30, "pct": 50.0}]
+        assert any("repetido" in p for p in vp.problemas_do_agregado("Brasil", agregado(repetido)))
+
+    def test_lista_com_milhares_de_candidatos(self):
+        muitos = [{"nome": f"C{i}", "partido": "AA", "votos": 1, "pct": 0.0} for i in range(3000)]
+        problemas = vp.problemas_do_agregado("Brasil", agregado(muitos))
+        assert any("não é uma eleição presidencial" in p for p in problemas)
+
+    def test_percentuais_que_nao_fecham(self):
+        torto = [{"nome": "Fulana", "partido": "AA", "votos": 60, "pct": 6.0}]
+        assert any("somam" in p for p in vp.problemas_do_agregado("Brasil", agregado(torto)))
+
+    def test_validos_maiores_que_o_total(self):
+        problemas = vp.problemas_do_agregado("Brasil", agregado(self.BOM, 50))
+        assert any("válidos em" in p for p in problemas)
+
+
 class TestJsonEstrito:
     def test_recusa_nan(self, tmp_path):
         arquivo = tmp_path / "x.json"

@@ -247,11 +247,21 @@ def main() -> None:
     print(f"  UFs: {config.ufs_para_processar()}")
 
     resultados = []
+    totais_nacionais = []
     for ano in config.ANOS_ELEICAO:
         for cargo in config.CARGOS_ALVO:
             print(f"\n  -- {cargo} · {ano} --")
             df, nacional = ler_e_agregar(ano, cargo)
             df = anexar_partido(df, ano, cargo)
+
+            # O total nacional é somado antes do recorte de UF, então inclui o
+            # voto no exterior — é ele que reproduz exatamente o resultado
+            # divulgado pelo TSE, e serve de linha "Brasil" na comparação que o
+            # site faz. Para os cargos com arquivo por UF, cobre só as UFs lidas.
+            totais_nacionais.append(pd.DataFrame(
+                [(turno, nome, int(votos), ano, cargo) for (turno, nome), votos in nacional.items()],
+                columns=["turno", "nm_votavel", "qt_votos", "ano_eleicao", "cargo"],
+            ))
 
             if cargo == "PRESIDENTE":
                 for turno in sorted({t for t, _ in nacional.index}):
@@ -268,9 +278,19 @@ def main() -> None:
     saida = config.DIR_INTERMEDIARIO / "votos_local_votacao.parquet"
     final.to_parquet(saida, index=False)
 
+    nacionais = pd.concat(totais_nacionais, ignore_index=True)
+    nacionais["turno"] = validacoes.normalizar_turno(nacionais["turno"])
+    nacionais["nm_votavel"] = validacoes.unificar_voto_branco(nacionais["nm_votavel"])
+    nacionais = nacionais.groupby(
+        ["ano_eleicao", "cargo", "turno", "nm_votavel"], as_index=False
+    )["qt_votos"].sum()
+    saida_nacional = config.DIR_INTERMEDIARIO / "totais_nacionais.parquet"
+    nacionais.to_parquet(saida_nacional, index=False)
+
     print()
     print(f"  total: {len(final):,} linhas | {final['qt_votos'].sum():,} votos")
     print(f"  salvo: {saida}")
+    print(f"  salvo: {saida_nacional} ({len(nacionais):,} linhas)")
 
 
 if __name__ == "__main__":

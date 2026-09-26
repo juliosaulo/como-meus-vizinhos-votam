@@ -116,7 +116,7 @@ Cada passo — entradas, o que faz, saídas, guardas e números da execução na
 pip install -r requirements.txt
 python rodar_pipeline.py --listar     # ver os passos
 python rodar_pipeline.py              # rodar tudo — Brasil inteiro, cerca de uma hora
-pytest tests/                         # 76 testes, ~1s, sem precisar dos dados
+pytest tests/                         # 87 testes, ~1s, sem precisar dos dados
 ```
 
 O recorte (UFs, anos, cargos) fica em [`config.py`](config.py). O padrão é o Brasil inteiro, que

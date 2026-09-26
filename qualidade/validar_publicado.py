@@ -86,6 +86,41 @@ def problemas_da_rua(rua: dict, regioes_validas: set[int]) -> list[str]:
     return problemas
 
 
+MAX_CANDIDATOS = 40  # a maior eleição presidencial brasileira teve 13 candidatos
+
+
+def problemas_do_agregado(onde: str, conteudo: dict) -> list[str]:
+    """Invariantes de um resultado eleitoral, independentes de como foi calculado.
+
+    Uma lista em que o mesmo candidato aparece várias vezes, ou com milhares de
+    entradas, ou cujos percentuais não somam 100, não é um resultado — é um
+    agrupamento que faltou. E tem exatamente a aparência de um resultado.
+    """
+    problemas = []
+    for ano, por_turno in conteudo.get("presidente", {}).items():
+        for turno, candidatos in por_turno.items():
+            rotulo = f"{onde} ({ano}/{turno})"
+            nomes = [c["nome"] for c in candidatos]
+
+            if len(nomes) != len(set(nomes)):
+                repetidos = sorted({n for n in nomes if nomes.count(n) > 1})[:3]
+                problemas.append(f"{rotulo}: candidato repetido na lista ({', '.join(repetidos)})")
+            if len(nomes) > MAX_CANDIDATOS:
+                problemas.append(f"{rotulo}: {len(nomes):,} candidatos — não é uma eleição presidencial")
+            soma = sum(c["pct"] for c in candidatos)
+            if candidatos and abs(soma - 100) > TOLERANCIA_PCT:
+                problemas.append(f"{rotulo}: percentuais somam {soma:.2f}, não 100")
+            for c in candidatos:
+                if c["votos"] < 0 or not 0 <= c["pct"] <= 100:
+                    problemas.append(f"{rotulo}: {c['nome']} com número fora de faixa")
+
+            total = conteudo.get("total_votos", {}).get(ano, {}).get(turno)
+            validos = sum(c["votos"] for c in candidatos)
+            if total is not None and validos > total:
+                problemas.append(f"{rotulo}: {validos:,} válidos em {total:,} votos no total")
+    return problemas
+
+
 def problemas_da_regiao(id_regiao: str, regiao: dict) -> list[str]:
     problemas = []
     resultados = regiao.get("resultados", {})
@@ -117,6 +152,51 @@ def problemas_da_regiao(id_regiao: str, regiao: dict) -> list[str]:
                             f"{valor['pct']} fora de 0–100"
                         )
     return problemas
+
+
+def conferir_agregados(problemas: list[str]) -> int:
+    """Município, UF e Brasil: forma de cada um e coerência entre os níveis."""
+    pasta = config.DIR_PUBLICADO / "agregados"
+    if not pasta.exists():
+        print("  [aviso] sem a pasta agregados/ — rode o passo 40")
+        return 0
+
+    lidos = 0
+    total_por_uf: dict[str, dict] = {}
+    soma_municipios: dict[str, dict] = {}
+
+    for caminho in sorted((pasta / "municipios").glob("*.json")):
+        conteudo = ler_json_estrito(caminho)
+        lidos += 1
+        problemas += problemas_do_agregado(f"município {caminho.stem}", conteudo)
+
+    for caminho in sorted((pasta / "ufs").glob("*.json")):
+        conteudo = ler_json_estrito(caminho)
+        lidos += 1
+        problemas += problemas_do_agregado(f"UF {caminho.stem}", conteudo)
+        total_por_uf[caminho.stem] = conteudo.get("total_votos", {})
+
+    brasil = pasta / "brasil.json"
+    if brasil.exists():
+        conteudo = ler_json_estrito(brasil)
+        lidos += 1
+        problemas += problemas_do_agregado("Brasil", conteudo)
+
+        # A soma das UFs tem que caber dentro do Brasil, que inclui o exterior.
+        for ano, turnos in conteudo.get("total_votos", {}).items():
+            for turno, total_brasil in turnos.items():
+                soma = sum(t.get(ano, {}).get(turno, 0) for t in total_por_uf.values())
+                if soma > total_brasil:
+                    problemas.append(
+                        f"Brasil ({ano}/{turno}): soma das UFs {soma:,} passa do total {total_brasil:,}"
+                    )
+                elif total_brasil - soma > total_brasil * 0.01:
+                    problemas.append(
+                        f"Brasil ({ano}/{turno}): {total_brasil - soma:,} votos além das UFs — "
+                        "o voto no exterior não chega a 1% do total"
+                    )
+    print(f"  agregados: {lidos:,} arquivos conferidos")
+    return lidos
 
 
 def main() -> None:
@@ -172,6 +252,8 @@ def main() -> None:
                             f"{cd}, bairro {bairro['nome']}: frações somam {sum(fracoes):.3f}"
                         )
         print(f"  {uf['sigla']}: {len(municipios):,} municípios conferidos")
+
+    arquivos += conferir_agregados(problemas)
 
     print(f"\n  arquivos lidos: {arquivos:,}")
     if problemas:

@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import json
 import sys
+from datetime import date
 from pathlib import Path
 
 import pandas as pd
@@ -31,6 +32,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import config
+from qualidade import validacoes
 
 NOMES_UF = {
     "AC": "Acre", "AL": "Alagoas", "AM": "Amazonas", "AP": "Amapá", "BA": "Bahia",
@@ -222,6 +224,169 @@ def publicar_bairros(bairros_regioes: pd.DataFrame) -> None:
         escrever_json(config.DIR_PUBLICADO / "bairros" / f"{cd_municipio}.json", {"bairros": bairros})
 
 
+def _lista_candidatos(grupo: pd.DataFrame, validos: int) -> list[dict]:
+    grupo = grupo.sort_values("qt_votos", ascending=False)
+    return [
+        {"nome": str(l.nm_votavel).title(),
+         "partido": str(l.sg_partido) if pd.notna(l.sg_partido) else None,
+         "votos": int(l.qt_votos),
+         "pct": round(float(l.qt_votos) / validos * 100, 2) if validos else 0.0}
+        for l in grupo.itertuples()
+    ]
+
+
+def resultados_presidente(votos: pd.DataFrame, chave: str) -> dict[str, dict]:
+    """Resultado de Presidente por ano e turno, agregado pela coluna `chave`.
+
+    Mesma forma do que sai por região, para o site ler os dois com um código só:
+    percentual de candidato sobre o voto válido, branco e nulo sobre o total.
+    """
+    votos = votos[votos["cargo"] == "PRESIDENTE"]
+    saida: dict[str, dict] = {}
+    for (onde, ano, turno), grupo in votos.groupby([chave, "ano_eleicao", "turno"]):
+        # Somar por candidato: o que entra aqui é uma linha por local de votação.
+        nominal = (
+            grupo[grupo["tipo_voto"] == "nominal"]
+            .groupby(["nm_votavel", "sg_partido"], dropna=False, as_index=False)["qt_votos"].sum()
+        )
+        validos, total = int(nominal["qt_votos"].sum()), int(grupo["qt_votos"].sum())
+        no = saida.setdefault(str(onde), {})
+        no.setdefault("presidente", {}).setdefault(str(ano), {})[str(turno)] = \
+            _lista_candidatos(nominal, validos)
+        no.setdefault("total_votos", {}).setdefault(str(ano), {})[str(turno)] = total
+        nao_nominal = grupo[grupo["tipo_voto"].isin(["branco", "nulo"])]
+        if len(nao_nominal):
+            alvo = no.setdefault("nao_nominal", {}).setdefault(str(ano), {}).setdefault(str(turno), {})
+            for linha in nao_nominal.groupby("tipo_voto")["qt_votos"].sum().items():
+                tipo, qt = linha
+                alvo[tipo] = {"votos": int(qt), "pct": round(int(qt) / total * 100, 2) if total else 0.0}
+    return saida
+
+
+COLUNAS_AGREGADO = [
+    "id_local_votacao", "sg_uf", "ano_eleicao", "turno", "cargo",
+    "nm_votavel", "sg_partido", "tipo_voto", "qt_votos",
+]
+
+
+def publicar_agregados() -> None:
+    """Resultado de Presidente por município, UF e Brasil — a base da comparação.
+
+    Vem de `votos_local_votacao`, e não de `votos_regiao`: aqui entram TODOS os
+    locais, inclusive os sem coordenada. Só assim o percentual reproduz o
+    resultado oficial — a base geocodificada cobre 88% dos votos e erra 0,4
+    ponto percentual, porque o que falta não é um recorte aleatório.
+    """
+    # Só Presidente e só as colunas usadas: a tabela inteira tem 49,8 milhões de
+    # linhas, e carregá-la toda para usar 8,7 milhões custa minutos e gigabytes.
+    votos_local = pd.read_parquet(
+        config.DIR_INTERMEDIARIO / "votos_local_votacao.parquet",
+        columns=COLUNAS_AGREGADO, filters=[("cargo", "==", "PRESIDENTE")],
+    )
+    locais = pd.read_parquet(
+        config.ARQ_LOCAIS_GEOCODIFICADOS, columns=["id_local_votacao", "sg_uf", "cd_municipio_ibge"]
+    )
+    locais["cd_tse"] = locais["id_local_votacao"].str.split("_").str[1]
+    de_para = locais.drop_duplicates(["sg_uf", "cd_tse"])[["sg_uf", "cd_tse", "cd_municipio_ibge"]]
+
+    votos = votos_local.copy()
+    votos["cd_tse"] = votos["id_local_votacao"].str.split("_").str[1]
+    votos = votos.merge(de_para, on=["sg_uf", "cd_tse"], how="left")
+    sem_municipio = int(votos["cd_municipio_ibge"].isna().sum())
+    if sem_municipio:
+        print(f"  [aviso] {sem_municipio:,} linha(s) de voto sem município correspondente")
+        votos = votos.dropna(subset=["cd_municipio_ibge"])
+
+    por_municipio = resultados_presidente(votos, "cd_municipio_ibge")
+    por_uf = resultados_presidente(votos, "sg_uf")
+    for cd, conteudo in por_municipio.items():
+        escrever_json(config.DIR_PUBLICADO / "agregados" / "municipios" / f"{cd}.json", conteudo)
+    for uf, conteudo in por_uf.items():
+        escrever_json(config.DIR_PUBLICADO / "agregados" / "ufs" / f"{uf}.json", conteudo)
+
+    brasil = agregado_brasil(votos)
+    escrever_json(config.DIR_PUBLICADO / "agregados" / "brasil.json", brasil)
+    conferir_agregados(votos, por_uf, brasil)
+    print(f"  agregados: {len(por_municipio):,} municípios, {len(por_uf)} UFs e Brasil")
+
+
+def agregado_brasil(votos: pd.DataFrame) -> dict:
+    """Brasil a partir do total nacional do passo 21, que inclui o voto no exterior.
+
+    Sem o exterior a soma fica 298 mil votos abaixo do divulgado pelo TSE; com
+    ele, bate exatamente — e é isso que a guarda confere.
+    """
+    arquivo = config.DIR_INTERMEDIARIO / "totais_nacionais.parquet"
+    if not arquivo.exists():
+        print("  [aviso] sem totais_nacionais.parquet — Brasil sai só com as 27 UFs")
+        return resultados_presidente(votos.assign(pais="BR"), "pais").get("BR", {})
+
+    nacional = pd.read_parquet(arquivo)
+    nacional = nacional[nacional["cargo"] == "PRESIDENTE"].copy()
+    nao_nominal = nacional["nm_votavel"].str.upper().str.startswith("VOTO ")
+    nacional["tipo_voto"] = "nominal"
+    nacional.loc[nao_nominal & nacional["nm_votavel"].str.upper().str.contains("BRANCO"), "tipo_voto"] = "branco"
+    nacional.loc[nao_nominal & nacional["nm_votavel"].str.upper().str.contains("NULO"), "tipo_voto"] = "nulo"
+    nacional.loc[nao_nominal & nacional["nm_votavel"].str.upper().str.contains("ANULADO"), "tipo_voto"] = "anulado"
+
+    partidos = (
+        votos[votos["tipo_voto"] == "nominal"]
+        .drop_duplicates(["ano_eleicao", "nm_votavel"])[["ano_eleicao", "nm_votavel", "sg_partido"]]
+    )
+    nacional = nacional.merge(partidos, on=["ano_eleicao", "nm_votavel"], how="left")
+    nacional["cargo"] = "PRESIDENTE"
+    return resultados_presidente(nacional.assign(pais="BR"), "pais").get("BR", {})
+
+
+def conferir_agregados(votos: pd.DataFrame, por_uf: dict, brasil: dict) -> None:
+    """Duas guardas: a UF bate com a soma dos seus municípios, e o Brasil com o TSE."""
+    for uf, conteudo in por_uf.items():
+        do_uf = votos[votos["sg_uf"] == uf]
+        for ano, turnos in conteudo.get("total_votos", {}).items():
+            for turno, total in turnos.items():
+                soma = int(do_uf[(do_uf["ano_eleicao"] == int(ano)) & (do_uf["turno"] == turno)
+                                 & (do_uf["cargo"] == "PRESIDENTE")]["qt_votos"].sum())
+                if soma != total:
+                    raise validacoes.ValidacaoFalhou(
+                        f"agregado de {uf} ({ano}/{turno}): {total:,} × soma dos municípios {soma:,}"
+                    )
+
+    for ano, turnos in config.TOTAIS_OFICIAIS_PRESIDENTE.items():
+        for turno, oficiais in turnos.items():
+            publicado = brasil.get("presidente", {}).get(str(ano), {}).get(str(turno))
+            if not publicado:
+                continue
+            for nome, esperado in oficiais.items():
+                achado = next((c["votos"] for c in publicado if nome in c["nome"].upper()), None)
+                if achado != esperado:
+                    raise validacoes.ValidacaoFalhou(
+                        f"agregado Brasil ({ano}, {turno}º turno), {nome}: {achado:,} × "
+                        f"oficial {esperado:,}"
+                    )
+    print("  [oficial] a linha Brasil dos agregados bate com o resultado divulgado")
+
+
+def publicar_metadados(dim: pd.DataFrame, votos: pd.DataFrame) -> None:
+    """O que existe na base, para o site não ter anos escritos no código."""
+    eleicoes: dict[str, dict] = {}
+    for (cargo, ano, turno), _ in votos.groupby(["cargo", "ano_eleicao", "turno"]):
+        chave = "presidente" if cargo == "PRESIDENTE" else "deputado_federal"
+        eleicoes.setdefault(chave, {}).setdefault(str(ano), []).append(str(turno))
+    for cargo in eleicoes:
+        for ano in eleicoes[cargo]:
+            eleicoes[cargo][ano] = sorted(set(eleicoes[cargo][ano]))
+
+    escrever_json(config.DIR_PUBLICADO / "metadados.json", {
+        "gerado_em": date.today().isoformat(),
+        "ano_referencia_malha": config.ANO_REFERENCIA_MALHA,
+        "eleicoes": eleicoes,
+        "ufs": int(dim["sg_uf"].nunique()),
+        "municipios": int(dim["cd_municipio_ibge"].nunique()),
+        "regioes": int(len(dim)),
+        "n_top_deputados": config.N_TOP_DEPUTADOS,
+    })
+
+
 def publicar_indices(dim: pd.DataFrame) -> None:
     municipios_por_uf = (
         dim[["sg_uf", "cd_municipio_ibge", "nm_municipio"]].drop_duplicates()
@@ -264,6 +429,11 @@ def main() -> None:
     publicar_regioes(dim, resultados)
     publicar_ruas(trechos, dominante, ruas_regioes, ruas_bairro)
     publicar_bairros(bairros_regioes)
+
+    # Comparação: o local é um recorte, o município/UF/Brasil são o resultado
+    # completo. Por isso os agregados saem de votos_local_votacao.
+    publicar_agregados()
+    publicar_metadados(dim, votos)
 
     # Parquet para uso analítico, além do JSON que o site consome.
     dim.to_parquet(config.DIR_PUBLICADO / "regioes.parquet", index=False)
