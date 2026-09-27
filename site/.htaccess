@@ -1,0 +1,51 @@
+# Apache da HostGator. Vai na raiz do public_html, junto com index.html.
+
+Options -Indexes
+ErrorDocument 404 /404.html
+
+# Um endereço só: https e sem www.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTPS} off [OR]
+  RewriteCond %{HTTP_HOST} ^www\. [NC]
+  RewriteRule ^ https://comomeusvizinhosvotam.com.br%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+AddType application/json .json
+AddType application/manifest+json .webmanifest
+AddType image/svg+xml .svg
+AddType font/woff2 .woff2
+AddType font/woff .woff
+AddDefaultCharset utf-8
+AddCharset utf-8 .json .js .css .webmanifest
+
+# Compressão: os JSON de município grande passam de 10 MB e caem para uma fração.
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/xml
+  AddOutputFilterByType DEFLATE application/javascript text/javascript application/json
+  AddOutputFilterByType DEFLATE application/manifest+json image/svg+xml image/x-icon
+</IfModule>
+
+<IfModule mod_headers.c>
+  # HTML, JS e CSS revalidam sempre: os módulos JS se importam sem número de
+  # versão, e uma atualização do site precisa chegar a quem já visitou.
+  <FilesMatch "\.(html|js|css|webmanifest)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+  # Dados: um dia. Só mudam quando o pipeline roda de novo.
+  <FilesMatch "\.json$">
+    Header set Cache-Control "public, max-age=86400"
+  </FilesMatch>
+  # Imagens e fontes: uma semana.
+  <FilesMatch "\.(png|jpe?g|webp|gif|ico|svg|woff2?|ttf|otf)$">
+    Header set Cache-Control "public, max-age=604800"
+  </FilesMatch>
+
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Permissions-Policy "geolocation=(), camera=(), microphone=()"
+  # Só o próprio domínio, o Leaflet no cdnjs e os tiles da Stadia. 'unsafe-inline'
+  # em estilos porque as barras recebem a largura por atributo style.
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data: https://tiles.stadiamaps.com https://cdnjs.cloudflare.com; connect-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests"
+</IfModule>

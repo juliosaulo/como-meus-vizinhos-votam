@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Como meus vizinhos votam? | Resultado da eleição por local de votação mais próximo</title>
+<meta name="description" content="Digite sua rua e veja como votou o local de votação mais próximo: presidente e deputado federal, com dados públicos do TSE para todo o Brasil.">
+<link rel="canonical" href="https://comomeusvizinhosvotam.com.br/">
+<meta name="theme-color" content="#12233f">
+
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:site_name" content="Como meus vizinhos votam?">
+<meta property="og:url" content="https://comomeusvizinhosvotam.com.br/">
+<meta property="og:title" content="Como meus vizinhos votam?">
+<meta property="og:description" content="Digite sua rua e veja como votou o local de votação mais próximo: presidente e deputado federal, com dados públicos do TSE.">
+<meta property="og:image" content="https://comomeusvizinhosvotam.com.br/img/og.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Como meus vizinhos votam? Digite sua rua e veja como votou o local de votação mais próximo. comomeusvizinhosvotam.com.br">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Como meus vizinhos votam?">
+<meta name="twitter:description" content="Digite sua rua e veja como votou o local de votação mais próximo: presidente e deputado federal, com dados públicos do TSE.">
+<meta name="twitter:image" content="https://comomeusvizinhosvotam.com.br/img/og.png">
+<meta name="twitter:image:alt" content="Como meus vizinhos votam? Digite sua rua e veja como votou o local de votação mais próximo. comomeusvizinhosvotam.com.br">
+
+<link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Como meus vizinhos votam?",
+  "url": "https://comomeusvizinhosvotam.com.br/",
+  "description": "Digite sua rua e veja como votou o local de votação mais próximo: presidente e deputado federal, com dados públicos do TSE para todo o Brasil.",
+  "inLanguage": "pt-BR",
+  "applicationCategory": "ReferenceApplication",
+  "operatingSystem": "Any",
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "BRL" },
+  "image": "https://comomeusvizinhosvotam.com.br/img/og.png",
+  "author": { "@type": "Person", "name": "Julio Saulo", "url": "https://github.com/juliosaulo" },
+  "isBasedOn": { "@type": "Dataset", "name": "Resultados eleitorais por seção — Tribunal Superior Eleitoral", "url": "https://dadosabertos.tse.jus.br/" }
+}
+</script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"
+      integrity="sha512-h9FcoyWjHcOcmEVkxOfTLnmZFWIH0iZhZT1H2TbOq55xssQGEJHEaIm+PgoUaZbRvQTNTluNOEfb1ZRy6D3BOw=="
+      crossorigin="anonymous" referrerpolicy="no-referrer">
+<link rel="stylesheet" href="css/estilo.css?v=14">
+</head>
+<body>
+<div class="pagina">
+
+  <header class="barra-topo">
+    <div class="cabecalho">
+      <div>
+        <h1>Como meus vizinhos votam?</h1>
+        <p class="dominio">comomeusvizinhosvotam.com.br</p>
+        <p class="subtitulo">Selecione uma rua e mostramos os votos do local de votação mais próximo.</p>
+      </div>
+      <div class="cabecalho-lado">
+        <div class="marcas">Dados públicos fortalecem a democracia</div>
+        <nav class="botoes">
+          <a class="botao" href="https://github.com/juliosaulo/como-meus-vizinhos-votam/releases/latest" target="_blank" rel="noopener">Dados</a>
+          <a class="botao" href="https://github.com/juliosaulo/como-meus-vizinhos-votam/blob/main/METODOLOGIA.md" target="_blank" rel="noopener">Metodologia</a>
+          <a class="botao primario" href="https://github.com/juliosaulo/como-meus-vizinhos-votam" target="_blank" rel="noopener">Ver projeto no GitHub</a>
+        </nav>
+      </div>
+    </div>
+    <div class="trilha-linha">
+      <div class="trilha" id="trilha"><span>Brasil</span></div>
+      <div class="trilha" id="trilhaFonte">Fontes: TSE e IBGE</div>
+    </div>
+  </header>
+
+  <section class="filtros">
+    <div class="campos">
+      <div class="campo">
+        <label for="uf">Estado</label>
+        <select id="uf"><option value="">Carregando…</option></select>
+      </div>
+      <div class="campo">
+        <label for="municipio">Cidade</label>
+        <select id="municipio" disabled><option value="">—</option></select>
+      </div>
+      <div class="campo campo-rua">
+        <label for="rua">Rua</label>
+        <div class="entrada-com-limpar">
+          <input id="rua" type="search" autocomplete="off" placeholder="Digite o nome da rua" disabled>
+          <button id="limparRua" class="limpar" hidden aria-label="limpar rua">×</button>
+        </div>
+        <ul id="sugestoes" class="sugestoes" hidden></ul>
+      </div>
+      <div class="campo" id="campoBairro" hidden>
+        <label for="bairro">Bairro</label>
+        <select id="bairro"><option value="">Todos</option></select>
+      </div>
+      <div class="campo campo-numero" id="campoNumero" hidden>
+        <label for="numero">Número</label>
+        <input id="numero" type="number" inputmode="numeric" placeholder="ex.: 1580">
+      </div>
+    </div>
+    <div class="acoes">
+      <div id="contador" class="pill-status neutro">Escolha o estado e a cidade</div>
+      <button id="limparFiltros" class="botao-limpar" hidden>Limpar filtros</button>
+    </div>
+  </section>
+
+  <!-- Aparece só quando há um local definido. -->
+  <section class="resumo" id="resumo" hidden>
+    <div class="resumo-item">
+      <span class="icone" aria-hidden="true">▤</span>
+      <span><span class="rotulo">Logradouro</span><span class="valor" id="resumoRua">—</span></span>
+    </div>
+    <div class="resumo-item">
+      <span class="icone" aria-hidden="true">▣</span>
+      <span><span class="rotulo">Local de votação mais próximo</span><span class="valor" id="resumoLocal">—</span></span>
+    </div>
+    <div class="resumo-item">
+      <span class="icone" aria-hidden="true">◈</span>
+      <span><span class="rotulo">Município – UF</span><span class="valor" id="resumoMunicipio">—</span></span>
+    </div>
+    <button id="trocarRua" class="trocar">Trocar rua</button>
+  </section>
+
+  <!-- No lugar da faixa, enquanto houver mais de um local possível. -->
+  <section class="alerta" id="alertaRefinar" hidden>
+    <span class="icone" aria-hidden="true">◎</span>
+    <span><strong id="alertaTitulo">Mais de um local possível</strong>
+      <span id="alertaTexto">Refine pelo bairro e/ou pelo número da casa, ou escolha um dos locais
+      na lista abaixo.</span></span>
+  </section>
+
+  <div class="colunas">
+    <main id="principal"></main>
+
+    <aside>
+      <section class="bloco" id="blocoMapa" hidden>
+        <div class="bloco-titulo">
+          <h2>Local de votação</h2>
+          <span class="col-titulo">Ponto<br>de votação</span>
+        </div>
+
+        <div class="ficha">
+          <div class="cabeca">
+            <span class="rotulo">Ficha do local</span>
+            <span class="rotulo">Dados do TSE</span>
+          </div>
+          <div id="fichaLocal"></div>
+        </div>
+
+        <div id="mapa" class="mapa"></div>
+      </section>
+    </aside>
+  </div>
+
+  <footer class="rodape">
+    <nav class="links-rodape">
+      <a href="https://github.com/juliosaulo/como-meus-vizinhos-votam/releases/latest" target="_blank" rel="noopener">Dados</a>
+      <a href="https://github.com/juliosaulo/como-meus-vizinhos-votam/blob/main/METODOLOGIA.md" target="_blank" rel="noopener">Metodologia</a>
+      <a href="https://github.com/juliosaulo/como-meus-vizinhos-votam" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <p><a href="https://www.linkedin.com/in/juliosaulo" target="_blank" rel="noopener">Julio Saulo</a></p>
+    <p>Site by <a href="https://kalinacode.com.br" target="_blank" rel="noopener">kalina</a></p>
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"
+        integrity="sha512-puJW3E/qXDqYp9IfhAI54BJEaWIfloJ7JWs7OeD5i6ruC9JZL1gERT1wjtwXFlh7CjE7ZJ+/vcRZRkIYIb6p4g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script type="module" src="js/app.js?v=14"></script>
+</body>
+</html>

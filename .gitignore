@@ -37,5 +37,5 @@ __pycache__/
 # Pacotes de distribuição (vão para Releases, não para o git).
 *.zip
 
-# Site em construção — fora do git por enquanto.
-site/
+# Saída de teste local da página de fumaça.
+site/dev/_resultado.txt

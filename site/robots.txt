@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Os ~22 mil JSON de dados não são páginas: rastreá-los só gasta banda.
+# A página inicial precisa destes dois para ser renderizada pelo buscador.
+Disallow: /publicado/
+Allow: /publicado/ufs.json
+Allow: /publicado/metadados.json
+
+Sitemap: https://comomeusvizinhosvotam.com.br/sitemap.xml

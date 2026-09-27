@@ -1,0 +1,44 @@
+<!doctype html><meta charset="utf-8">
+<title>inspeção de estilo</title>
+<pre id="saida">rodando…</pre>
+<iframe id="quadro" src="../index.html?uf=RO&municipio=1100015&rua=AVENIDA%20BRASIL&numero=2338&aba=evolucao"
+        style="width:1300px;height:800px"></iframe>
+<script>
+const linhas = [];
+const esperar = (cond, ms = 9000) => new Promise((ok, falha) => {
+  const t0 = Date.now();
+  (function t() {
+    try { if (cond()) return ok(true); } catch (e) {}
+    if (Date.now() - t0 > ms) return falha(new Error("tempo esgotado"));
+    setTimeout(t, 120);
+  })();
+});
+
+document.getElementById("quadro").addEventListener("load", async () => {
+  const d = document.getElementById("quadro").contentDocument;
+  const j = document.getElementById("quadro").contentWindow;
+  try {
+    await esperar(() => d.querySelector(".ano-card .turno"));
+    const alvos = [
+      [".ano-card .turno", d.querySelector(".ano-card .turno")],
+      [".ano-card .linha", d.querySelector(".ano-card .linha")],
+      [".ano-card .topo", d.querySelector(".ano-card .topo")],
+      [".ano-card .trilho", d.querySelector(".ano-card .trilho")],
+      [".ano-card", d.querySelector(".ano-card")],
+    ];
+    for (const [nome, el] of alvos) {
+      if (!el) { linhas.push(`${nome}: não encontrado`); continue; }
+      const s = j.getComputedStyle(el);
+      const r = el.getBoundingClientRect();
+      linhas.push(`${nome}
+  texto: ${JSON.stringify((el.textContent || "").trim().slice(0, 30))}
+  font-size ${s.fontSize} | line-height ${s.lineHeight} | height ${s.height} (caixa ${r.height.toFixed(1)}px)
+  margin ${s.margin} | padding ${s.padding} | overflow ${s.overflow} | display ${s.display}`);
+    }
+  } catch (e) {
+    linhas.push("ERRO: " + e.message);
+  }
+  document.getElementById("saida").textContent = linhas.join("\n");
+  await fetch("/_resultado", { method: "POST", body: linhas.join("\n") });
+});
+</script>

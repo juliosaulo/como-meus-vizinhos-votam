@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Imagem de compartilhamento (1200×630)</title>
+<!-- Fonte da imagem Open Graph. Não vai para o servidor: gerar_imagens.py
+     abre esta página, fotografa em 1200×630 e salva em ../img/og.png. -->
+<link rel="stylesheet" href="../css/estilo.css">
+<style>
+  html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; }
+  body { background: var(--tinta); display: grid; place-items: center; }
+  .folha { width: 1136px; height: 566px; background: var(--papel); display: grid;
+           grid-template-columns: 1fr 400px; gap: 56px; padding: 52px 64px; box-sizing: border-box; }
+  .marca { display: flex; align-items: center; gap: 14px; }
+  .marca img { width: 44px; height: 44px; border-radius: 8px; }
+  .marca span { text-transform: uppercase; letter-spacing: .16em; font-size: 15px; font-weight: 600;
+                color: var(--tinta-suave); }
+  h1 { font-family: var(--serifa); font-size: 72px; line-height: 1; letter-spacing: -.02em;
+       margin: 30px 0 0; color: var(--tinta); }
+  .sub { font-size: 23px; line-height: 1.4; color: var(--tinta-suave); margin: 20px 0 0; }
+  .site-url { margin-top: 28px; padding-top: 16px; border-top: 3px solid var(--tinta);
+             font-size: 22px; font-weight: 600; color: var(--tinta); letter-spacing: .02em; }
+  .cartao { align-self: center; border: 1px solid var(--fio-frio); }
+  .cartao .linha { padding: 14px 20px; border-bottom: 1px solid var(--fio-frio); background: var(--faixa); }
+  .cartao .rot { display: block; text-transform: uppercase; letter-spacing: .14em; font-size: 12px;
+                 font-weight: 600; color: var(--tinta-suave); }
+  .cartao .val { display: block; font-weight: 700; font-size: 19px; margin-top: 3px; }
+  .barras { padding: 22px 20px 26px; display: grid; gap: 18px; }
+  .barra { height: 16px; border-radius: 3px; background: var(--faixa); }
+  .barra span { display: block; height: 100%; border-radius: 3px; }
+</style>
+</head>
+<body>
+  <div class="folha">
+    <div>
+      <div class="marca"><img src="../favicon.svg" alt=""><span>Dados públicos do TSE</span></div>
+      <h1>Como meus vizinhos votam?</h1>
+      <p class="sub">Digite sua rua e veja como votou o local de votação mais próximo — presidente e
+        deputado federal.</p>
+      <div class="site-url">comomeusvizinhosvotam.com.br</div>
+    </div>
+    <div class="cartao">
+      <div class="linha"><span class="rot">Sua rua</span><span class="val">Rua das Flores</span></div>
+      <div class="linha"><span class="rot">Local de votação mais próximo</span><span class="val">Escola Municipal</span></div>
+      <div class="barras">
+        <div class="barra"><span style="width:92%;background:#1b4ea0"></span></div>
+        <div class="barra"><span style="width:74%;background:#2f6fd0"></span></div>
+        <div class="barra"><span style="width:38%;background:#5b93e0"></span></div>
+        <div class="barra"><span style="width:16%;background:#8fb4e8"></span></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!doctype html><meta charset="utf-8">
+<title>teste de interação</title>
+<style>body{font:14px monospace} iframe{width:1300px;height:700px;border:1px solid #ccc}</style>
+<pre id="saida">rodando…</pre>
+<iframe id="quadro" src="../index.html"></iframe>
+<script>
+const linhas = [];
+const conta = (r, ok, extra = "") => linhas.push(`${ok ? "ok   " : "FALHA"} ${r}${extra ? " — " + extra : ""}`);
+const esperar = (cond, rotulo, ms = 8000) => new Promise((ok, falha) => {
+  const t0 = Date.now();
+  (function tenta() {
+    try { if (cond()) return ok(true); } catch (e) { /* ainda não */ }
+    if (Date.now() - t0 > ms) return falha(new Error("tempo esgotado: " + rotulo));
+    setTimeout(tenta, 120);
+  })();
+});
+
+const quadro = document.getElementById("quadro");
+quadro.addEventListener("load", async () => {
+  const j = quadro.contentWindow, d = quadro.contentDocument;
+  const erros = [];
+  j.addEventListener("error", e => erros.push(`${e.message} @ ${e.filename}:${e.lineno}`));
+  j.addEventListener("unhandledrejection", e => erros.push("promessa: " + (e.reason?.message ?? e.reason)));
+  const $ = id => d.getElementById(id);
+  const mudou = el => el.dispatchEvent(new j.Event("change", { bubbles: true }));
+
+  try {
+    await esperar(() => $("uf").options.length > 5, "lista de UFs");
+    conta("carrega a lista de estados", true, `${$("uf").options.length - 1} UFs`);
+
+    $("uf").value = "RO"; mudou($("uf"));
+    await esperar(() => $("municipio").options.length > 5 && !$("municipio").disabled, "municípios");
+    conta("escolher estado carrega as cidades", true, `${$("municipio").options.length - 1} cidades`);
+
+    $("municipio").value = "1100015"; mudou($("municipio"));
+    await esperar(() => !$("rua").disabled, "ruas carregadas");
+    conta("escolher cidade libera o campo de rua", true);
+
+    $("rua").value = "AVENIDA BRASIL";
+    $("rua").dispatchEvent(new j.Event("input", { bubbles: true }));
+    await esperar(() => !$("sugestoes").hidden && $("sugestoes").querySelector("button"), "sugestões");
+    const qtd = $("sugestoes").querySelectorAll("button").length;
+    conta("digitar a rua mostra sugestões", true, `${qtd} sugestão(ões)`);
+
+    $("sugestoes").querySelector("button").click();
+    await esperar(() => $("principal").querySelector(".bloco"), "painel");
+    conta("escolher a rua desenha o painel", true, $("contador").textContent.trim());
+
+    // Rua ambígua: nada de resultado, faixa escondida, aviso no lugar dela.
+    conta("faixa cinza escondida enquanto há vários locais", $("resumo").hidden);
+    conta("aviso de refinar aparece", !$("alertaRefinar").hidden, $("alertaTitulo").textContent);
+    conta("mapa escondido", $("blocoMapa").hidden);
+    conta("nenhum resultado antes de escolher", !$("principal").querySelector("[data-aba]"));
+
+    const balao = $("principal").querySelector("[data-bairro]");
+    if (balao) {
+      const antes = $("contador").textContent;
+      balao.click();
+      await esperar(() => $("contador").textContent !== antes, "filtro por bairro", 4000);
+      conta("clicar num bairro refina", true, $("contador").textContent.trim());
+    }
+
+    // Escolher um local na lista destrava resultado, faixa e mapa.
+    $("principal").querySelector("[data-regiao]").click();
+    await esperar(() => $("principal").querySelector("[data-aba]"), "resultados");
+    conta("escolher um local mostra o resultado", true, $("contador").textContent.trim());
+    conta("faixa cinza aparece", !$("resumo").hidden, $("resumoLocal").textContent);
+    conta("mapa aparece", !$("blocoMapa").hidden);
+    conta("aviso some", $("alertaRefinar").hidden);
+    conta("lista de locais some depois da escolha", !$("principal").querySelector("[data-regiao]"));
+
+    const aba = [...$("principal").querySelectorAll("[data-aba]")].find(b => b.dataset.aba === "comparativo");
+    aba.click();
+    await esperar(() => $("principal").querySelector(".linha-territorio"), "comparativo", 6000);
+    conta("aba comparativo abre", true);
+
+    $("limparFiltros").click();
+    await esperar(() => !$("principal").querySelector("[data-aba]"), "limpar filtros", 4000);
+    conta("limpar filtros volta ao início", $("rua").value === "" && $("resumo").hidden,
+          $("contador").textContent.trim());
+  } catch (e) {
+    conta("fluxo completo", false, e.message);
+  }
+
+  if (erros.length) linhas.push("ERROS DE JAVASCRIPT:", ...erros.map(e => "  " + e));
+  document.getElementById("saida").textContent = linhas.join("\n");
+  await fetch("/_resultado", { method: "POST", body: linhas.join("\n") });
+});
+</script>

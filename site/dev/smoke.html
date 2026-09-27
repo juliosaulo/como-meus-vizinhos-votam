@@ -1,0 +1,78 @@
+<!doctype html><meta charset="utf-8">
+<title>teste de fumaça do site</title>
+<pre id="saida">rodando…</pre>
+<script type="module">
+const linhas = [];
+const conta = (rotulo, ok, extra = "") => linhas.push(`${ok ? "ok  " : "FALHA"} ${rotulo}${extra ? " — " + extra : ""}`);
+
+try {
+  // 1. todos os módulos carregam?
+  const mods = {};
+  for (const caminho of ["../js/dados.js", "../js/consulta.js", "../js/formato.js",
+                         "../js/mapa.js", "../js/abas/presidente.js", "../js/abas/comparativo.js",
+                         "../js/abas/evolucao.js", "../js/abas/deputado.js"]) {
+    try { mods[caminho] = await import(caminho); conta(`importa ${caminho}`, true); }
+    catch (e) { conta(`importa ${caminho}`, false, e.message); }
+  }
+
+  const dados = mods["../js/dados.js"];
+  const { resolver } = mods["../js/consulta.js"];
+
+  // 2. os arquivos publicados respondem?
+  const ufs = await dados.ufs();
+  conta("lê ufs.json", Array.isArray(ufs) && ufs.length > 0, `${ufs.length} UFs`);
+  const meta = await dados.metadados();
+  conta("lê metadados.json", Boolean(meta), meta ? JSON.stringify(meta.eleicoes ?? {}) : "ausente (passo 40 ainda não rodou)");
+
+  // 3. a decisão bate com o Python nos mesmos casos?
+  const casos = [
+    ["1100015", "AVENIDA BRASIL", null, null, "provavel", 8],
+    ["1100015", "AVENIDA BRASIL", 2338, null, "exata", 8],
+    ["1100015", "AVENIDA BRASIL", 2338, "CENTRO", "interpolada", 3],
+    ["1100015", "AVENIDA BRASIL", 0, null, "provavel", 8],
+    ["1100205", "RUA SEM DENOMINACAO", null, "ABUNA", "exata", 1],
+    ["1100205", "AVENIDA CALAMA", null, "EMBRATEL", "exata", 1],
+    ["1100205", "AVENIDA CALAMA", null, "APONIA", "provavel", 3],
+    ["1100205", "AVENIDA CALAMA", 5000, null, "interpolada", 17],
+    ["1100205", "RUA FRANCISCO SAID", null, null, "exata", 1],
+    ["1100205", "AVENIDA CALAMA", null, "NAO EXISTE", "provavel", 17],
+  ];
+  for (const [mun, nomeRua, numero, bairro, confianca, opcoes] of casos) {
+    const ruas = (await dados.ruas(mun)).ruas;
+    const rua = ruas.find(r => r.nome === nomeRua);
+    const r = resolver(rua, numero, bairro);
+    const ok = r.confianca === confianca && r.opcoes.length === opcoes;
+    conta(`${nomeRua} nº ${numero ?? "-"} bairro ${bairro ?? "-"}`, ok,
+          ok ? "" : `esperado ${confianca}/${opcoes}, veio ${r.confianca}/${r.opcoes.length}`);
+  }
+
+  // 4. as abas desenham sem erro com dado real?
+  const regioes = (await dados.regioes("1100015")).regioes;
+  const alguma = Object.values(regioes).find(r => Object.keys(r.resultados?.presidente ?? {}).length);
+  const agregados = {
+    municipio: await dados.agregadoMunicipio("1100015"),
+    uf: await dados.agregadoUf("RO"),
+    brasil: await dados.agregadoBrasil(),
+  };
+  conta("lê os agregados (município, UF, Brasil)",
+        Boolean(agregados.municipio && agregados.uf && agregados.brasil));
+  const lulaBrasil = agregados.brasil?.presidente?.["2022"]?.["2"]?.find(c => c.nome.includes("Lula"));
+  conta("Brasil 2022 2T bate com o oficial", lulaBrasil?.votos === 60345999,
+        `Lula: ${lulaBrasil?.votos?.toLocaleString("pt-BR")} (${lulaBrasil?.pct}%)`);
+
+  const contexto = { resultados: alguma.resultados, ano: "2022", turno: "2", anoFuturo: 2026,
+                     agregados, municipio: { nome: "Alta Floresta" }, ufNome: "Rondônia" };
+  for (const [nome, caminho] of [["presidente", "../js/abas/presidente.js"], ["comparativo", "../js/abas/comparativo.js"],
+                                 ["evolucao", "../js/abas/evolucao.js"], ["deputado", "../js/abas/deputado.js"]]) {
+    try {
+      const html = mods[caminho].render(contexto);
+      conta(`aba ${nome} desenha`, typeof html === "string" && html.length > 50, `${html.length} caracteres`);
+    } catch (e) { conta(`aba ${nome} desenha`, false, e.message); }
+  }
+} catch (e) {
+  linhas.push("ERRO GERAL: " + e.message + "\n" + e.stack);
+}
+
+document.getElementById("saida").textContent = linhas.join("\n");
+await fetch("/_resultado", { method: "POST", body: linhas.join("\n") });
+</script>
