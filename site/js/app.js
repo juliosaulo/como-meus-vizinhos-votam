@@ -18,7 +18,7 @@ const celular = () => matchMedia("(max-width: 720px)").matches;
 
 const estado = {
   uf: null, ufNome: null, municipio: null,
-  ruas: null, regioes: null,
+  municipios: null, ruas: null, regioes: null,
   rua: null, bairro: null, numero: null,
   achado: null, regiaoEscolhida: null,
   aba: "presidente", ano: null, turno: null,
@@ -57,25 +57,62 @@ async function iniciar() {
   await aplicarParametrosDaUrl();
 }
 
+/* Campo de digitar com lista de sugestões — o mesmo comportamento para cidade
+ * e para rua. Cidade virou campo de digitar porque o menu nativo do celular,
+ * com centenas de opções, é difícil de percorrer. */
+function ligarAutocomplete({ campo, lista, itens, linha, aoEscolher, vazio, aoSair }) {
+  let achados = [];
+
+  campo.addEventListener("input", () => {
+    const termo = normalizar(campo.value);
+    const todos = itens();
+    if (!todos || termo.length < 2) { lista.hidden = true; return; }
+    achados = todos.filter(i => i._n.includes(termo)).slice(0, 20);
+    lista.innerHTML = achados.length
+      ? achados.map((item, i) => `<li><button data-i="${i}">${linha(item)}</button></li>`).join("")
+      : `<li class="vazio" style="padding:10px">${vazio}</li>`;
+    lista.hidden = false;
+  });
+
+  // O clique na sugestão tem de valer mais que a saída do campo.
+  lista.addEventListener("mousedown", e => e.preventDefault());
+  lista.addEventListener("click", e => {
+    const botao = e.target.closest("button[data-i]");
+    if (!botao) return;
+    lista.hidden = true;
+    aoEscolher(achados[Number(botao.dataset.i)]);
+  });
+
+  campo.addEventListener("blur", () => { lista.hidden = true; aoSair?.(); });
+  campo.addEventListener("focus", () => campo.select());
+  campo.addEventListener("keydown", e => { if (e.key === "Escape") lista.hidden = true; });
+}
+
 async function selecionarUf(sigla) {
   $("uf").value = sigla ?? "";
   estado.uf = sigla || null;
   estado.ufNome = $("uf").selectedOptions[0]?.textContent ?? null;
   limparMunicipio();
-  const sel = $("municipio");
-  if (!estado.uf) { sel.disabled = true; sel.innerHTML = "<option>—</option>"; return; }
-  sel.disabled = true; sel.innerHTML = "<option>carregando…</option>";
+  const campo = $("municipio");
+  campo.value = "";
+  estado.municipios = null;
+  if (!estado.uf) {
+    campo.disabled = true; campo.placeholder = "Escolha o estado antes";
+    return;
+  }
+  campo.disabled = true; campo.placeholder = "Carregando as cidades…";
   const municipios = await dados.municipios(estado.uf);
-  sel.innerHTML = '<option value="">Escolha…</option>' +
-    municipios.map(m => `<option value="${m.cd}">${m.nome}</option>`).join("");
-  sel.disabled = false;
+  estado.municipios = municipios.map(m => ({ ...m, _n: normalizar(m.nome) }));
+  campo.disabled = false;
+  campo.placeholder = "Digite o nome da cidade";
 }
 
 async function selecionarMunicipio(cd) {
+  const achado = estado.municipios?.find(m => m.cd === cd);
   limparMunicipio();
-  $("municipio").value = cd ?? "";
-  if (!cd) return;
-  estado.municipio = { cd, nome: $("municipio").selectedOptions[0].textContent };
+  if (!cd || !achado) { $("municipio").value = ""; return; }
+  $("municipio").value = achado.nome;
+  estado.municipio = { cd, nome: achado.nome };
   $("rua").disabled = true;
   $("rua").placeholder = "Carregando as ruas…";
   try {
@@ -94,7 +131,16 @@ async function selecionarMunicipio(cd) {
 }
 
 $("uf").addEventListener("change", e => selecionarUf(e.target.value));
-$("municipio").addEventListener("change", e => selecionarMunicipio(e.target.value));
+
+ligarAutocomplete({
+  campo: $("municipio"), lista: $("sugestoesMunicipio"),
+  itens: () => estado.municipios,
+  linha: m => m.nome,
+  vazio: "Nenhuma cidade com esse nome neste estado.",
+  aoEscolher: m => selecionarMunicipio(m.cd),
+  // Texto digitado sem escolha não vale: o campo volta a mostrar a cidade em uso.
+  aoSair: () => { $("municipio").value = estado.municipio?.nome ?? ""; },
+});
 
 /** Permite abrir a página já com um endereço: ?uf=RO&municipio=1100015&rua=...&numero=... */
 async function aplicarParametrosDaUrl() {
@@ -126,23 +172,15 @@ function limparMunicipio() {
 }
 
 // ---------------------------------------------------------------- busca da rua
-$("rua").addEventListener("input", e => {
-  const termo = normalizar(e.target.value);
-  $("limparRua").hidden = !e.target.value;
-  const lista = $("sugestoes");
-  if (!estado.ruas || termo.length < 2) { lista.hidden = true; return; }
+$("rua").addEventListener("input", e => { $("limparRua").hidden = !e.target.value; });
 
-  const achadas = estado.ruas.filter(r => r._n.includes(termo)).slice(0, 20);
-  lista.innerHTML = achadas.length
-    ? achadas.map(r => `<li><button data-rua="${r.nome.replace(/"/g, "&quot;")}">${r.nome}
-        <span class="qtd">· ${r.n_regioes === 1 ? "1 local" : `${r.n_regioes} locais`}</span></button></li>`).join("")
-    : '<li class="vazio" style="padding:10px">Nenhuma rua com esse nome neste município.</li>';
-  lista.hidden = false;
-});
-
-$("sugestoes").addEventListener("click", e => {
-  const botao = e.target.closest("button");
-  if (botao) escolherRua(botao.dataset.rua);
+ligarAutocomplete({
+  campo: $("rua"), lista: $("sugestoes"),
+  itens: () => estado.ruas,
+  linha: r => `${r.nome}
+    <span class="qtd">· ${r.n_regioes === 1 ? "1 local" : `${r.n_regioes} locais`}</span>`,
+  vazio: "Nenhuma rua com esse nome neste município.",
+  aoEscolher: r => escolherRua(r.nome),
 });
 
 $("limparRua").addEventListener("click", limparRua);
@@ -286,7 +324,7 @@ function atualizarResumo() {
 function painelInicial() {
   const passos = [
     ["Escolha o estado", "Selecione o estado onde você quer ver os resultados."],
-    ["Escolha a cidade", "Selecione a cidade para filtrar os locais de votação."],
+    ["Digite a cidade", "Comece a digitar o nome da cidade e escolha na lista."],
     ["Digite a rua", "Digite o nome da rua onde você mora ou tem interesse."],
     ["Veja ou refine os locais", "Se aparecer mais de um local, escolha o bairro ou informe o número."],
   ];

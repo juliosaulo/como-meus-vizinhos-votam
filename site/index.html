@@ -51,7 +51,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"
       integrity="sha512-h9FcoyWjHcOcmEVkxOfTLnmZFWIH0iZhZT1H2TbOq55xssQGEJHEaIm+PgoUaZbRvQTNTluNOEfb1ZRy6D3BOw=="
       crossorigin="anonymous" referrerpolicy="no-referrer">
-<link rel="stylesheet" href="css/estilo.css?v=14">
+<link rel="stylesheet" href="css/estilo.css?v=15">
 </head>
 <body>
 <div class="pagina">
@@ -61,7 +61,7 @@
       <div>
         <h1>Como meus vizinhos votam?</h1>
         <p class="dominio">comomeusvizinhosvotam.com.br</p>
-        <p class="subtitulo">Selecione uma rua e mostramos os votos do local de votação mais próximo.</p>
+        <p class="subtitulo">Selecione uma rua e veja os votos do local de votação mais próximo.</p>
       </div>
       <div class="cabecalho-lado">
         <div class="marcas">Dados públicos fortalecem a democracia</div>
@@ -86,7 +86,8 @@
       </div>
       <div class="campo">
         <label for="municipio">Cidade</label>
-        <select id="municipio" disabled><option value="">—</option></select>
+        <input id="municipio" type="text" autocomplete="off" placeholder="Escolha o estado antes" disabled>
+        <ul id="sugestoesMunicipio" class="sugestoes" hidden></ul>
       </div>
       <div class="campo campo-rua">
         <label for="rua">Rua</label>
@@ -173,6 +174,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"
         integrity="sha512-puJW3E/qXDqYp9IfhAI54BJEaWIfloJ7JWs7OeD5i6ruC9JZL1gERT1wjtwXFlh7CjE7ZJ+/vcRZRkIYIb6p4g=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script type="module" src="js/app.js?v=14"></script>
+<script type="module" src="js/app.js?v=15"></script>
 </body>
 </html>

@@ -29,12 +29,19 @@ quadro.addEventListener("load", async () => {
     conta("carrega a lista de estados", true, `${$("uf").options.length - 1} UFs`);
 
     $("uf").value = "RO"; mudou($("uf"));
-    await esperar(() => $("municipio").options.length > 5 && !$("municipio").disabled, "municípios");
-    conta("escolher estado carrega as cidades", true, `${$("municipio").options.length - 1} cidades`);
+    await esperar(() => !$("municipio").disabled, "municípios");
+    conta("escolher estado libera o campo de cidade", true);
 
-    $("municipio").value = "1100015"; mudou($("municipio"));
+    $("municipio").value = "ALTA FLORESTA";
+    $("municipio").dispatchEvent(new j.Event("input", { bubbles: true }));
+    await esperar(() => !$("sugestoesMunicipio").hidden && $("sugestoesMunicipio").querySelector("button"),
+                  "sugestões de cidade");
+    conta("digitar a cidade mostra sugestões", true,
+          `${$("sugestoesMunicipio").querySelectorAll("button").length} sugestão(ões)`);
+
+    $("sugestoesMunicipio").querySelector("button").click();
     await esperar(() => !$("rua").disabled, "ruas carregadas");
-    conta("escolher cidade libera o campo de rua", true);
+    conta("escolher cidade libera o campo de rua", true, $("municipio").value);
 
     $("rua").value = "AVENIDA BRASIL";
     $("rua").dispatchEvent(new j.Event("input", { bubbles: true }));
