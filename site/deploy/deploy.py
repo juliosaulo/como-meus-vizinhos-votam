@@ -40,7 +40,7 @@ IGNORAR = {
 PROTEGIDOS = (".well-known", "cgi-bin")
 
 PUBLICADO_ARQUIVOS = ["ufs.json", "metadados.json"]
-PUBLICADO_PASTAS = ["municipios", "ruas", "regioes", "bairros", "agregados"]
+PUBLICADO_PASTAS = ["municipios", "ruas", "regioes", "bairros", "agregados", "compartilhar"]
 
 
 def parar(msg: str) -> None:

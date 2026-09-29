@@ -9,6 +9,11 @@ ErrorDocument 404 /404.html
   RewriteCond %{HTTPS} off [OR]
   RewriteCond %{HTTP_HOST} ^www\. [NC]
   RewriteRule ^ https://comomeusvizinhosvotam.com.br%{REQUEST_URI} [L,R=301]
+
+  # Link compartilhado de um local de votação, e a imagem da prévia dele.
+  # O identificador é {zona}-{local} do TSE; quem valida de novo é o PHP.
+  RewriteRule ^l/([0-9]{7})/([0-9]{1,4}-[0-9]{1,5})/?$ l.php?m=$1&i=$2 [L,QSA]
+  RewriteRule ^card/([0-9]{7})/([0-9]{1,4}-[0-9]{1,5})\.png$ card.php?m=$1&i=$2 [L]
 </IfModule>
 
 AddType application/json .json

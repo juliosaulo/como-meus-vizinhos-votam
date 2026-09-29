@@ -107,8 +107,25 @@ Cada passo — entradas, o que faz, saídas, guardas e números da execução na
 | `pipeline/` | os passos, numerados na ordem em que rodam |
 | `qualidade/` | as guardas, a validação ponta a ponta e os relatórios |
 | `publicado/` | o produto: JSON por município, prontos para o site |
+| `site/` | o site publicado em comomeusvizinhosvotam.com.br, e o script de deploy |
 | [`consulta_regiao.py`](consulta_regiao.py) | a consulta de referência, que lê só `publicado/` |
 | [`beta.html`](beta.html) | uma página de demonstração, para ver o dado funcionando |
+
+### O site
+
+`site/` é o que está no ar em [comomeusvizinhosvotam.com.br](https://comomeusvizinhosvotam.com.br):
+HTML, CSS e módulos JS servidos como arquivos estáticos, lendo os JSON de `publicado/`. Sobe por
+FTP com `python site/deploy/deploy.py`.
+
+Duas rotas são servidas por PHP, porque precisam responder antes do navegador:
+
+| Rota | O quê |
+|---|---|
+| `/l/{municipio}/{zona-local}` | a página de um local de votação, com as meta tags da prévia do link — WhatsApp, X e Facebook não executam JavaScript |
+| `/card/{municipio}/{zona-local}.png` | a imagem 1200×630 dessa prévia, desenhada sob demanda e guardada em cache |
+
+Exigem PHP 7.4 ou mais novo com a extensão GD, e `mod_rewrite` (as regras estão no `.htaccess`).
+Sem PHP, o site continua funcionando: só as prévias de link é que deixam de existir.
 
 ## Rodando
 
@@ -116,7 +133,7 @@ Cada passo — entradas, o que faz, saídas, guardas e números da execução na
 pip install -r requirements.txt
 python rodar_pipeline.py --listar     # ver os passos
 python rodar_pipeline.py              # rodar tudo — Brasil inteiro, cerca de uma hora
-pytest tests/                         # 87 testes, ~1s, sem precisar dos dados
+pytest tests/                         # 93 testes, ~1s, sem precisar dos dados
 ```
 
 O recorte (UFs, anos, cargos) fica em [`config.py`](config.py). O padrão é o Brasil inteiro, que

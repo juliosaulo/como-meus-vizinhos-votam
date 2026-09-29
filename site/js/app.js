@@ -17,20 +17,20 @@ const $ = id => document.getElementById(id);
 const celular = () => matchMedia("(max-width: 720px)").matches;
 
 const estado = {
-  uf: null, ufNome: null, municipio: null,
-  municipios: null, ruas: null, regioes: null,
+  modo: "rua", uf: null, ufNome: null, municipio: null,
+  municipios: null, ruas: null, regioes: null, locais: null,
   rua: null, bairro: null, numero: null,
   achado: null, regiaoEscolhida: null,
-  aba: "presidente", ano: null, turno: null,
+  aba: "presidente", ano: null, turno: null, ufsLista: null,
   metadados: null, anoFuturo: null,
   agregados: { municipio: null, uf: null, brasil: null },
 };
 
 const ABAS = [
-  ["presidente", "Presidente", abaPresidente, "Resultados por<br>local de votação"],
-  ["comparativo", "Comparativo", abaComparativo, "Local diante<br>do entorno"],
-  ["evolucao", "Evolução", abaEvolucao, "Eleição após<br>eleição"],
-  ["deputado", "Dep. federal", abaDeputado, "Mais votados<br>neste local"],
+  ["presidente", "Presidente", abaPresidente],
+  ["comparativo", "Comparativo", abaComparativo],
+  ["evolucao", "Evolução", abaEvolucao],
+  ["deputado", "Dep. federal", abaDeputado],
 ];
 
 // ---------------------------------------------------------------- início
@@ -40,6 +40,7 @@ async function iniciar() {
     $("uf").innerHTML = '<option value="">Escolha…</option>' +
       lista.map(u => `<option value="${u.sigla}">${u.nome}</option>`).join("");
     estado.metadados = meta;
+    estado.ufsLista = lista;
     const anos = Object.keys(meta?.eleicoes?.presidente ?? {}).map(Number);
     if (anos.length) estado.anoFuturo = Math.max(...anos) + 4;
     if (meta) {
@@ -54,8 +55,101 @@ async function iniciar() {
     return;
   }
   desenhar();
-  await aplicarParametrosDaUrl();
+  if (!await entrarPorLink()) await aplicarParametrosDaUrl();
 }
+
+/* ---------------------------------------------------------------- link compartilhado
+ * Endereço de um local: /l/{municipio}/{zona-local}. O servidor devolve a mesma
+ * página com as meta tags da prévia; aqui o site abre direto o resultado, sem
+ * passar por estado, cidade e rua. */
+const CAMINHO_LINK = /\/l\/(\d{7})\/(\d{1,4}-\d{1,5})\/?$/;
+
+// Enquanto o site não tiver mexido no endereço, o que está na barra é de quem
+// chegou: reescrever ali apagaria o link que a pessoa acabou de abrir.
+let enderecoNosso = false;
+
+/** Abre o resultado de um local pela chave pública dele. */
+async function entrarPorLocal(cdMunicipio, idPublico) {
+  const uf = estado.ufsLista?.find(u => u.cd === cdMunicipio.slice(0, 2))?.sigla;
+  if (!uf) return false;
+  await selecionarUf(uf);
+  await selecionarMunicipio(cdMunicipio);
+  const entrada = Object.entries(estado.regioes ?? {}).find(([, r]) => r.id === idPublico);
+  if (!entrada) return false;
+  estado.modo = "local";
+  $("local").value = entrada[1].local;
+  abrirResultado(Number(entrada[0]));
+  return true;
+}
+
+async function entrarPorLink() {
+  const params = new URLSearchParams(location.search);
+  // `?municipio=&id=` é o mesmo caminho, útil onde não há reescrita de endereço.
+  const doCaminho = CAMINHO_LINK.exec(location.pathname);
+  const cd = doCaminho?.[1] ?? params.get("municipio");
+  const id = doCaminho?.[2] ?? params.get("id");
+  if (!cd || !id || !/^\d{1,4}-\d{1,5}$/.test(id)) return false;
+
+  const abriu = await entrarPorLocal(cd, id);
+  enderecoNosso = abriu;
+  // Quem pesquisou e recarregou a página não recebeu link de ninguém: o estado
+  // do histórico sobrevive ao F5 e distingue os dois casos.
+  if (abriu && !history.state?.buscou) document.body.classList.add("via-link");
+  return abriu;
+}
+
+/** Endereço compartilhável do local em exibição, ou null se não houver. */
+function enderecoDoLocal() {
+  const id = estado.regiaoEscolhida ?? estado.achado?.id;
+  const publico = id != null ? estado.regioes?.[id]?.id : null;
+  if (!publico || !estado.municipio) return null;
+  return `/l/${estado.municipio.cd}/${publico}`;
+}
+
+/* O endereço na barra do navegador vira o do local assim que há resultado:
+ * copiar o endereço passa a gerar um link compartilhável. Em desenvolvimento a
+ * página não fica na raiz do domínio, e aí não há o que reescrever. */
+function atualizarEndereco() {
+  const naRaiz = location.pathname === "/" || CAMINHO_LINK.test(location.pathname);
+  if (!naRaiz || (!enderecoNosso && !localDefinido())) return;
+  const alvo = localDefinido() ? enderecoDoLocal() : "/";
+  if (!alvo || location.pathname === alvo) return;
+  enderecoNosso = true;
+  history.replaceState({ buscou: true }, "", alvo);
+}
+
+async function compartilhar(botao) {
+  const caminho = enderecoDoLocal();
+  if (!caminho) return;
+  const url = new URL(caminho, location.origin).href;
+  const id = estado.regiaoEscolhida ?? estado.achado?.id;
+  const nome = estado.regioes?.[id]?.local ?? "este local de votação";
+  const texto = `Como votou ${nome}, em ${estado.municipio.nome} – ${estado.uf}`;
+
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: "Como meus vizinhos votam?", text: texto, url });
+      return;
+    } catch (erro) {
+      if (erro?.name === "AbortError") return;  // a pessoa fechou a folha de compartilhar
+    }
+  }
+  try {
+    await navigator.clipboard.writeText(url);
+    avisarNoBotao(botao, "Link copiado");
+  } catch {
+    avisarNoBotao(botao, "Não consegui copiar");
+  }
+}
+
+function avisarNoBotao(botao, aviso) {
+  const original = botao.dataset.rotulo ?? botao.textContent;
+  botao.dataset.rotulo = original;
+  botao.textContent = aviso;
+  clearTimeout(botao._volta);
+  botao._volta = setTimeout(() => { botao.textContent = original; }, 2500);
+}
+
 
 /* Campo de digitar com lista de sugestões — o mesmo comportamento para cidade
  * e para rua. Cidade virou campo de digitar porque o menu nativo do celular,
@@ -119,9 +213,16 @@ async function selecionarMunicipio(cd) {
     const [ruas, regioes] = await Promise.all([dados.ruas(cd), dados.regioes(cd)]);
     estado.ruas = ruas.ruas.map(r => ({ ...r, _n: normalizar(r.nome) }));
     estado.regioes = regioes.regioes;
+    // A busca pelo nome do local procura no nome e no endereço: quem lembra
+    // "escola do bairro tal" acha pelos dois.
+    estado.locais = Object.entries(regioes.regioes).map(([id, r]) => ({
+      id: Number(id), nome: r.local, endereco: r.endereco,
+      _n: normalizar(`${r.local} ${r.endereco ?? ""}`),
+    })).sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
     $("rua").disabled = false;
     $("rua").placeholder = "Digite o nome da rua";
-    $("rua").focus();
+    $("local").disabled = false;
+    campoDaBusca().focus();
   } catch (erro) {
     $("rua").placeholder = "Digite o nome da rua";
     $("principal").innerHTML = `<p class="erro">Este município não está nesta cópia dos dados
@@ -161,13 +262,16 @@ async function aplicarParametrosDaUrl() {
 }
 
 function limparMunicipio() {
+  document.body.classList.remove("via-link");
   Object.assign(estado, {
-    municipio: null, ruas: null, regioes: null, rua: null, bairro: null, numero: null,
+    municipio: null, ruas: null, regioes: null, locais: null, rua: null, bairro: null, numero: null,
     achado: null, regiaoEscolhida: null, ano: null, turno: null,
     agregados: { municipio: null, uf: null, brasil: null },
   });
   $("rua").value = ""; $("rua").disabled = true;
+  $("local").value = ""; $("local").disabled = true;
   $("sugestoes").hidden = true;
+  $("sugestoesLocal").hidden = true;
   desenhar();
 }
 
@@ -183,19 +287,52 @@ ligarAutocomplete({
   aoEscolher: r => escolherRua(r.nome),
 });
 
-$("limparRua").addEventListener("click", limparRua);
-$("limparFiltros").addEventListener("click", limparRua);
-$("trocarRua").addEventListener("click", limparRua);
+// ---------------------------------------------------------------- busca do local
+ligarAutocomplete({
+  campo: $("local"), lista: $("sugestoesLocal"),
+  itens: () => estado.locais,
+  linha: l => `${l.nome}
+    <span class="qtd">· ${l.endereco ?? ""}</span>`,
+  vazio: "Nenhum local de votação com esse nome neste município.",
+  aoEscolher: l => { $("local").value = l.nome; abrirResultado(l.id); },
+});
 
-/** Volta ao ponto de escolher outra rua, mantendo estado e cidade. */
-function limparRua() {
+const campoDaBusca = () => (estado.modo === "local" ? $("local") : $("rua"));
+
+/** Mostra o resultado de um local, sem passar pelo endereço. É o mesmo caminho
+ *  da busca por nome e da entrada por link compartilhado. */
+function abrirResultado(id) {
+  estado.regiaoEscolhida = Number(id);
+  estado.rua = null;
+  estado.bairro = null;
+  estado.numero = null;
+  $("sugestoesLocal").hidden = true;
+  desenhar();
+}
+
+$("modoBusca").addEventListener("click", e => {
+  const botao = e.target.closest("[data-modo]");
+  if (!botao || botao.dataset.modo === estado.modo) return;
+  estado.modo = botao.dataset.modo;
+  limparBusca();
+});
+
+$("limparRua").addEventListener("click", limparBusca);
+$("limparFiltros").addEventListener("click", limparBusca);
+$("trocarRua").addEventListener("click", limparBusca);
+
+/** Volta ao ponto de escolher outra rua ou outro local, mantendo estado e cidade. */
+function limparBusca() {
+  document.body.classList.remove("via-link");
   $("rua").value = "";
+  $("local").value = "";
   $("limparRua").hidden = true;
   $("numero").value = "";
   $("sugestoes").hidden = true;
+  $("sugestoesLocal").hidden = true;
   Object.assign(estado, { rua: null, bairro: null, numero: null, achado: null, regiaoEscolhida: null });
   desenhar();
-  $("rua").focus();
+  if (!campoDaBusca().disabled) campoDaBusca().focus();
 }
 
 // Sombra no cabeçalho fixo assim que a página sai do topo.
@@ -233,9 +370,10 @@ function desenhar() {
   estado.achado = estado.rua ? resolver(estado.rua, estado.numero, estado.bairro) : null;
 
   atualizarFiltros();
+  atualizarEndereco();
   atualizarTrilha();
   atualizarResumo();
-  $("principal").innerHTML = estado.rua ? painelComRua() : painelInicial();
+  $("principal").innerHTML = painelPrincipal();
   ligarEventosDoPainel();
   atualizarLateral();
 
@@ -252,9 +390,15 @@ function desenhar() {
 }
 
 function atualizarFiltros() {
+  const porLocal = estado.modo === "local";
+  $("campoRua").hidden = porLocal;
+  $("campoLocal").hidden = !porLocal;
+  document.querySelectorAll("#modoBusca [data-modo]").forEach(b =>
+    b.classList.toggle("ativa", b.dataset.modo === estado.modo));
+
   const rua = estado.rua;
   const bairros = rua?.bairros ?? [];
-  const mostrarBairro = Boolean(rua && bairros.length);
+  const mostrarBairro = Boolean(rua && bairros.length && !porLocal);
   $("campoBairro").hidden = !mostrarBairro;
   if (mostrarBairro && $("bairro").dataset.rua !== rua.nome) {
     $("bairro").dataset.rua = rua.nome;
@@ -262,21 +406,20 @@ function atualizarFiltros() {
       bairros.map(([nome]) => `<option value="${nome.replace(/"/g, "&quot;")}">${nome}</option>`).join("");
   }
   if (mostrarBairro) $("bairro").value = estado.bairro ?? "";
-  $("campoNumero").hidden = !(rua && estado.achado.opcoes.length > 1);
+  $("campoNumero").hidden = porLocal || !(rua && estado.achado.opcoes.length > 1);
 
-  $("limparFiltros").hidden = !rua;
+  const definido = localDefinido();
+  $("limparFiltros").hidden = !(rua || definido);
 
   const pill = $("contador");
-  if (!rua) {
-    pill.className = "pill-status neutro";
-    pill.textContent = estado.municipio ? "Comece escolhendo sua rua" : "Escolha o estado e a cidade";
+  pill.className = definido ? "pill-status" : "pill-status neutro";
+  if (definido) { pill.textContent = "✓  1 local encontrado"; return; }
+  if (!estado.municipio) { pill.textContent = "Escolha o estado e a cidade"; return; }
+  if (porLocal || !rua) {
+    pill.textContent = porLocal ? "Comece digitando o local" : "Comece escolhendo sua rua";
     return;
   }
-  const definido = localDefinido();
-  pill.className = definido ? "pill-status" : "pill-status neutro";
-  pill.textContent = definido
-    ? "✓  1 local encontrado"
-    : `${estado.achado.opcoes.length} locais possíveis`;
+  pill.textContent = `${estado.achado.opcoes.length} locais possíveis`;
 }
 
 function atualizarTrilha() {
@@ -284,6 +427,9 @@ function atualizarTrilha() {
   if (estado.ufNome) partes.push(estado.ufNome);
   if (estado.municipio) partes.push(estado.municipio.nome);
   if (estado.rua) partes.push(estado.rua.nome);
+  else if (estado.regiaoEscolhida != null) {
+    partes.push(estado.regioes?.[estado.regiaoEscolhida]?.local ?? "local de votação");
+  }
   $("trilha").innerHTML = partes.map(p => `<span>${p}</span>`).join("");
 }
 
@@ -292,6 +438,7 @@ function atualizarTrilha() {
  *  resultado nenhum — mostrar o "mais provável" seria dar como certo o que
  *  ainda está em aberto. */
 function localDefinido() {
+  if (estado.modo === "local") return estado.regiaoEscolhida != null;
   const achado = estado.achado;
   if (!achado) return false;
   return estado.regiaoEscolhida != null
@@ -315,6 +462,11 @@ function atualizarResumo() {
       : "Informe o número da casa, ou escolha um dos locais na lista abaixo.";
   }
 
+  // Sem rua na busca por local, a faixa não tem logradouro para mostrar.
+  const porLocal = estado.modo === "local";
+  $("resumoItemRua").hidden = porLocal;
+  $("rotuloLocal").textContent = porLocal ? "Local de votação" : "Local de votação mais próximo";
+  $("trocarRua").textContent = porLocal ? "Trocar local" : "Trocar rua";
   $("resumoRua").textContent = estado.rua?.nome ?? "—";
   $("resumoLocal").textContent = regiao?.local ?? "—";
   $("resumoMunicipio").textContent = estado.municipio
@@ -322,11 +474,16 @@ function atualizarResumo() {
 }
 
 function painelInicial() {
+  const porLocal = estado.modo === "local";
   const passos = [
     ["Escolha o estado", "Selecione o estado onde você quer ver os resultados."],
     ["Digite a cidade", "Comece a digitar o nome da cidade e escolha na lista."],
-    ["Digite a rua", "Digite o nome da rua onde você mora ou tem interesse."],
-    ["Veja ou refine os locais", "Se aparecer mais de um local, escolha o bairro ou informe o número."],
+    porLocal
+      ? ["Digite o local de votação", "O nome da escola, do colégio ou do prédio onde se vota."]
+      : ["Digite a rua", "Digite o nome da rua onde você mora ou tem interesse."],
+    porLocal
+      ? ["Veja o resultado", "Os votos apurados naquele local, eleição a eleição."]
+      : ["Veja ou refine os locais", "Se aparecer mais de um local, escolha o bairro ou informe o número."],
   ];
   return `
     <div class="bloco bloco-centrado">
@@ -336,9 +493,18 @@ function painelInicial() {
           <div class="passo"><span class="n">${i + 1}</span>
             <span><strong>${titulo}</strong><span>${texto}</span></span></div>`).join("")}
       </div>
-      <p class="nota-miuda">Você não precisa informar o número da casa logo de início — só pedimos
-      mais detalhes se a rua atender mais de um local de votação.</p>
+      <p class="nota-miuda">${porLocal
+        ? "A busca procura pelo nome do local e também pelo endereço dele."
+        : `Você não precisa informar o número da casa logo de início — só pedimos
+           mais detalhes se a rua atender mais de um local de votação.`}</p>
     </div>`;
+}
+
+function painelPrincipal() {
+  if (estado.modo === "local") {
+    return estado.regiaoEscolhida != null ? blocoResultados(estado.regiaoEscolhida) : painelInicial();
+  }
+  return estado.rua ? painelComRua() : painelInicial();
 }
 
 function painelComRua() {
@@ -413,7 +579,7 @@ function blocoResultados(id) {
     <div class="bloco">
       <div class="bloco-titulo">
         <h2>${aba[1]}</h2>
-        <span class="col-titulo">${aba[3]}</span>
+        ${botoesDoResultado()}
       </div>
 
       <div class="abas">
@@ -448,8 +614,22 @@ function blocoResultados(id) {
     </div>`;
 }
 
+/** Compartilhar — e, para quem chegou por um link, a chamada de ver o seu.
+ *  Ficam no lugar do rótulo da coluna: é onde o olho já está quando o
+ *  resultado aparece. */
+function botoesDoResultado() {
+  if (!enderecoDoLocal()) return "";
+  return `
+    <div class="acoes-resultado">
+      <a class="so-link botao-veja" href="/">Veja o seu</a>
+      <button class="botao-compartilhar" data-compartilhar>Compartilhar</button>
+    </div>`;
+}
+
 function ligarEventosDoPainel() {
   const painel = $("principal");
+  painel.querySelectorAll("[data-compartilhar]").forEach(b =>
+    b.addEventListener("click", () => compartilhar(b)));
   painel.querySelectorAll("[data-bairro]").forEach(b => b.addEventListener("click", () => {
     estado.bairro = b.dataset.bairro || null;
     estado.numero = null;

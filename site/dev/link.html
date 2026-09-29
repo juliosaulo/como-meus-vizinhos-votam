@@ -1,0 +1,62 @@
+<!doctype html><meta charset="utf-8">
+<title>teste do link compartilhado</title>
+<style>body{font:14px monospace} iframe{width:1300px;height:700px;border:1px solid #ccc}</style>
+<pre id="saida">rodando…</pre>
+<iframe id="quadro" src="../index.html?municipio=1100015&id=17-1325"></iframe>
+<script>
+const linhas = [];
+const conta = (r, ok, extra = "") => linhas.push(`${ok ? "ok   " : "FALHA"} ${r}${extra ? " — " + extra : ""}`);
+const esperar = (cond, rotulo, ms = 9000) => new Promise((ok, falha) => {
+  const t0 = Date.now();
+  (function tenta() {
+    try { if (cond()) return ok(true); } catch (e) { /* ainda não */ }
+    if (Date.now() - t0 > ms) return falha(new Error("tempo esgotado: " + rotulo));
+    setTimeout(tenta, 120);
+  })();
+});
+
+const quadro = document.getElementById("quadro");
+quadro.addEventListener("load", async () => {
+  const d = quadro.contentDocument, j = quadro.contentWindow;
+  const $ = id => d.getElementById(id);
+  const erros = [];
+  j.addEventListener("error", e => erros.push(`${e.message} @ ${e.filename}:${e.lineno}`));
+
+  try {
+    await esperar(() => $("principal").querySelector("[data-aba]"), "resultado do link");
+    conta("o link abre direto no resultado", true, $("resumoLocal").textContent);
+    conta("estado e cidade vêm preenchidos",
+          $("uf").value === "RO" && $("municipio").value !== "", $("municipio").value);
+    conta("entra no modo de busca por local", !$("campoLocal").hidden && $("resumoItemRua").hidden);
+    conta("marca a página como vinda de link", d.body.classList.contains("via-link"));
+
+    const aviso = d.querySelector(".aviso-link");
+    conta("mostra o aviso de link compartilhado",
+          j.getComputedStyle(aviso).display !== "none");
+    const veja = d.querySelector("#principal .botao-veja");
+    conta("mostra a chamada 'Veja o seu'",
+          Boolean(veja) && j.getComputedStyle(veja).display !== "none", veja?.textContent);
+    conta("botão de compartilhar no alto do resultado",
+          Boolean(d.querySelector("#principal [data-compartilhar]")));
+    conta("o pulso fica no 'Veja o seu', não no compartilhar",
+          j.getComputedStyle(veja).animationName === "pulso"
+          && j.getComputedStyle(d.querySelector("#principal [data-compartilhar]")).animationName === "none");
+    conta("mapa e ficha aparecem", !$("blocoMapa").hidden);
+
+    // Em desenvolvimento a página não está na raiz do domínio: não há reescrita
+    // de endereço a fazer, e o site não pode inventar uma.
+    conta("não reescreve o endereço fora da raiz",
+          j.location.pathname.endsWith("/site/index.html"), j.location.pathname);
+
+    $("limparFiltros").click();
+    await esperar(() => !$("principal").querySelector("[data-aba]"), "limpar");
+    conta("limpar tira a faixa de link compartilhado", !d.body.classList.contains("via-link"));
+  } catch (e) {
+    conta("fluxo do link", false, e.message);
+  }
+
+  if (erros.length) linhas.push("ERROS DE JAVASCRIPT:", ...erros.map(e => "  " + e));
+  document.getElementById("saida").textContent = linhas.join("\n");
+  await fetch("/_resultado", { method: "POST", body: linhas.join("\n") });
+});
+</script>

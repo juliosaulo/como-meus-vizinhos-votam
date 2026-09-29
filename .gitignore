@@ -18,15 +18,19 @@ publicado/*
 !publicado/ruas/
 !publicado/regioes/
 !publicado/bairros/
+!publicado/compartilhar/
 publicado/ruas/*
 publicado/regioes/*
 publicado/bairros/*
+publicado/compartilhar/*
 !publicado/ruas/1100015.json
 !publicado/ruas/1100205.json
 !publicado/regioes/1100015.json
 !publicado/regioes/1100205.json
 !publicado/bairros/1100015.json
 !publicado/bairros/1100205.json
+!publicado/compartilhar/1100015.json
+!publicado/compartilhar/1100205.json
 
 __pycache__/
 *.pyc
@@ -39,3 +43,6 @@ __pycache__/
 
 # Saída de teste local da página de fumaça.
 site/dev/_resultado.txt
+
+# Cache dos cards, criado pelo PHP a cada versão dos dados.
+site/cache/

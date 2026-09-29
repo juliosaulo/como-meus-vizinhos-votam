@@ -51,7 +51,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"
       integrity="sha512-h9FcoyWjHcOcmEVkxOfTLnmZFWIH0iZhZT1H2TbOq55xssQGEJHEaIm+PgoUaZbRvQTNTluNOEfb1ZRy6D3BOw=="
       crossorigin="anonymous" referrerpolicy="no-referrer">
-<link rel="stylesheet" href="css/estilo.css?v=15">
+<link rel="stylesheet" href="css/estilo.css?v=19">
 </head>
 <body>
 <div class="pagina">
@@ -90,12 +90,22 @@
         <ul id="sugestoesMunicipio" class="sugestoes" hidden></ul>
       </div>
       <div class="campo campo-rua">
-        <label for="rua">Rua</label>
-        <div class="entrada-com-limpar">
-          <input id="rua" type="search" autocomplete="off" placeholder="Digite o nome da rua" disabled>
-          <button id="limparRua" class="limpar" hidden aria-label="limpar rua">×</button>
+        <!-- As duas formas de chegar ao mesmo lugar: pelo endereço ou pelo nome do local. -->
+        <div class="rotulo-abas" id="modoBusca">
+          <button type="button" class="rotulo-aba ativa" data-modo="rua">Rua</button>
+          <button type="button" class="rotulo-aba" data-modo="local">Local de votação</button>
         </div>
-        <ul id="sugestoes" class="sugestoes" hidden></ul>
+        <div class="entrada-com-limpar" id="campoRua">
+          <input id="rua" type="search" autocomplete="off" aria-label="Rua"
+                 placeholder="Digite o nome da rua" disabled>
+          <button id="limparRua" class="limpar" hidden aria-label="limpar rua">×</button>
+          <ul id="sugestoes" class="sugestoes" hidden></ul>
+        </div>
+        <div class="entrada-com-limpar" id="campoLocal" hidden>
+          <input id="local" type="search" autocomplete="off" aria-label="Local de votação"
+                 placeholder="Digite o nome do local" disabled>
+          <ul id="sugestoesLocal" class="sugestoes" hidden></ul>
+        </div>
       </div>
       <div class="campo" id="campoBairro" hidden>
         <label for="bairro">Bairro</label>
@@ -112,15 +122,18 @@
     </div>
   </section>
 
+  <!-- Só para quem chegou por um link compartilhado (body.via-link). -->
+  <p class="so-link aviso-link">Este é o local de votação que alguém compartilhou com você.</p>
+
   <!-- Aparece só quando há um local definido. -->
   <section class="resumo" id="resumo" hidden>
-    <div class="resumo-item">
+    <div class="resumo-item" id="resumoItemRua">
       <span class="icone" aria-hidden="true">▤</span>
       <span><span class="rotulo">Logradouro</span><span class="valor" id="resumoRua">—</span></span>
     </div>
     <div class="resumo-item">
       <span class="icone" aria-hidden="true">▣</span>
-      <span><span class="rotulo">Local de votação mais próximo</span><span class="valor" id="resumoLocal">—</span></span>
+      <span><span class="rotulo" id="rotuloLocal">Local de votação mais próximo</span><span class="valor" id="resumoLocal">—</span></span>
     </div>
     <div class="resumo-item">
       <span class="icone" aria-hidden="true">◈</span>
@@ -174,6 +187,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"
         integrity="sha512-puJW3E/qXDqYp9IfhAI54BJEaWIfloJ7JWs7OeD5i6ruC9JZL1gERT1wjtwXFlh7CjE7ZJ+/vcRZRkIYIb6p4g=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script type="module" src="js/app.js?v=15"></script>
+<script type="module" src="js/app.js?v=19"></script>
 </body>
 </html>

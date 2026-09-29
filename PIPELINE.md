@@ -503,13 +503,22 @@ consulta baixe só o necessário.
    - Deputado Federal: os 3 mais votados (`config.N_TOP_DEPUTADOS`);
    - branco e nulo à parte, como percentual do total;
    - total de votos.
-3. Grava a lista de estados e, para cada estado, a de municípios.
-4. Grava, para cada município, as regiões com local de votação e resultados.
-5. Grava, para cada município, as ruas com o índice de trechos e — nas ambíguas — as listas de
+3. **Monta a chave pública de cada região** — `{zona}-{local}` do menor local de votação do grupo,
+   vinda do cadastro do TSE. `id_regiao` é número de ordem e muda a cada execução, então não pode
+   aparecer em link compartilhado; a chave do TSE continua a mesma na execução seguinte e sobrevive
+   a uma malha nova sempre que o prédio mantiver zona e local. Os demais locais do grupo viram
+   apelidos, e o link feito com qualquer um deles acha a região.
+4. Grava a lista de estados e, para cada estado, a de municípios.
+5. Grava, para cada município, as regiões com local de votação e resultados.
+6. Grava, para cada município, as ruas com o índice de trechos e — nas ambíguas — as listas de
    regiões por rua e por bairro.
-6. Grava, para cada município, o índice de bairros.
-7. **Agrega Presidente por município, UF e Brasil**, para o site comparar o local com o entorno.
-8. Grava os metadados (anos, turnos, contagens) e os parquets para uso analítico.
+7. Grava, para cada município, o índice de bairros.
+8. **Agrega Presidente por município, UF e Brasil**, para o site comparar o local com o entorno.
+9. Grava, para cada município, o resumo de compartilhamento: por chave pública, o local, os dois
+   primeiros de Presidente no ano mais recente e o deputado federal mais votado ali. É o que o
+   servidor lê para montar a prévia do link e a imagem dela, sem abrir o arquivo de regiões — o de
+   São Paulo passa de 6 MB, e a prévia é pedida a cada compartilhamento.
+10. Grava os metadados (anos, turnos, contagens) e os parquets para uso analítico.
 
 Os agregados saem de `votos_local_votacao`, e não de `votos_regiao`: neles entram **todos** os
 locais, inclusive os sem coordenada. Só assim o percentual reproduz o resultado oficial — a base
@@ -530,7 +539,8 @@ não consegue abrir.
 | `municipios/{UF}.json` | código e nome dos municípios |
 | `ruas/{cd_municipio}.json` | para cada rua: `nome`, `regiao_provavel`, `n_regioes`, `confianca`, `trechos` e, nas ambíguas, `regioes` e `bairros` |
 | `bairros/{cd_municipio}.json` | para cada bairro: `nome` e `regioes` — o caminho de quem não sabe o nome da rua |
-| `regioes/{cd_municipio}.json` | para cada região: `local`, `endereco`, `lat`, `lon`, `outros_locais`, `resultados` |
+| `regioes/{cd_municipio}.json` | para cada região: `id` (a chave pública), `local`, `endereco`, `lat`, `lon`, `outros_locais`, `resultados` |
+| `compartilhar/{cd_municipio}.json` | por chave pública: local, município, os dois primeiros de Presidente e o deputado mais votado — o resumo que o servidor lê para a prévia do link |
 | `agregados/municipios/{cd}.json`, `agregados/ufs/{UF}.json`, `agregados/brasil.json` | Presidente por ano e turno em cada território, para a comparação |
 | `metadados.json` | anos e turnos existentes, ano de referência da malha, contagens |
 | `regioes.parquet` | a dimensão de regiões publicada |

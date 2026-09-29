@@ -60,7 +60,7 @@ class TestRua:
 
 
 def regiao(candidatos, cargo="presidente"):
-    return {"resultados": {cargo: {"2022": {"2": candidatos}}}}
+    return {"id": "17-1325", "resultados": {cargo: {"2022": {"2": candidatos}}}}
 
 
 class TestRegiao:
@@ -82,10 +82,52 @@ class TestRegiao:
         assert any("fora de 0" in p for p in vp.problemas_da_regiao("1", regiao(candidatos)))
 
     def test_branco_e_nulo_dentro_da_faixa(self):
-        r = {"resultados": {"nao_nominal": {"presidente": {"2022": {"2": {
+        r = {"id": "17-1325", "resultados": {"nao_nominal": {"presidente": {"2022": {"2": {
             "branco": {"votos": 10, "pct": 1.2}, "nulo": {"votos": 20, "pct": 2.4},
         }}}}}}
         assert vp.problemas_da_regiao("1", r) == []
+
+    def test_regiao_sem_id_publico(self):
+        candidatos = [{"nome": "A", "votos": 100, "pct": 100.0}]
+        r = {"resultados": {"presidente": {"2022": {"2": candidatos}}}}
+        assert any("id público" in p for p in vp.problemas_da_regiao("1", r))
+
+
+def compartilhar(locais=None, apelidos=None):
+    return {"locais": locais or {}, "apelidos": apelidos or {}}
+
+
+REGIOES = {"52731": {"id": "17-1325"}, "52732": {"id": "17-1023"}}
+
+
+class TestCompartilhar:
+    def test_arquivo_coerente(self):
+        conteudo = compartilhar(
+            locais={"17-1325": {"regiao": 52731, "candidatos": [{"nome": "A", "pct": 70.0}]}},
+            apelidos={"17-1104": "17-1325"},
+        )
+        assert vp.problemas_do_compartilhar("1100015", REGIOES, conteudo) == []
+
+    def test_chave_que_aponta_para_regiao_inexistente(self):
+        conteudo = compartilhar(locais={"17-1325": {"regiao": 99999, "candidatos": []}})
+        assert any("não existe" in p for p in
+                   vp.problemas_do_compartilhar("1100015", REGIOES, conteudo))
+
+    def test_chave_trocada_entre_regioes(self):
+        conteudo = compartilhar(locais={"17-1325": {"regiao": 52732, "candidatos": []}})
+        assert any("outro id público" in p for p in
+                   vp.problemas_do_compartilhar("1100015", REGIOES, conteudo))
+
+    def test_apelido_orfao(self):
+        conteudo = compartilhar(locais={"17-1325": {"regiao": 52731, "candidatos": []}},
+                                apelidos={"17-1104": "17-9999"})
+        assert any("aponta para" in p for p in
+                   vp.problemas_do_compartilhar("1100015", REGIOES, conteudo))
+
+    def test_id_publico_repetido(self):
+        regioes = {"1": {"id": "17-1325"}, "2": {"id": "17-1325"}}
+        assert any("repetido" in p for p in
+                   vp.problemas_do_compartilhar("1100015", regioes, compartilhar()))
 
 
 def agregado(candidatos, total=None):

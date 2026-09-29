@@ -54,7 +54,7 @@ body {
 @media (max-width: 720px) { .pagina { padding: 18px 16px 32px; border: 0; } }
 
 /* ---------- rótulos em caixa alta ---------- */
-.rotulo, label, .trilha, .selo-canto, .col-titulo {
+.rotulo, label, .rotulo-aba, .trilha, .selo-canto, .col-titulo {
   text-transform: uppercase;
   letter-spacing: .13em;
   font-size: 9.5px;
@@ -122,6 +122,12 @@ select:focus, input:focus { outline: 2px solid var(--azul); outline-offset: 1px;
 select:disabled, input:disabled { background: #fafaf8; color: var(--cinza); }
 
 .entrada-com-limpar { position: relative; }
+
+/* Rótulo do campo que também troca o que se busca: rua ou nome do local. */
+.rotulo-abas { display: flex; gap: 16px; margin-bottom: 7px; }
+.rotulo-aba { border: 0; background: none; padding: 0 0 3px; cursor: pointer;
+              border-bottom: 2px solid transparent; }
+.rotulo-aba.ativa { color: var(--tinta); border-bottom-color: var(--azul); }
 .limpar { position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
           border: 0; background: none; font-size: 19px; color: var(--tinta-suave); cursor: pointer; }
 
@@ -135,6 +141,39 @@ select:disabled, input:disabled { background: #fafaf8; color: var(--cinza); }
 .botao-limpar { border: 1px solid var(--fio-frio); background: var(--papel); color: var(--tinta-suave);
                 border-radius: 6px; padding: 10px 14px; font: 12.5px var(--sans); cursor: pointer; }
 .botao-limpar:hover { border-color: var(--tinta); color: var(--tinta); }
+/* Compartilhar e "Veja o seu" ficam no alto do resultado, no lugar do rótulo
+   da coluna — onde o olho já está quando o resultado aparece. */
+.acoes-resultado { display: flex; gap: 8px; align-items: center; align-self: center; }
+.botao-compartilhar, .botao-veja {
+  border: 1px solid var(--tinta); border-radius: 6px; padding: 7px 14px;
+  font: 12px var(--sans); font-weight: 600; cursor: pointer; white-space: nowrap;
+  text-decoration: none; line-height: 1.4;
+}
+.botao-compartilhar { background: var(--tinta); color: #fff; }
+.botao-compartilhar:hover { background: #1b3157; }
+.botao-veja { background: var(--papel); color: var(--tinta); }
+.botao-veja:hover { background: var(--faixa); }
+
+/* Um pulso discreto no botão que importa naquele momento: compartilhar para
+   quem achou o seu local, "veja o seu" para quem chegou pelo link de alguém. */
+@keyframes pulso {
+  0%, 70%, 100% { box-shadow: 0 0 0 0 rgba(47, 111, 208, 0); }
+  35%           { box-shadow: 0 0 0 7px rgba(47, 111, 208, .22); }
+}
+.acoes-resultado .botao-compartilhar { animation: pulso 2.6s ease-in-out infinite; }
+body.via-link .acoes-resultado .botao-compartilhar { animation: none; }
+body.via-link .acoes-resultado .botao-veja { animation: pulso 2.6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .acoes-resultado .botao-compartilhar,
+  .acoes-resultado .botao-veja { animation: none; }
+}
+
+/* Só aparece para quem chegou por um link compartilhado. */
+.so-link { display: none; }
+body.via-link .so-link { display: block; }
+.aviso-link { background: var(--faixa); border: 1px solid var(--fio-frio);
+              border-left: 3px solid var(--azul); margin: 0 0 14px; padding: 11px 16px;
+              font-size: 13.5px; color: var(--tinta-suave); }
 
 /* aviso que substitui a faixa enquanto há mais de um local */
 .alerta { display: flex; gap: 14px; align-items: flex-start; background: var(--faixa);
@@ -358,13 +397,19 @@ select:disabled, input:disabled { background: #fafaf8; color: var(--cinza); }
   /* com o local definido: some o que não é o resultado */
   .com-local .subtitulo,
   .com-local .trilha-linha,
-  .com-local .filtros:not(:focus-within),
-  .com-local #principal .bloco-titulo { display: none; }
+  .com-local .filtros:not(:focus-within) { display: none; }
+  .com-local #principal .bloco-titulo h2 { display: none; }
+  .com-local #principal .bloco-titulo { justify-content: flex-end; margin-bottom: 8px;
+                                        padding-bottom: 0; border-bottom: 0; }
 
   /* cartão de identificação */
   .resumo { position: relative; flex-direction: column; margin-top: 8px; }
   .resumo-item { padding: 4px 12px; gap: 0; border-left: 0; border-top: 1px solid var(--fio-frio); }
-  .resumo-item:first-child { border-top: 0; padding-right: 100px; }
+  /* A primeira linha visível divide o topo com os botões do canto. */
+  .resumo-item:first-child { border-top: 0; }
+  .resumo-item:first-child,
+  #resumoItemRua[hidden] + .resumo-item { padding-right: 96px; }
+  #resumoItemRua[hidden] + .resumo-item { border-top: 0; }
   .resumo-item .icone { display: none; }
   .resumo-item .rotulo { font-size: 8.5px; }
   .resumo-item .valor { font-size: 13px; }

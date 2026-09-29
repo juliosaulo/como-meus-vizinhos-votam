@@ -6,7 +6,7 @@ assim ser inútil para o site, por não abrir num parser estrito, por citar uma
 região que não existe naquele município ou por trazer percentuais que não
 fecham.
 
-São quatro verificações:
+São cinco verificações:
 
 1. **JSON estrito.** Todo arquivo abre num parser que recusa `NaN` e `Infinity`
    — o Python aceita os dois na leitura e na escrita, o navegador não.
@@ -18,6 +18,10 @@ São quatro verificações:
    é negativo.
 4. **Listas de regiões.** As frações de cada lista somam 1 e vêm em ordem
    decrescente — é a ordem em que o site mostra as opções.
+5. **Chave pública.** Toda região tem o id `{zona}-{local}` que vai no link
+   compartilhado, único dentro do município, e o arquivo de `compartilhar/`
+   aponta para a região certa — chave trocada mostraria a votação de outro
+   lugar a quem abriu o link.
 
 Uso:
     python qualidade/validar_publicado.py
@@ -26,6 +30,7 @@ Uso:
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -36,6 +41,9 @@ from qualidade.validacoes import ValidacaoFalhou
 
 TOLERANCIA_PCT = 0.5       # arredondamento de 2 casas em até ~13 candidatos
 TOLERANCIA_FRACAO = 0.02   # idem, em frações de 3 casas
+
+# Chave pública da região, a que vai no link: zona e local do TSE.
+FORMATO_ID = re.compile(r"^\d{1,4}-\d{1,5}$")
 
 
 def tolerancia_da_lista(n: int) -> float:
@@ -121,9 +129,51 @@ def problemas_do_agregado(onde: str, conteudo: dict) -> list[str]:
     return problemas
 
 
+def problemas_do_compartilhar(cd: str, regioes: dict, compartilhar: dict) -> list[str]:
+    """O arquivo que o servidor lê para montar a prévia do link compartilhado.
+
+    O endereço do link é público e circula: se a chave apontar para a região
+    errada, o link mostra o resultado de outro lugar.
+    """
+    problemas = []
+    locais = compartilhar.get("locais", {})
+    apelidos = compartilhar.get("apelidos", {})
+
+    ids_publicos = {r.get("id"): chave for chave, r in regioes.items()}
+    if None in ids_publicos:
+        problemas.append(f"{cd}: região publicada sem id público")
+    if len(ids_publicos) != len(regioes):
+        problemas.append(f"{cd}: id público repetido entre regiões do município")
+
+    for chave, local in locais.items():
+        if not FORMATO_ID.match(chave):
+            problemas.append(f"{cd}: chave '{chave}' fora do formato zona-local")
+        if str(local.get("regiao")) not in regioes:
+            problemas.append(f"{cd}, {chave}: aponta para a região {local.get('regiao')}, que não existe")
+        elif regioes[str(local["regiao"])].get("id") != chave:
+            problemas.append(f"{cd}, {chave}: a região {local['regiao']} tem outro id público")
+        if len(local.get("candidatos", [])) > 2:
+            problemas.append(f"{cd}, {chave}: mais de dois candidatos no resumo")
+        for c in local.get("candidatos", []):
+            if not 0 <= c["pct"] <= 100:
+                problemas.append(f"{cd}, {chave}: pct fora de 0–100 ({c['nome']})")
+
+    for apelido, canonico in apelidos.items():
+        if not FORMATO_ID.match(apelido):
+            problemas.append(f"{cd}: apelido '{apelido}' fora do formato zona-local")
+        if apelido in locais:
+            problemas.append(f"{cd}: '{apelido}' é apelido e chave ao mesmo tempo")
+        if canonico not in locais and canonico not in ids_publicos:
+            problemas.append(f"{cd}: apelido '{apelido}' aponta para '{canonico}', que não existe")
+    return problemas
+
+
 def problemas_da_regiao(id_regiao: str, regiao: dict) -> list[str]:
     problemas = []
     resultados = regiao.get("resultados", {})
+
+    if not FORMATO_ID.match(str(regiao.get("id", ""))):
+        problemas.append(f"região {id_regiao}: id público '{regiao.get('id')}' fora do formato zona-local")
 
     for cargo, por_ano in resultados.items():
         if cargo in ("nao_nominal", "total_votos"):
@@ -236,6 +286,15 @@ def main() -> None:
                 problemas += problemas_da_regiao(id_regiao, regiao)
             for rua in ruas:
                 problemas += problemas_da_rua(rua, validas)
+
+            caminho_compartilhar = pub / "compartilhar" / f"{cd}.json"
+            if caminho_compartilhar.exists():
+                arquivos += 1
+                problemas += problemas_do_compartilhar(
+                    cd, regioes, ler_json_estrito(caminho_compartilhar)
+                )
+            else:
+                problemas.append(f"{cd}: sem arquivo de compartilhamento")
 
             caminho_bairros = pub / "bairros" / f"{cd}.json"
             if caminho_bairros.exists():

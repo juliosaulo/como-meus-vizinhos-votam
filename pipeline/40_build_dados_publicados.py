@@ -14,6 +14,9 @@ Arquivos gerados em `publicado/`:
     bairros/{cd_municipio}.json   bairro → regiões, para quem não sabe o nome da rua
     regioes/{cd_municipio}.json   local de votação (nome, endereço, coordenada)
                                   e resultados de cada região
+    compartilhar/{cd_municipio}.json  resumo de cada local, na chave pública que
+                                  aparece no link compartilhado — é o que o
+                                  servidor lê para montar a prévia e o card
     cobertura.json                o que o dado cobre e o que não cobre
 
 Os mesmos dados saem também em parquet, para quem quiser analisar em vez de
@@ -121,7 +124,100 @@ def calcular_resultados(votos: pd.DataFrame) -> dict[int, dict]:
     return resultados
 
 
-def publicar_regioes(dim: pd.DataFrame, resultados: dict[int, dict]) -> None:
+def montar_ids_publicos(dim: pd.DataFrame) -> pd.DataFrame:
+    """Chave pública de cada região: `{zona}-{local}` do menor local do grupo.
+
+    `id_regiao` é número de ordem — muda a cada execução, e por isso não pode
+    aparecer em endereço de link compartilhado. A chave pública vem do cadastro
+    do TSE, então continua a mesma quando o pipeline roda de novo, e sobrevive a
+    uma malha nova sempre que o prédio mantiver zona e local.
+
+    Como a região agrupa todos os locais da mesma coordenada, os demais locais
+    do grupo viram apelidos: link feito com qualquer um deles acha a região.
+    """
+    de_para = pd.read_parquet(config.DIR_INTERMEDIARIO / "de_para_local_regiao.parquet")
+    partes = de_para["id_local_votacao"].str.split("_", expand=True)
+    de_para["zona"] = partes[2].astype(int)
+    de_para["local"] = partes[3].astype(int)
+    de_para["chave"] = de_para["zona"].astype(str) + "-" + de_para["local"].astype(str)
+
+    ids = (
+        de_para.sort_values(["id_regiao", "zona", "local"])
+        .groupby("id_regiao", as_index=False)
+        .agg(id_publico=("chave", "first"), chaves=("chave", list))
+        .merge(dim[["id_regiao", "cd_municipio_ibge"]], on="id_regiao", how="inner")
+    )
+
+    # O município está no endereço do link, então a chave só precisa ser única
+    # dentro dele — o que só vale se nenhuma dupla zona/local se repetir ali.
+    validacoes.checar_chave_unica(ids, ["cd_municipio_ibge", "id_publico"], "id público de região")
+    apelidos = ids.explode("chaves")
+    validacoes.checar_chave_unica(apelidos, ["cd_municipio_ibge", "chaves"], "apelido de região")
+    print(f"  ids públicos: {len(ids):,} regiões, {len(apelidos):,} locais de votação")
+    return ids
+
+
+def publicar_compartilhar(dim: pd.DataFrame, resultados: dict[int, dict],
+                          ids: pd.DataFrame) -> None:
+    """Resumo por município, para o servidor montar a prévia do link e o card.
+
+    O JSON de regiões de uma capital passa de 6 MB: abrir isso a cada prévia de
+    link compartilhado custaria caro demais. Aqui vai só o que a prévia mostra.
+    """
+    por_regiao = ids.set_index("id_regiao")
+    nomes = dim.set_index("id_regiao")[["nm_local_votacao", "ds_endereco"]]
+
+    for cd_municipio, grupo in dim.groupby("cd_municipio_ibge"):
+        locais: dict[str, dict] = {}
+        apelidos: dict[str, str] = {}
+
+        for linha in grupo.itertuples():
+            publico = por_regiao.at[linha.id_regiao, "id_publico"]
+            for chave in por_regiao.at[linha.id_regiao, "chaves"]:
+                if chave != publico:
+                    apelidos[chave] = publico
+
+            resultado = resultados.get(int(linha.id_regiao), {})
+            presidente = resultado.get("presidente", {})
+            if not presidente:
+                continue
+            ano = max(presidente)
+            turno = max(presidente[ano])
+            candidatos = presidente[ano][turno]
+
+            deputado = resultado.get("deputado_federal", {})
+            ano_dep = max(deputado) if deputado else None
+            primeiro_dep = deputado[ano_dep]["1"][0] if ano_dep else None
+
+            locais[publico] = {
+                "regiao": int(linha.id_regiao),
+                "local": linha.nm_local_votacao,
+                "endereco": linha.ds_endereco,
+                "ano": ano,
+                "turno": turno,
+                # O card mostra os dois primeiros; o denominador é o voto válido,
+                # a mesma conta do site.
+                "candidatos": [
+                    {"nome": c["nome"], "partido": c["partido"], "pct": c["pct"], "votos": c["votos"]}
+                    for c in candidatos[:2]
+                ],
+                "validos": sum(c["votos"] for c in candidatos),
+                "deputado": None if primeiro_dep is None else {
+                    "nome": primeiro_dep["nome"], "partido": primeiro_dep["partido"],
+                    "pct": primeiro_dep["pct"], "ano": ano_dep,
+                },
+            }
+
+        escrever_json(config.DIR_PUBLICADO / "compartilhar" / f"{cd_municipio}.json", {
+            "municipio": {"cd": cd_municipio, "nome": grupo.iloc[0]["nm_municipio"],
+                          "uf": grupo.iloc[0]["sg_uf"]},
+            "locais": locais,
+            "apelidos": apelidos,
+        })
+
+
+def publicar_regioes(dim: pd.DataFrame, resultados: dict[int, dict], ids: pd.DataFrame) -> None:
+    id_publico = ids.set_index("id_regiao")["id_publico"]
     for cd_municipio, grupo in dim.groupby("cd_municipio_ibge"):
         payload = {
             "municipio": {"cd": cd_municipio, "nome": grupo.iloc[0]["nm_municipio"],
@@ -134,6 +230,8 @@ def publicar_regioes(dim: pd.DataFrame, resultados: dict[int, dict]) -> None:
             bruto = linha.outros_locais_mesma_coordenada
             outros = [str(x) for x in bruto] if bruto is not None and len(bruto) else []
             payload["regioes"][str(linha.id_regiao)] = {
+                # Chave estável do link compartilhado (ver montar_ids_publicos).
+                "id": id_publico.at[linha.id_regiao],
                 "local": linha.nm_local_votacao,
                 "endereco": linha.ds_endereco,
                 "lat": round(float(linha.latitude_final), 6),
@@ -393,7 +491,10 @@ def publicar_indices(dim: pd.DataFrame) -> None:
         .sort_values(["sg_uf", "nm_municipio"])
     )
     ufs = [
-        {"sigla": uf, "nome": NOMES_UF[uf], "n_municipios": int(len(g))}
+        # `cd` são os dois primeiros dígitos do código IBGE do município: é como
+        # o site descobre a UF de um link que traz só o município.
+        {"sigla": uf, "nome": NOMES_UF[uf], "cd": g.iloc[0]["cd_municipio_ibge"][:2],
+         "n_municipios": int(len(g))}
         for uf, g in municipios_por_uf.groupby("sg_uf")
     ]
     escrever_json(config.DIR_PUBLICADO / "ufs.json", ufs)
@@ -425,8 +526,10 @@ def main() -> None:
     print(f"  regiões publicadas: {len(dim):,}")
 
     resultados = calcular_resultados(votos)
+    ids = montar_ids_publicos(dim)
     publicar_indices(dim)
-    publicar_regioes(dim, resultados)
+    publicar_regioes(dim, resultados, ids)
+    publicar_compartilhar(dim, resultados, ids)
     publicar_ruas(trechos, dominante, ruas_regioes, ruas_bairro)
     publicar_bairros(bairros_regioes)
 

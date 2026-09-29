@@ -85,6 +85,29 @@ quadro.addEventListener("load", async () => {
     await esperar(() => !$("principal").querySelector("[data-aba]"), "limpar filtros", 4000);
     conta("limpar filtros volta ao início", $("rua").value === "" && $("resumo").hidden,
           $("contador").textContent.trim());
+
+    // Busca pelo nome do local: mesmo resultado, sem passar pelo endereço.
+    d.querySelector('#modoBusca [data-modo="local"]').click();
+    conta("trocar para busca por local troca os campos",
+          $("campoRua").hidden && !$("campoLocal").hidden, $("contador").textContent.trim());
+
+    $("local").value = "EURIDICE";
+    $("local").dispatchEvent(new j.Event("input", { bubbles: true }));
+    await esperar(() => !$("sugestoesLocal").hidden && $("sugestoesLocal").querySelector("button"),
+                  "sugestões de local");
+    conta("digitar o local mostra sugestões", true,
+          `${$("sugestoesLocal").querySelectorAll("button").length} sugestão(ões)`);
+
+    $("sugestoesLocal").querySelector("button").click();
+    await esperar(() => $("principal").querySelector("[data-aba]"), "resultado por local");
+    conta("escolher o local mostra o resultado", true, $("resumoLocal").textContent);
+    conta("faixa sem logradouro na busca por local", $("resumoItemRua").hidden);
+    conta("mapa aparece na busca por local", !$("blocoMapa").hidden);
+
+    d.querySelector('#modoBusca [data-modo="rua"]').click();
+    await esperar(() => !$("principal").querySelector("[data-aba]"), "voltar para rua", 4000);
+    conta("voltar para busca por rua limpa o resultado",
+          $("local").value === "" && $("resumo").hidden && !$("campoRua").hidden);
   } catch (e) {
     conta("fluxo completo", false, e.message);
   }
