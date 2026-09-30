@@ -154,18 +154,40 @@ select:disabled, input:disabled { background: #fafaf8; color: var(--cinza); }
 .botao-veja { background: var(--papel); color: var(--tinta); }
 .botao-veja:hover { background: var(--faixa); }
 
-/* Um pulso discreto no botão que importa naquele momento: compartilhar para
-   quem achou o seu local, "veja o seu" para quem chegou pelo link de alguém. */
-@keyframes pulso {
-  0%, 70%, 100% { box-shadow: 0 0 0 0 rgba(47, 111, 208, 0); }
-  35%           { box-shadow: 0 0 0 7px rgba(47, 111, 208, .22); }
+/* Destaque do botão que importa naquele momento: compartilhar para quem achou
+   o seu local, "veja o seu" para quem chegou pelo link de alguém. O azul vivo
+   é o que faz o trabalho — o marinho se confunde com o texto ao lado; o brilho
+   e o respiro só chamam o olho de volta de tempos em tempos. */
+@keyframes respira   { 0%, 72%, 100% { transform: scale(1); } 84% { transform: scale(1.05); } }
+@keyframes varredura { 0%, 55% { left: -60%; } 85%, 100% { left: 115%; } }
+
+.acoes-resultado .botao-compartilhar,
+body.via-link .acoes-resultado .botao-veja {
+  background: var(--azul); border-color: var(--azul); color: #fff;
+  position: relative; overflow: hidden;
+  animation: respira 2.8s ease-in-out infinite;
 }
-.acoes-resultado .botao-compartilhar { animation: pulso 2.6s ease-in-out infinite; }
-body.via-link .acoes-resultado .botao-compartilhar { animation: none; }
-body.via-link .acoes-resultado .botao-veja { animation: pulso 2.6s ease-in-out infinite; }
+.acoes-resultado .botao-compartilhar::before,
+body.via-link .acoes-resultado .botao-veja::before {
+  content: ""; position: absolute; top: 0; bottom: 0; width: 55%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .42), transparent);
+  animation: varredura 3.4s ease-in-out infinite;
+}
+.acoes-resultado .botao-compartilhar:hover,
+body.via-link .acoes-resultado .botao-veja:hover { background: var(--azul-escuro); }
+
+/* Com o link de alguém na tela, o destaque passa para "veja o seu". */
+body.via-link .acoes-resultado .botao-compartilhar {
+  background: var(--tinta); border-color: var(--tinta); animation: none;
+}
+body.via-link .acoes-resultado .botao-compartilhar::before { display: none; }
+body.via-link .acoes-resultado .botao-compartilhar:hover { background: #1b3157; }
+
 @media (prefers-reduced-motion: reduce) {
   .acoes-resultado .botao-compartilhar,
   .acoes-resultado .botao-veja { animation: none; }
+  .acoes-resultado .botao-compartilhar::before,
+  .acoes-resultado .botao-veja::before { display: none; }
 }
 
 /* Só aparece para quem chegou por um link compartilhado. */
@@ -399,7 +421,9 @@ body.via-link .so-link { display: block; }
   .com-local .trilha-linha,
   .com-local .filtros:not(:focus-within) { display: none; }
   .com-local #principal .bloco-titulo h2 { display: none; }
-  .com-local #principal .bloco-titulo { justify-content: flex-end; margin-bottom: 8px;
+  /* Botões centralizados e com respiro: colados no cartão cinza pareciam
+     parte dele, e no polegar ficavam num canto só. */
+  .com-local #principal .bloco-titulo { justify-content: center; margin: 14px 0 12px;
                                         padding-bottom: 0; border-bottom: 0; }
 
   /* cartão de identificação */

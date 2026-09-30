@@ -38,9 +38,11 @@ quadro.addEventListener("load", async () => {
           Boolean(veja) && j.getComputedStyle(veja).display !== "none", veja?.textContent);
     conta("botão de compartilhar no alto do resultado",
           Boolean(d.querySelector("#principal [data-compartilhar]")));
-    conta("o pulso fica no 'Veja o seu', não no compartilhar",
-          j.getComputedStyle(veja).animationName === "pulso"
-          && j.getComputedStyle(d.querySelector("#principal [data-compartilhar]")).animationName === "none");
+    const compartilhar = d.querySelector("#principal [data-compartilhar]");
+    conta("o destaque fica no 'Veja o seu', não no compartilhar",
+          j.getComputedStyle(veja).animationName === "respira"
+          && j.getComputedStyle(compartilhar).animationName === "none",
+          `veja: ${j.getComputedStyle(veja).backgroundColor}`);
     conta("mapa e ficha aparecem", !$("blocoMapa").hidden);
 
     // Em desenvolvimento a página não está na raiz do domínio: não há reescrita

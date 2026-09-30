@@ -10,6 +10,11 @@
  * O card identifica o local de votação. Rua, número e bairro digitados por quem
  * compartilhou não entram aqui nunca.
  *
+ * Duas checagens antes de desenhar, nesta ordem: o formato de `municipio` e
+ * `id`, para nenhum caminho de arquivo sair do previsto; e a existência da
+ * região nos dados publicados, para o cache nunca passar do número de regiões
+ * reais, por mais ids que um robô invente.
+ *
  * Requer PHP 7.4 ou mais novo, com a extensão GD. Sem dependência externa.
  */
 
@@ -173,6 +178,10 @@ if (!preg_match('/^\d{7}$/', $municipio) || !preg_match('/^\d{1,4}-\d{1,5}$/', $
     para_imagem_padrao();
 }
 
+// Só desenha se a região existir de verdade nos dados publicados. Validar o
+// formato do id não basta: um robô pedindo ids bem formados ao acaso encheria
+// o cache de imagens inúteis e estouraria a cota de arquivos da hospedagem.
+// Com esta checagem, o cache não passa do número de regiões reais.
 $dados = ler_json(__DIR__ . "/publicado/compartilhar/{$municipio}.json");
 if ($dados === null) {
     para_imagem_padrao();
@@ -180,7 +189,7 @@ if ($dados === null) {
 if (!isset($dados['locais'][$id])) {
     $canonico = $dados['apelidos'][$id] ?? null;
     if ($canonico === null) {
-        para_imagem_padrao();
+        para_imagem_padrao();  // id inexistente: nada é desenhado nem gravado
     }
     $id = (string) $canonico;
 }

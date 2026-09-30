@@ -3,6 +3,29 @@
 Options -Indexes
 ErrorDocument 404 /404.html
 
+# Nada de arquivo oculto pela web. O painel da hospedagem deixa cópias da
+# configuração para trás (.htaccess.phpupgrader.*), e elas ficavam legíveis.
+<FilesMatch "^\.">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+# As fontes são do card, desenhado no servidor: o navegador não precisa delas.
+<FilesMatch "\.(ttf|otf)$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
 # Um endereço só: https e sem www.
 <IfModule mod_rewrite.c>
   RewriteEngine On
@@ -37,10 +60,15 @@ AddCharset utf-8 .json .js .css .webmanifest
   <FilesMatch "\.(html|js|css|webmanifest)$">
     Header set Cache-Control "no-cache"
   </FilesMatch>
-  # Dados: um dia. Só mudam quando o pipeline roda de novo.
+  # Dados: um ano. O site pede cada JSON com a versão da publicação na URL
+  # (ver js/dados.js), então dado novo é sempre um endereço novo.
   <FilesMatch "\.json$">
-    Header set Cache-Control "public, max-age=86400"
+    Header set Cache-Control "public, max-age=31536000, immutable"
   </FilesMatch>
+  # Menos este: é ele que carrega a versão, e por isso não pode ficar guardado.
+  <Files "metadados.json">
+    Header set Cache-Control "no-cache"
+  </Files>
   # Imagens e fontes: uma semana.
   <FilesMatch "\.(png|jpe?g|webp|gif|ico|svg|woff2?|ttf|otf)$">
     Header set Cache-Control "public, max-age=604800"
