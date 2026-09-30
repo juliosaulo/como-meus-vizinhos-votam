@@ -377,8 +377,8 @@ body.via-link .so-link { display: block; }
 .erro { color: var(--vermelho); font-size: 14px; }
 
 /* ---------- rodapé ---------- */
-.rodape { display: flex; flex-direction: column; gap: 2px; align-items: flex-end;
-          text-align: right;
+.rodape { display: flex; flex-wrap: wrap; gap: 4px 22px; align-items: baseline;
+          justify-content: flex-end; text-align: right;
           border-top: 2px solid var(--tinta); margin-top: 26px; padding-top: 12px; }
 .rodape p { margin: 0; font-size: 13px; color: var(--tinta-suave); }
 .rodape a { color: var(--tinta); text-decoration: none; border-bottom: 1px solid var(--fio-frio); }
@@ -524,6 +524,7 @@ body.via-link .so-link { display: block; }
   .local { grid-template-columns: 22px 1fr 70px; gap: 10px; }
 
   /* rodapé: recebe os links que saíram do cabeçalho */
-  .links-rodape { display: flex; gap: 16px; margin-bottom: 8px; }
-  .rodape { align-items: flex-start; text-align: left; }
+  .links-rodape { display: flex; gap: 16px; flex-basis: 100%; justify-content: center;
+                  margin-bottom: 8px; }
+  .rodape { justify-content: center; text-align: center; gap: 4px 16px; }
 }

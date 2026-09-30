@@ -145,5 +145,8 @@ foreach ([
 }
 
 header('Content-Type: text/html; charset=utf-8');
-header('Cache-Control: public, max-age=3600');
+// Mesma regra do index.html: revalida sempre. Guardar esta página por uma hora
+// deixava quem reabrisse um link com a versão anterior do site — rodapé velho,
+// script velho — sem jeito de perceber. Ela é pequena e montada na hora.
+header('Cache-Control: no-cache');
 echo $html;

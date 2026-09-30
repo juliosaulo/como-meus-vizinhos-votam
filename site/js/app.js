@@ -126,7 +126,11 @@ async function compartilhar(botao) {
   const nome = estado.regioes?.[id]?.local ?? "este local de votação";
   const texto = `Como votou ${nome}, em ${estado.municipio.nome} – ${estado.uf}`;
 
-  if (navigator.share) {
+  // A folha de compartilhamento nativa só vale a pena onde ela é o caminho
+  // normal: no celular. O Windows também expõe `navigator.share`, mas abre um
+  // painel que quase ninguém usa — e quem clica aqui, no computador, espera o
+  // link na área de transferência.
+  if (navigator.share && matchMedia("(pointer: coarse)").matches) {
     try {
       await navigator.share({ title: "Como meus vizinhos votam?", text: texto, url });
       return;
@@ -134,12 +138,28 @@ async function compartilhar(botao) {
       if (erro?.name === "AbortError") return;  // a pessoa fechou a folha de compartilhar
     }
   }
+  avisarNoBotao(botao, await copiar(url) ? "Link copiado" : "Não consegui copiar");
+}
+
+/** Copia para a área de transferência, pelo caminho moderno ou pelo antigo.
+ *  Navegador dentro de aplicativo costuma bloquear o primeiro e aceitar o
+ *  segundo, então vale tentar os dois antes de desistir. */
+async function copiar(url) {
   try {
     await navigator.clipboard.writeText(url);
-    avisarNoBotao(botao, "Link copiado");
-  } catch {
-    avisarNoBotao(botao, "Não consegui copiar");
-  }
+    return true;
+  } catch { /* segue para o modo antigo */ }
+
+  const campo = document.createElement("textarea");
+  campo.value = url;
+  campo.readOnly = true;
+  campo.style.cssText = "position:fixed;top:0;left:0;opacity:0";
+  document.body.appendChild(campo);
+  campo.select();
+  let copiou = false;
+  try { copiou = document.execCommand("copy"); } catch { copiou = false; }
+  campo.remove();
+  return copiou;
 }
 
 function avisarNoBotao(botao, aviso) {
