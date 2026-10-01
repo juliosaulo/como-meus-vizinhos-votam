@@ -97,6 +97,7 @@ realocado de novo. A atribuição de endereços (passo 31) é refeita, porque a 
 | Cadastro de candidatos | TSE, `consulta_cand` | o partido de cada candidato, que não vem na votação |
 | CNEFE | IBGE, Censo 2022 | 111M endereços com rua, número e coordenada |
 | Locais geocodificados | artefato importado — ver [PROVENIENCIA.md](dados_importados/PROVENIENCIA.md) | nome, endereço e coordenada de cada local de votação |
+| Locais e eleitorado | TSE, `eleitorado_local_votacao_AAAA` | completa a malha onde a geocodificação não chegou, e traz o eleitorado por seção |
 
 Presidente vem num arquivo separado dos demais cargos: no TSE, "Eleição Geral Federal" e "Eleições
 Gerais Estaduais" são registros de eleição distintos, com downloads distintos, mesmo ocorrendo no

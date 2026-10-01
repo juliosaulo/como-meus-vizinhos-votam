@@ -216,7 +216,57 @@ def publicar_compartilhar(dim: pd.DataFrame, resultados: dict[int, dict],
         })
 
 
-def publicar_regioes(dim: pd.DataFrame, resultados: dict[int, dict], ids: pd.DataFrame) -> None:
+def montar_eleitorado(resultados: dict[int, dict]) -> dict[int, dict]:
+    """Eleitorado e abstenção por região, ano e turno.
+
+    O eleitorado vem do arquivo oficial do TSE (passo 10), somado dos locais que
+    funcionam na região. A abstenção é a diferença para o comparecimento, que já
+    está calculado: é o total de votos do cargo, porque quem aparece vota — em
+    alguém, em branco ou nulo.
+
+    Local que não está na base oficial fica sem eleitorado, e aí a região não
+    publica nem eleitorado nem abstenção. Mostrar zero seria inventar.
+    """
+    caminho = config.DIR_INTERMEDIARIO / "eleitorado_local.parquet"
+    if not caminho.exists():
+        print("  [aviso] sem eleitorado_local.parquet — rode o passo 10; segue sem abstenção")
+        return {}
+
+    eleitorado = pd.read_parquet(caminho)
+    de_para = pd.read_parquet(config.DIR_INTERMEDIARIO / "de_para_local_regiao.parquet")
+    por_regiao = (
+        eleitorado.merge(de_para, on="id_local_votacao", how="inner")
+        .groupby(["id_regiao", "ano_eleicao", "turno"], as_index=False)["qt_eleitores"].sum()
+    )
+
+    saida: dict[int, dict] = {}
+    negativas = 0
+    for linha in por_regiao.itertuples():
+        ano, turno = str(linha.ano_eleicao), str(linha.turno)
+        comparecimento = (
+            resultados.get(int(linha.id_regiao), {})
+            .get("total_votos", {}).get("presidente", {}).get(ano, {}).get(turno)
+        )
+        no = saida.setdefault(int(linha.id_regiao), {"eleitorado": {}, "abstencao": {}})
+        no["eleitorado"].setdefault(ano, {})[turno] = int(linha.qt_eleitores)
+        if comparecimento is None:
+            continue
+        falta = int(linha.qt_eleitores) - int(comparecimento)
+        if falta < 0:
+            # Acontece onde o comparecimento inclui quem votou em trânsito.
+            negativas += 1
+            continue
+        no["abstencao"].setdefault(ano, {})[turno] = falta
+
+    regioes_com = len(saida)
+    print(f"  eleitorado publicado em {regioes_com:,} regiões"
+          + (f" ({negativas:,} par(es) ano/turno sem abstenção: comparecimento maior que o eleitorado)"
+             if negativas else ""))
+    return saida
+
+
+def publicar_regioes(dim: pd.DataFrame, resultados: dict[int, dict], ids: pd.DataFrame,
+                     eleitorado: dict[int, dict]) -> None:
     id_publico = ids.set_index("id_regiao")["id_publico"]
     for cd_municipio, grupo in dim.groupby("cd_municipio_ibge"):
         payload = {
@@ -240,6 +290,7 @@ def publicar_regioes(dim: pd.DataFrame, resultados: dict[int, dict], ids: pd.Dat
                 # mostra o representante e avisa que há outros locais no ponto.
                 "outros_locais": outros,
                 "resultados": resultados.get(int(linha.id_regiao), {}),
+                **eleitorado.get(int(linha.id_regiao), {}),
             }
         escrever_json(config.DIR_PUBLICADO / "regioes" / f"{cd_municipio}.json", payload)
 
@@ -527,8 +578,9 @@ def main() -> None:
 
     resultados = calcular_resultados(votos)
     ids = montar_ids_publicos(dim)
+    eleitorado = montar_eleitorado(resultados)
     publicar_indices(dim)
-    publicar_regioes(dim, resultados, ids)
+    publicar_regioes(dim, resultados, ids, eleitorado)
     publicar_compartilhar(dim, resultados, ids)
     publicar_ruas(trechos, dominante, ruas_regioes, ruas_bairro)
     publicar_bairros(bairros_regioes)

@@ -57,12 +57,15 @@ export function tabelaCandidatos(candidatos) {
     </table>`;
 }
 
-export function blocoTotais(validos, naoNominal) {
+export function blocoTotais(validos, naoNominal, abstencao) {
   const itens = [
     ["▤", "Votos válidos", validos],
     ["◻", "Brancos", naoNominal?.branco?.votos ?? 0],
     ["⊗", "Nulos", naoNominal?.nulo?.votos ?? 0],
   ];
+  // Só entra quando o eleitorado daquele local é conhecido: sem ele, a conta
+  // não existe, e um zero ali seria lido como "ninguém faltou".
+  if (abstencao != null) itens.push(["◌", "Abstenção", abstencao]);
   return `
     <div class="totais">
       ${itens.map(([icone, rotulo, valor]) => `

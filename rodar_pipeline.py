@@ -21,6 +21,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent
 
 PASSOS = [
+    ("10", "pipeline/10_locais_oficiais.py", "locais oficiais do TSE"),
     ("11", "pipeline/11_montar_dim_regiao.py", "dimensão de regiões"),
     ("21", "pipeline/21_processar_votacao.py", "votação por local de votação"),
     ("22", "pipeline/22_votos_por_regiao.py", "votos por região"),
@@ -31,6 +32,7 @@ PASSOS = [
     ("qa", "qualidade/validar_indice_ruas.py", "validação ponta a ponta"),
     ("cob", "qualidade/relatorio_cobertura.py", "relatório de cobertura"),
     ("dist", "qualidade/diagnostico_distancias.py", "diagnóstico de distâncias"),
+    ("coord", "qualidade/comparar_coordenadas.py", "divergência de coordenadas (nós × TSE)"),
 ]
 
 

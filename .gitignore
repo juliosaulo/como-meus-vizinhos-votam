@@ -14,6 +14,7 @@ publicado/*
 !publicado/cobertura.json
 !publicado/validacao_indice_ruas.json
 !publicado/diagnostico_distancias.json
+!publicado/divergencia_coordenadas.json
 !publicado/municipios/
 !publicado/ruas/
 !publicado/regioes/

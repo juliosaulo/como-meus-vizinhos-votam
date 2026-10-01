@@ -13,12 +13,13 @@ realocação do histórico) está em [METODOLOGIA.md](METODOLOGIA.md). O que o d
 | Passo | Script | Entrada | Saída |
 |---|---|---|---|
 | — | *artefato importado* | — | `dados_importados/locais_votacao_2018_2022.parquet` |
-| 11 | `pipeline/11_montar_dim_regiao.py` | locais geocodificados | `dim_regiao`, `de_para_local_regiao` |
+| 10 | `pipeline/10_locais_oficiais.py` | base oficial de locais (TSE) | `locais_oficiais`, `eleitorado_local` |
+| 11 | `pipeline/11_montar_dim_regiao.py` | locais geocodificados + passo 10 | `dim_regiao`, `de_para_local_regiao` |
 | 21 | `pipeline/21_processar_votacao.py` | votação por seção + cadastro de candidatos (TSE) | `votos_local_votacao` |
 | 22 | `pipeline/22_votos_por_regiao.py` | passos 11 e 21 | `votos_regiao` |
 | 31 | `pipeline/31_atribuir_endereco_regiao.py` | CNEFE + passos 11 e 22 | `enderecos_regiao/{ano}/{UF}` |
 | 32 | `pipeline/32_montar_indice_ruas.py` | passo 31 | `indice_ruas`, `ruas_dominante`, `ruas_regioes`, `ruas_bairro_regioes`, `bairros_regioes` |
-| 40 | `pipeline/40_build_dados_publicados.py` | passos 11, 22 e 32 | tudo em `publicado/` |
+| 40 | `pipeline/40_build_dados_publicados.py` | passos 10, 11, 22 e 32 | tudo em `publicado/` |
 | pub | `qualidade/validar_publicado.py` | `publicado/` | conferência dos arquivos (não gera saída) |
 | qa | `qualidade/validar_indice_ruas.py` | `publicado/` + CNEFE | `publicado/validacao_indice_ruas.json` |
 | cob | `qualidade/relatorio_cobertura.py` | todos os anteriores | `publicado/cobertura.json` |
@@ -29,9 +30,14 @@ Arquivos intermediários ficam em `dados/intermediario/` (fora do git); os finai
 1x malha de regiões, 2x votos, 3x endereços, 4x publicação.
 
 ```
-                dados_importados/locais_votacao_2018_2022
-                                 │
-                                 ▼
+     dados_importados/locais_votacao_2018_2022   TSE (locais oficiais)
+                                 │                        │
+                                 │                       10
+                                 │                        │
+                                 │        locais_oficiais, eleitorado_local
+                                 │                        │
+                                 └───────────┬────────────┘
+                                             ▼
                          ┌──── 11 ────┐
                          │            │
                   dim_regiao    de_para_local_regiao
@@ -114,10 +120,46 @@ número do local, separados por sublinhado.
 
 ---
 
+## Passo 10 — Locais oficiais do TSE
+
+**Script:** `pipeline/10_locais_oficiais.py`
+**Entrada:** `dados/bruto/locais_oficiais/eleitorado_local_votacao_AAAA.zip` (2018, 2022, 2026)
+**Saídas:** `dados/intermediario/locais_oficiais.parquet`, `dados/intermediario/eleitorado_local.parquet`
+
+O TSE publica, para cada eleição, uma linha por seção eleitoral com o prédio onde ela funciona:
+nome, endereço, coordenada e eleitorado. Este passo transforma isso em duas tabelas — uma de locais
+(um registro por local, com a descrição da eleição mais recente em que ele aparece) e uma de
+eleitorado por local, ano e turno.
+
+A coordenada oficial **não substitui** a do artefato geocodificado; ela entra onde o artefato não
+chega. O porquê, com os números que sustentam a decisão, está em
+[PROVENIENCIA.md](dados_importados/PROVENIENCIA.md).
+
+### Cuidados do formato
+
+- **Coordenada ausente não vem vazia.** O TSE publica `0` ou o sentinela `-1` — quase todo o arquivo
+  de 2018 — e ainda sobram valores impossíveis. Tudo que cai fora da caixa do Brasil
+  (`validacoes.CAIXA_BRASIL_LAT/LON`) é descartado como ausente, em vez de virar um local no oceano.
+- **Separador decimal muda com o ano**: vírgula em 2026, ponto em 2022.
+- **O mesmo conteúdo vem em dois formatos**: um CSV nacional (2018, 2022) ou um por UF mais um
+  `BRASIL` que repete tudo (2026). Ler os dois contaria cada seção duas vezes.
+- **Eleitorado é por seção** e precisa ser somado por local; a guarda de conservação confere que
+  nenhuma seção se perdeu nem foi contada duas vezes.
+
+### Brasil
+
+| | |
+|---|---|
+| seções lidas (2018, 2022 e 2026) | 2.463.568 |
+| locais distintos | 107.190 |
+| locais com coordenada aproveitável | 102.483 |
+| eleitorado 2022, 1º turno | 155.758.656 |
+| eleitorado 2026, 1º turno | 157.828.968 |
+
 ## Passo 11 — Dimensão de regiões
 
 **Script:** `pipeline/11_montar_dim_regiao.py`
-**Entrada:** o artefato importado
+**Entrada:** o artefato importado + o passo 10
 **Saídas:** `dados/intermediario/dim_regiao.parquet`, `dados/intermediario/de_para_local_regiao.parquet`
 
 Define o que é uma **região**: o conjunto de locais de votação que ocupam a mesma coordenada. Vários
@@ -133,16 +175,22 @@ mapa, e não uma mancha.
 
 ### O que acontece
 
-1. Descarta `sg_uf == "ZZ"` (voto no exterior, sem correspondência no CNEFE).
-2. Descarta locais sem coordenada.
-3. Aplica o recorte de UFs de `config.UFS_ALVO`.
-4. Confere que as coordenadas caem dentro do território brasileiro.
-5. Confere que município e UF são constantes dentro de cada coordenada.
-6. Agrupa por `(latitude_final, longitude_final)` exatas e numera as regiões em sequência, ordenadas
+1. **Completa a malha com a base oficial do passo 10**, nesta prioridade: a coordenada geocodificada
+   manda onde existe; a oficial entra nos locais sem coordenada e nos que só aparecem em eleições
+   mais novas. Local novo a menos de 50 m de um ponto já conhecido herda a coordenada dele — é a
+   mesma escola com outra zona, e dois pontos a vinte metros virariam dois lugares no site.
+   Coordenada oficial que cairia em dois municípios é descartada, porque tornaria ambíguo o
+   agrupamento por ponto. Cada local fica com a `origem_coordenada` (`cnefe` ou `tse`).
+2. Descarta `sg_uf == "ZZ"` (voto no exterior, sem correspondência no CNEFE).
+3. Descarta locais sem coordenada — depois do complemento, são 0,3%.
+4. Aplica o recorte de UFs de `config.UFS_ALVO`.
+5. Confere que as coordenadas caem dentro do território brasileiro.
+6. Confere que município e UF são constantes dentro de cada coordenada.
+7. Agrupa por `(latitude_final, longitude_final)` exatas e numera as regiões em sequência, ordenadas
    por UF, município e coordenada.
-7. Escolhe o **local representativo** da região — o primeiro em ordem alfabética de nome, depois por
+8. Escolhe o **local representativo** da região — o primeiro em ordem alfabética de nome, depois por
    identificador — e guarda os nomes dos demais em `outros_locais_mesma_coordenada`.
-8. Gera o de-para de cada local de votação para a sua região.
+9. Gera o de-para de cada local de votação para a sua região.
 
 ### Saídas
 
@@ -514,11 +562,17 @@ consulta baixe só o necessário.
    regiões por rua e por bairro.
 7. Grava, para cada município, o índice de bairros.
 8. **Agrega Presidente por município, UF e Brasil**, para o site comparar o local com o entorno.
-9. Grava, para cada município, o resumo de compartilhamento: por chave pública, o local, os dois
+9. **Publica o eleitorado e a abstenção** de cada região, por ano e turno. O eleitorado vem do
+   passo 10, somado dos locais que funcionam ali; a abstenção é a diferença para o comparecimento,
+   que é o total de votos do cargo — quem aparece vota, em alguém, em branco ou nulo. Local fora da
+   base oficial do TSE fica sem os dois: publicar zero seria dizer que ninguém faltou. Onde o
+   comparecimento passa do eleitorado (voto em trânsito), a abstenção é omitida em vez de ficar
+   negativa.
+10. Grava, para cada município, o resumo de compartilhamento: por chave pública, o local, os dois
    primeiros de Presidente no ano mais recente e o deputado federal mais votado ali. É o que o
    servidor lê para montar a prévia do link e a imagem dela, sem abrir o arquivo de regiões — o de
    São Paulo passa de 6 MB, e a prévia é pedida a cada compartilhamento.
-10. Grava os metadados (anos, turnos, contagens) e os parquets para uso analítico.
+11. Grava os metadados (anos, turnos, contagens) e os parquets para uso analítico.
 
 Os agregados saem de `votos_local_votacao`, e não de `votos_regiao`: neles entram **todos** os
 locais, inclusive os sem coordenada. Só assim o percentual reproduz o resultado oficial — a base

@@ -1,0 +1,369 @@
+{
+  "locais_comparados": 79184,
+  "percentis_distancia_m": {
+    "p50": 37.1,
+    "p75": 377.3,
+    "p90": 6184.8,
+    "p95": 15833.2,
+    "p99": 47935.7
+  },
+  "limite_divergencia_m": 5000.0,
+  "divergentes": 8710,
+  "suspeito": {
+    "indefinido": 5072,
+    "tse": 2411,
+    "nosso": 1227
+  },
+  "piores": [
+    {
+      "id_local_votacao": "MG_52930_260_1023",
+      "municipio": "SÃO SEBASTIÃO DO PARAÍSO (MG)",
+      "local": "ESCOLA MUNICIPAL  DE TERMÓPOLIS",
+      "distancia_km": 2344.8,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "MG_49239_270_1023",
+      "municipio": "OURO VERDE DE MINAS (MG)",
+      "local": "ESCOLA ESTADUAL ELIZA LEAL",
+      "distancia_km": 1885.3,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "PA_04278_1_1171",
+      "municipio": "BELÉM (PA)",
+      "local": "EEEFM RUI BARBOSA",
+      "distancia_km": 1692.2,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "MG_53414_262_1031",
+      "municipio": "SERRO (MG)",
+      "local": "INSTITUTO EDUCACIONAL NOSSA SENHORA DA CONCEICAO",
+      "distancia_km": 1574.0,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "MG_41092_201_1015",
+      "municipio": "BARÃO DE MONTE ALTO (MG)",
+      "local": "ESCOLA ESTADUAL  PROF. TOMÁZ AQUINO PEREIRA",
+      "distancia_km": 1494.5,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "MG_50539_228_1120",
+      "municipio": "PRADOS (MG)",
+      "local": "IGREJA SAGRADO CORAÇÃO DE JESUS",
+      "distancia_km": 1489.0,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "MG_50156_217_1260",
+      "municipio": "PIRANGA (MG)",
+      "local": "ESCOLA MUNICIPAL DE VENDA NOVA",
+      "distancia_km": 1484.3,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "MG_41580_117_1031",
+      "municipio": "SÃO GERALDO DO BAIXIO (MG)",
+      "local": "ESCOLA MUNICIPAL MALVINA CHAVES",
+      "distancia_km": 1377.7,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "MG_49476_206_1023",
+      "municipio": "PARAOPEBA (MG)",
+      "local": "ESCOLA ESTADUAL PADRE AUGUSTO HORTA",
+      "distancia_km": 1360.1,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "MG_50458_217_1074",
+      "municipio": "PORTO FIRME (MG)",
+      "local": "ESCOLA ESTADUAL CEL AMANTINO",
+      "distancia_km": 1310.0,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "MG_49913_202_1040",
+      "municipio": "PEQUI (MG)",
+      "local": "POSTO DE SAÚDE DE SOLEDADE",
+      "distancia_km": 1300.9,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "MG_50610_217_1074",
+      "municipio": "PRESIDENTE BERNARDES (MG)",
+      "local": "ESCOLA MUNICIPAL GOVERNADOR CLÓVIS SALGADO",
+      "distancia_km": 1291.4,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "MG_46191_322_1015",
+      "municipio": "INHAÚMA (MG)",
+      "local": "ESCOLA ESTADUAL MESSIAS ANTÔNIO GUIMARÃES",
+      "distancia_km": 1268.3,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "MG_45438_264_1023",
+      "municipio": "FUNILÂNDIA (MG)",
+      "local": "ESCOLA ESTADUAL ALUÍSIO FERREIRA DE SOUZA",
+      "distancia_km": 1242.9,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "MG_49174_88_1210",
+      "municipio": "OURO BRANCO (MG)",
+      "local": "COLEGIO ARQUIDIOCESANO DE OURO BRANCO",
+      "distancia_km": 1233.8,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "MG_46450_196_1023",
+      "municipio": "ITAIPÉ (MG)",
+      "local": "ESCOLA ESTADUAL PROFESSORA FRANCISCA MATOS",
+      "distancia_km": 1190.9,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "MG_41483_175_1040",
+      "municipio": "SANTA CRUZ DE SALINAS (MG)",
+      "local": "ESCOLA MUNICIPAL JOAQUIM DA SILVA RESENDE",
+      "distancia_km": 1186.7,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "MG_44598_228_1112",
+      "municipio": "DORES DE CAMPOS (MG)",
+      "local": "ESC. MUNIC. BENEDITO QUINTINO DOS SANTOS",
+      "distancia_km": 1173.3,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "MG_53414_262_1104",
+      "municipio": "SERRO (MG)",
+      "local": "ESCOLA MUNICIPAL DORALICE DE LOURDES COELHO",
+      "distancia_km": 1099.5,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "MG_42617_68_1023",
+      "municipio": "CARANAÍBA (MG)",
+      "local": "ESCOLA MUNICIPAL CAMPINHO",
+      "distancia_km": 1087.7,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "MG_45039_8_1015",
+      "municipio": "FAMA (MG)",
+      "local": "ESCOLA MUNICIPAL OLINTO MAGALHÃES",
+      "distancia_km": 1020.6,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "MG_42226_71_1066",
+      "municipio": "IMBÉ DE MINAS (MG)",
+      "local": "ESCOLA MUNICIPAL MANOEL JOSINO DO NASCIMENTO",
+      "distancia_km": 984.3,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "MG_50350_222_1317",
+      "municipio": "POÇOS DE CALDAS (MG)",
+      "local": "ESCOLA ESTADUAL DAVID CAMPISTA",
+      "distancia_km": 948.4,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "MG_50350_222_1325",
+      "municipio": "POÇOS DE CALDAS (MG)",
+      "local": "COLÉGIO PELICANO - INSTITUTO EDUCACIONAL SÃO JOÃO DA ESCÓCIA",
+      "distancia_km": 948.0,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "MG_45470_205_1376",
+      "municipio": "GONÇALVES (MG)",
+      "local": "CMEI - JULIETA DE BARROS VIEIRA",
+      "distancia_km": 900.1,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "MG_41181_244_1066",
+      "municipio": "NOVORIZONTE (MG)",
+      "local": "UNIDADE PROGRAMA DE SAÚDE DA FAMÍLIA DE BEBEDOURO",
+      "distancia_km": 846.8,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "MG_41181_244_1015",
+      "municipio": "NOVORIZONTE (MG)",
+      "local": "CONSELHO COMUNITÁRIO DE BARRINHA E MESTIÇA",
+      "distancia_km": 836.8,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "MG_40282_63_1090",
+      "municipio": "JAÍBA (MG)",
+      "local": "E.E PROFESSORA CLARA MENEZES DIAS",
+      "distancia_km": 819.0,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "MG_45454_117_1074",
+      "municipio": "GALILÉIA (MG)",
+      "local": "ESCOLA ESTADUAL DE SAPUCAIA DO NORTE",
+      "distancia_km": 751.7,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "MG_41009_50_1015",
+      "municipio": "LUISLÂNDIA (MG)",
+      "local": "ESCOLA ESTADUAL TEOFILO PIRES",
+      "distancia_km": 743.9,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "MG_53996_50_1260",
+      "municipio": "UBAÍ (MG)",
+      "local": "ESCOLA MUNICIPAL GUIMARAES ROSA",
+      "distancia_km": 731.0,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "RS_88641_123_1155",
+      "municipio": "CERRITO (RS)",
+      "local": "COMUNIDADE SANTA TEREZINHA (PEDRO DA VARA)",
+      "distancia_km": 697.3,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "RS_88641_123_1147",
+      "municipio": "CERRITO (RS)",
+      "local": "COMUNIDADE SANTO ANDRE (ESCOLA)",
+      "distancia_km": 694.2,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "RS_88641_123_1090",
+      "municipio": "CERRITO (RS)",
+      "local": "REINALDO KARNOPP",
+      "distancia_km": 692.6,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "RS_88641_123_1163",
+      "municipio": "CERRITO (RS)",
+      "local": "CENTRO COMUNITÁRIO MUNICIPAL (FELIPE DOS SANTOS)",
+      "distancia_km": 684.4,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "PA_05231_64_1023",
+      "municipio": "SALINÓPOLIS (PA)",
+      "local": "CLUBE DE MÃES",
+      "distancia_km": 667.2,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "MG_44490_267_1040",
+      "municipio": "DOM CAVATI (MG)",
+      "local": "ESCOLA MUNICIPAL EMILIANO CUNHA ( B. SAO PAULO)",
+      "distancia_km": 657.6,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "MG_42269_50_1104",
+      "municipio": "JAPONVAR (MG)",
+      "local": "POSTO DE SAÚDE SÃO BERNARDO",
+      "distancia_km": 647.0,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "MG_45870_24_1058",
+      "municipio": "IBERTIOGA (MG)",
+      "local": "UBS - PORTEIRINHA",
+      "distancia_km": 640.9,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "MG_46450_196_1040",
+      "municipio": "ITAIPÉ (MG)",
+      "local": "ESCOLA MUNICIPAL SIMÃO TAVARES",
+      "distancia_km": 639.6,
+      "suspeito": "nosso"
+    },
+    {
+      "id_local_votacao": "MG_46450_196_1074",
+      "municipio": "ITAIPÉ (MG)",
+      "local": "ESCOLA MUNICIPAL JOSÉ RAMOS",
+      "distancia_km": 637.7,
+      "suspeito": "nosso"
+    },
+    {
+      "id_local_votacao": "MG_46450_196_1090",
+      "municipio": "ITAIPÉ (MG)",
+      "local": "ESCOLA MUNICIPAL ANTÔNIO INÁCIO",
+      "distancia_km": 626.7,
+      "suspeito": "nosso"
+    },
+    {
+      "id_local_votacao": "MG_46450_196_1031",
+      "municipio": "ITAIPÉ (MG)",
+      "local": "ESCOLA MUNICIPAL MARIA ÂNGELA",
+      "distancia_km": 626.6,
+      "suspeito": "nosso"
+    },
+    {
+      "id_local_votacao": "MG_47678_161_1104",
+      "municipio": "LEOPOLDINA (MG)",
+      "local": "CLUBE COTUBAS",
+      "distancia_km": 612.9,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "RS_84840_154_1309",
+      "municipio": "TUNAS (RS)",
+      "local": "ESCOLA MUNICIPAL CASEMIRO DE ABREU",
+      "distancia_km": 600.3,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "MG_50016_235_1074",
+      "municipio": "PIAU (MG)",
+      "local": "ESCOLA MUNICIPAL JOSÉ MARIA CÉSAR",
+      "distancia_km": 599.9,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "RS_84840_154_1481",
+      "municipio": "TUNAS (RS)",
+      "local": "ESCOLA MUNICIPAL RUI RAMOS",
+      "distancia_km": 594.9,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "RS_84840_154_1058",
+      "municipio": "TUNAS (RS)",
+      "local": "SALAO COMUNITÁRIO SANTA RITA",
+      "distancia_km": 593.7,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "MG_43290_184_1082",
+      "municipio": "CLARO DOS POÇÕES (MG)",
+      "local": "ASSOCIAÇÃO DOS PRODUTORES DE POUSO ALTO",
+      "distancia_km": 574.8,
+      "suspeito": "tse"
+    },
+    {
+      "id_local_votacao": "MG_53996_50_1198",
+      "municipio": "UBAÍ (MG)",
+      "local": "ESCOLA MUNICIPAL PADRE JOSE DE ANCHIETA",
+      "distancia_km": 573.9,
+      "suspeito": "tse"
+    }
+  ]
+}

@@ -234,6 +234,13 @@ def checar_crs_metrico(crs, contexto: str) -> None:
         )
 
 
+# Caixa do território brasileiro, em graus decimais. Fica aqui, e não espalhada
+# pelos passos, porque quem descarta coordenada implausível na leitura (passo 10)
+# e quem valida o resultado precisam concordar sobre onde fica o Brasil.
+CAIXA_BRASIL_LAT = (-34.0, 5.3)
+CAIXA_BRASIL_LON = (-74.0, -34.7)
+
+
 def checar_coordenadas_no_brasil(lat: pd.Series, lon: pd.Series, contexto: str) -> None:
     """Confere que lat/lon caem na caixa do território brasileiro.
 
@@ -242,7 +249,8 @@ def checar_coordenadas_no_brasil(lat: pd.Series, lon: pd.Series, contexto: str) 
     oceano Índico.
     """
     fora = (
-        (lat < -34.0) | (lat > 5.3) | (lon < -74.0) | (lon > -34.7)
+        (lat < CAIXA_BRASIL_LAT[0]) | (lat > CAIXA_BRASIL_LAT[1])
+        | (lon < CAIXA_BRASIL_LON[0]) | (lon > CAIXA_BRASIL_LON[1])
     ) & lat.notna() & lon.notna()
     if fora.any():
         raise ValidacaoFalhou(

@@ -87,6 +87,20 @@ class TestRegiao:
         }}}}}}
         assert vp.problemas_da_regiao("1", r) == []
 
+    def test_abstencao_dentro_do_eleitorado(self):
+        r = {"id": "17-1325", "resultados": {}, "eleitorado": {"2022": {"1": 1000}},
+             "abstencao": {"2022": {"1": 230}}}
+        assert vp.problemas_da_regiao("1", r) == []
+
+    def test_abstencao_maior_que_o_eleitorado(self):
+        r = {"id": "17-1325", "resultados": {}, "eleitorado": {"2022": {"1": 1000}},
+             "abstencao": {"2022": {"1": 1200}}}
+        assert any("maior que o eleitorado" in p for p in vp.problemas_da_regiao("1", r))
+
+    def test_abstencao_sem_eleitorado(self):
+        r = {"id": "17-1325", "resultados": {}, "abstencao": {"2022": {"1": 230}}}
+        assert any("sem eleitorado" in p for p in vp.problemas_da_regiao("1", r))
+
     def test_regiao_sem_id_publico(self):
         candidatos = [{"nome": "A", "votos": 100, "pct": 100.0}]
         r = {"resultados": {"presidente": {"2022": {"2": candidatos}}}}

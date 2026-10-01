@@ -475,8 +475,12 @@ body.via-link .so-link { display: block; }
   .tabela .partido { margin-left: 6px; font-size: 10px; }
   .trilho { min-width: 0; height: 7px; }
 
-  .totais { margin-top: 8px; }
-  .total { padding: 4px 10px; gap: 0; }
+  /* Quatro caixas lado a lado não cabem em 390 px: os rótulos têm largura
+     mínima e empurrariam a página para fora da tela. Em duas linhas, cabem. */
+  .totais { display: grid; grid-template-columns: 1fr 1fr; margin-top: 8px; }
+  .total { padding: 4px 10px; gap: 0; border-top: 1px solid var(--fio-frio); }
+  .total:nth-child(odd) { border-left: 0; }
+  .total:nth-child(-n+2) { border-top: 0; }
   .total .icone { display: none; }
   .total .rotulo { font-size: 8.5px; margin-bottom: 1px; }
   .total .valor { font-size: 17px; }

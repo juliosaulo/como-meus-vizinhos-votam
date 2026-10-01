@@ -29,27 +29,52 @@ import config
 
 
 def cobertura_geocodificacao() -> dict:
-    locais = pd.read_parquet(config.ARQ_LOCAIS_GEOCODIFICADOS)
-    locais = locais[locais["sg_uf"] != "ZZ"]
+    """Cobertura da malha, somando as duas fontes de coordenada.
+
+    O artefato geocodificado (ver PROVENIENCIA.md) resolve a maior parte; a base
+    oficial do TSE (passo 10) entra onde ele não chega. Contar só o artefato
+    descreveria um projeto que não é mais este.
+    """
+    locais = pd.read_parquet(config.ARQ_LOCAIS_GEOCODIFICADOS)[["id_local_votacao", "sg_uf"]]
+    oficiais = pd.read_parquet(config.DIR_INTERMEDIARIO / "locais_oficiais.parquet")
+    de_para = pd.read_parquet(config.DIR_INTERMEDIARIO / "de_para_local_regiao.parquet")
+    dim = pd.read_parquet(config.DIR_INTERMEDIARIO / "dim_regiao.parquet")[
+        ["id_regiao", "origem_coordenada"]
+    ]
+
+    # Universo: todo local conhecido, venha de onde vier.
+    universo = pd.concat([
+        locais[["id_local_votacao", "sg_uf"]],
+        oficiais[["id_local_votacao", "sg_uf"]],
+    ]).drop_duplicates("id_local_votacao")
+    universo = universo[universo["sg_uf"] != "ZZ"]
     if config.UFS_ALVO:
-        locais = locais[locais["sg_uf"].isin(config.UFS_ALVO)]
-    com = locais["latitude_final"].notna()
+        universo = universo[universo["sg_uf"].isin(config.UFS_ALVO)]
+
+    na_malha = de_para.merge(dim, on="id_regiao")
+    universo = universo.merge(
+        na_malha[["id_local_votacao", "origem_coordenada"]], on="id_local_votacao", how="left"
+    )
+    com = universo["origem_coordenada"].notna()
 
     por_uf = (
-        locais.assign(tem=com)
+        universo.assign(tem=com)
         .groupby("sg_uf")
         .agg(locais=("id_local_votacao", "count"), com_coordenada=("tem", "sum"))
     )
     por_uf["pct"] = (por_uf["com_coordenada"] / por_uf["locais"] * 100).round(1)
+    por_origem = universo["origem_coordenada"].value_counts().to_dict()
 
     return {
-        "locais_votacao": int(len(locais)),
+        "locais_votacao": int(len(universo)),
         "com_coordenada": int(com.sum()),
         "pct": round(float(com.mean() * 100), 1),
+        "por_origem": {k: int(v) for k, v in por_origem.items()},
         "por_uf": por_uf.reset_index().to_dict("records"),
         "nota": (
-            "Locais sem coordenada não são erro de pareamento: em geral o cadastro do TSE "
-            "não trazia nome ou endereço aproveitável. Ver dados_importados/PROVENIENCIA.md."
+            "Cobertura das duas fontes somadas: a geocodificação contra o CNEFE "
+            "(dados_importados/PROVENIENCIA.md) e, onde ela não chega, a base oficial do TSE. "
+            "`por_origem` diz de onde veio a coordenada de cada local."
         ),
     }
 

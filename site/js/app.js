@@ -593,6 +593,8 @@ function blocoResultados(id) {
   const contexto = {
     resultados, ano: estado.ano, turno: estado.turno, anoFuturo: estado.anoFuturo,
     agregados: estado.agregados, municipio: estado.municipio, ufNome: estado.ufNome,
+    // Pode não existir: nem todo local está na base de eleitorado do TSE.
+    abstencao: regiao.abstencao, eleitorado: regiao.eleitorado,
   };
 
   return `

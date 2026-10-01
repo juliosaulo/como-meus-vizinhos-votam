@@ -40,188 +40,192 @@
     "ano_referencia_malha": 2022
   },
   "geocodificacao": {
-    "locais_votacao": 93432,
-    "com_coordenada": 78568,
-    "pct": 84.1,
+    "locais_votacao": 103792,
+    "com_coordenada": 103516,
+    "pct": 99.7,
+    "por_origem": {
+      "cnefe": 80246,
+      "tse": 23270
+    },
     "por_uf": [
       {
         "sg_uf": "AC",
-        "locais": 697,
-        "com_coordenada": 615,
-        "pct": 88.2
+        "locais": 771,
+        "com_coordenada": 770,
+        "pct": 99.9
       },
       {
         "sg_uf": "AL",
-        "locais": 1008,
-        "com_coordenada": 826,
-        "pct": 81.9
+        "locais": 1257,
+        "com_coordenada": 1256,
+        "pct": 99.9
       },
       {
         "sg_uf": "AM",
-        "locais": 1501,
-        "com_coordenada": 1110,
-        "pct": 74.0
+        "locais": 1775,
+        "com_coordenada": 1774,
+        "pct": 99.9
       },
       {
         "sg_uf": "AP",
-        "locais": 353,
-        "com_coordenada": 312,
-        "pct": 88.4
+        "locais": 441,
+        "com_coordenada": 441,
+        "pct": 100.0
       },
       {
         "sg_uf": "BA",
-        "locais": 9249,
-        "com_coordenada": 7412,
-        "pct": 80.1
+        "locais": 10194,
+        "com_coordenada": 10133,
+        "pct": 99.4
       },
       {
         "sg_uf": "CE",
-        "locais": 6716,
-        "com_coordenada": 5640,
-        "pct": 84.0
+        "locais": 7562,
+        "com_coordenada": 7558,
+        "pct": 99.9
       },
       {
         "sg_uf": "DF",
-        "locais": 618,
-        "com_coordenada": 329,
-        "pct": 53.2
+        "locais": 649,
+        "com_coordenada": 648,
+        "pct": 99.8
       },
       {
         "sg_uf": "ES",
-        "locais": 1710,
-        "com_coordenada": 1379,
-        "pct": 80.6
+        "locais": 1822,
+        "com_coordenada": 1816,
+        "pct": 99.7
       },
       {
         "sg_uf": "GO",
-        "locais": 2437,
-        "com_coordenada": 1951,
-        "pct": 80.1
+        "locais": 2676,
+        "com_coordenada": 2676,
+        "pct": 100.0
       },
       {
         "sg_uf": "MA",
-        "locais": 5711,
-        "com_coordenada": 4332,
-        "pct": 75.9
+        "locais": 6259,
+        "com_coordenada": 6253,
+        "pct": 99.9
       },
       {
         "sg_uf": "MG",
-        "locais": 10139,
-        "com_coordenada": 9169,
-        "pct": 90.4
+        "locais": 10702,
+        "com_coordenada": 10645,
+        "pct": 99.5
       },
       {
         "sg_uf": "MS",
-        "locais": 1033,
-        "com_coordenada": 932,
-        "pct": 90.2
+        "locais": 1198,
+        "com_coordenada": 1198,
+        "pct": 100.0
       },
       {
         "sg_uf": "MT",
-        "locais": 1525,
-        "com_coordenada": 1223,
-        "pct": 80.2
+        "locais": 1673,
+        "com_coordenada": 1662,
+        "pct": 99.3
       },
       {
         "sg_uf": "PA",
-        "locais": 5306,
-        "com_coordenada": 3532,
-        "pct": 66.6
+        "locais": 6169,
+        "com_coordenada": 6150,
+        "pct": 99.7
       },
       {
         "sg_uf": "PB",
-        "locais": 1754,
-        "com_coordenada": 1558,
-        "pct": 88.8
+        "locais": 2118,
+        "com_coordenada": 2115,
+        "pct": 99.9
       },
       {
         "sg_uf": "PE",
-        "locais": 3286,
-        "com_coordenada": 2843,
-        "pct": 86.5
+        "locais": 3781,
+        "com_coordenada": 3773,
+        "pct": 99.8
       },
       {
         "sg_uf": "PI",
-        "locais": 3688,
-        "com_coordenada": 3072,
-        "pct": 83.3
+        "locais": 4055,
+        "com_coordenada": 4050,
+        "pct": 99.9
       },
       {
         "sg_uf": "PR",
-        "locais": 4758,
-        "com_coordenada": 4239,
-        "pct": 89.1
+        "locais": 5182,
+        "com_coordenada": 5154,
+        "pct": 99.5
       },
       {
         "sg_uf": "RJ",
-        "locais": 4831,
-        "com_coordenada": 4098,
-        "pct": 84.8
+        "locais": 5433,
+        "com_coordenada": 5430,
+        "pct": 99.9
       },
       {
         "sg_uf": "RN",
-        "locais": 1528,
-        "com_coordenada": 1366,
-        "pct": 89.4
+        "locais": 1831,
+        "com_coordenada": 1831,
+        "pct": 100.0
       },
       {
         "sg_uf": "RO",
-        "locais": 633,
-        "com_coordenada": 530,
-        "pct": 83.7
+        "locais": 717,
+        "com_coordenada": 715,
+        "pct": 99.7
       },
       {
         "sg_uf": "RR",
-        "locais": 336,
-        "com_coordenada": 295,
-        "pct": 87.8
+        "locais": 425,
+        "com_coordenada": 425,
+        "pct": 100.0
       },
       {
         "sg_uf": "RS",
-        "locais": 8090,
-        "com_coordenada": 7018,
-        "pct": 86.7
+        "locais": 8884,
+        "com_coordenada": 8878,
+        "pct": 99.9
       },
       {
         "sg_uf": "SC",
-        "locais": 3550,
-        "com_coordenada": 2943,
-        "pct": 82.9
+        "locais": 4058,
+        "com_coordenada": 4045,
+        "pct": 99.7
       },
       {
         "sg_uf": "SE",
-        "locais": 1185,
-        "com_coordenada": 939,
-        "pct": 79.2
+        "locais": 1300,
+        "com_coordenada": 1288,
+        "pct": 99.1
       },
       {
         "sg_uf": "SP",
-        "locais": 10933,
-        "com_coordenada": 10198,
-        "pct": 93.3
+        "locais": 11885,
+        "com_coordenada": 11860,
+        "pct": 99.8
       },
       {
         "sg_uf": "TO",
-        "locais": 857,
-        "com_coordenada": 707,
-        "pct": 82.5
+        "locais": 975,
+        "com_coordenada": 972,
+        "pct": 99.7
       }
     ],
-    "nota": "Locais sem coordenada não são erro de pareamento: em geral o cadastro do TSE não trazia nome ou endereço aproveitável. Ver dados_importados/PROVENIENCIA.md."
+    "nota": "Cobertura das duas fontes somadas: a geocodificação contra o CNEFE (dados_importados/PROVENIENCIA.md) e, onde ela não chega, a base oficial do TSE. `por_origem` diz de onde veio a coordenada de cada local."
   },
   "voto": {
     "votos_apurados": 720522302,
-    "votos_em_regiao": 629774906,
-    "pct": 87.4,
-    "regioes_com_voto": 74142,
+    "votos_em_regiao": 717237591,
+    "pct": 99.5,
+    "regioes_com_voto": 88583,
     "nota": "A diferença são votos dados em locais sem coordenada. Totais eleitorais oficiais não devem ser lidos desta base — ela cobre só o que é espacializável."
   },
   "enderecos": {
-    "enderecos": 111090751,
-    "sem_numero": 26463796,
+    "enderecos": 111101340,
+    "sem_numero": 26470806,
     "pct_sem_numero": 23.8,
-    "em_chave_ambigua": 17717450,
-    "pct_em_chave_ambigua": 15.9,
+    "em_chave_ambigua": 18801017,
+    "pct_em_chave_ambigua": 16.9,
     "acerto_medido_pct": 92.44,
     "acerto_por_caminho_pct": {
       "so_rua": 78.29,

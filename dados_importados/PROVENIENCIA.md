@@ -28,14 +28,47 @@ alguns anos, e sem a normalização o mesmo prédio viraria dois registros disti
 
 ## O problema que ele resolve
 
-O TSE informa em que prédio cada seção eleitoral funciona — com nome e endereço em texto livre —
-mas **não publica a coordenada** desse prédio. Sem coordenada não há como saber qual local de
-votação atende um endereço qualquer, que é exatamente a pergunta deste projeto.
+Saber em que prédio cada seção funciona não basta: é preciso saber **onde esse prédio fica**, para
+responder qual local de votação atende um endereço qualquer — a pergunta deste projeto.
 
 A solução foi geocodificar cada local casando seu nome e endereço contra o **CNEFE** (Cadastro
 Nacional de Endereços para Fins Estatísticos, do IBGE), que tem ~111 milhões de endereços com
 coordenada. É um problema de *record linkage* entre duas bases sem chave comum, com texto sujo dos
 dois lados.
+
+## Por que ainda casamos com o CNEFE, se o TSE publica coordenada
+
+Até setembro de 2026 este documento afirmava que o TSE não publicava a coordenada dos locais. Isso
+**não é verdade**: o arquivo `eleitorado_local_votacao_AAAA` dos dados abertos traz latitude e
+longitude para 100% dos locais, em 2018, 2022 e 2026. Não dá para saber, daqui, se a coluna já vinha
+preenchida quando este artefato foi construído — o TSE regera esses arquivos, e a cópia de 2022
+disponível hoje foi gerada em 30/09/2024.
+
+Conferido o conteúdo, a conclusão é que as duas fontes se complementam, e nenhuma substitui a outra:
+
+- **Elas discordam.** Nos 73.315 locais presentes nas duas, metade concorda dentro de 38 m, mas
+  **11,4% divergem mais de 5 km**. Nesses casos, comparando cada ponto com a nuvem de pontos do seu
+  próprio município, quem destoa é o do TSE em 29% das vezes, contra 14% dos nossos.
+- **A escolha muda a resposta.** Trocar a nossa coordenada pela oficial mudaria o local atribuído a
+  **16% a 37% dos endereços**, conforme o município — e de 57% a 90% dessa mudança vem de uma
+  minoria de pontos mal colocados, não do deslocamento típico de ~35 m.
+- **A coordenada casada é um endereço do CNEFE.** As regiões ficam exatamente em cima de um ponto do
+  mesmo cadastro contra o qual o passo 31 mede distância, e é isso que faz de `dist_min` uma guarda:
+  local real tem endereço colado nele.
+
+Por isso a divisão de trabalho, implementada no passo 10 e aplicada no passo 11:
+
+| Situação | Coordenada usada |
+|---|---|
+| local com coordenada neste artefato | **a daqui** (CNEFE) |
+| local sem coordenada aqui, mas na base oficial | a do TSE |
+| local que só existe em eleição posterior (2026) | a do TSE |
+| local novo a menos de 50 m de um ponto já conhecido | a do ponto conhecido, por ser o mesmo prédio |
+
+O complemento oficial elevou a cobertura de **83,9% para 99,7%** dos locais, e a parcela dos votos
+que cai em local com coordenada de 88% para **99,5%**. O que este artefato faz hoje, além de ser a
+fonte primária, é **arbitrar** a base oficial: ele é a única evidência independente disponível para
+julgar os pontos em que o TSE parece errado.
 
 ## Como cada coordenada foi decidida
 

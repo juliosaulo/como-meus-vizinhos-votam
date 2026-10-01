@@ -36,6 +36,7 @@ DIR_BRUTO_CNEFE = DIR_BRUTO / "cnefe"                    # 27 zips, um por UF: 1
 DIR_BRUTO_VOTACAO_PRESIDENTE = DIR_BRUTO / "votacao_presidente"  # votacao_secao_AAAA_BR.zip
 DIR_BRUTO_VOTACAO_UF = DIR_BRUTO / "votacao_uf"          # votacao_secao_AAAA_UF.zip
 DIR_BRUTO_CANDIDATOS = DIR_BRUTO / "candidatos"          # consulta_cand_AAAA.zip
+DIR_BRUTO_LOCAIS_OFICIAIS = DIR_BRUTO / "locais_oficiais"  # eleitorado_local_votacao_AAAA.zip
 
 # Artefato importado do projeto anterior (a geocodificação, que não se refaz —
 # ver dados_importados/PROVENIENCIA.md).
@@ -50,11 +51,17 @@ UFS_ALVO: list[str] | None = None
 ANOS_ELEICAO = [2018, 2022]
 CARGOS_ALVO = ["PRESIDENTE", "DEPUTADO FEDERAL"]
 
-# Ano cujos locais de votação definem a malha de regiões — é "onde a pessoa vota
-# hoje". Uma região é ativa se teve voto neste ano (passo 22); os votos dos
-# outros anos são realocados para ela. Os locais saem do próprio arquivo de
-# votação por seção, então 2026 só pode virar referência depois que o resultado
-# for publicado. Antes de trocar, rode `qualidade/comparar_locais.py --ano 2026`.
+# Ano que define quais regiões estão ATIVAS — é "onde a pessoa vota hoje". Uma
+# região é ativa se teve voto neste ano (passo 22); as inativas são realocadas
+# para a ativa mais próxima do mesmo município, levando os votos junto.
+#
+# Não confundir com a malha: desde o passo 10, a malha já contém os locais de
+# todas as eleições conhecidas, inclusive os que só existem em 2026. O que falta
+# para trocar este ano é o voto, porque é ele que define "ativo" — então a troca
+# acontece depois da apuração, e exige rerodar 22, 31, 32 e 40.
+#
+# Deixar 2022 depois de 2026 publicado tem consequência: local que só existe em
+# 2026 ficaria inativo, e o voto dele seria somado ao local de 2022 mais próximo.
 ANO_REFERENCIA_MALHA = 2022
 
 # Atribuição endereço → região (passo 31), com checkpoint por UF. Fica numa

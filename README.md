@@ -133,7 +133,7 @@ Sem PHP, o site continua funcionando: só as prévias de link é que deixam de e
 pip install -r requirements.txt
 python rodar_pipeline.py --listar     # ver os passos
 python rodar_pipeline.py              # rodar tudo — Brasil inteiro, cerca de uma hora
-pytest tests/                         # 93 testes, ~1s, sem precisar dos dados
+pytest tests/                         # 109 testes, ~1s, sem precisar dos dados
 ```
 
 O recorte (UFs, anos, cargos) fica em [`config.py`](config.py). O padrão é o Brasil inteiro, que
@@ -141,7 +141,8 @@ roda numa máquina com 16 GB de RAM; para um teste rápido, `UFS_ALVO = ["RO"]` 
 minuto e meio.
 
 Os dados brutos (~8 GB de TSE e CNEFE) não estão no repositório. O pipeline os espera em
-`dados/bruto/`; quem já tiver os arquivos em outro lugar aponta com a variável de ambiente
+`dados/bruto/`, em cinco subpastas: `cnefe/`, `votacao_presidente/`, `votacao_uf/`, `candidatos/`
+e `locais_oficiais/`. Quem já tiver os arquivos em outro lugar aponta com a variável de ambiente
 `VOTO_REGIAO_BRUTO`. As fontes estão documentadas em [METODOLOGIA.md](METODOLOGIA.md).
 
 ### O que este repositório versiona

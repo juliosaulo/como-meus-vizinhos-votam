@@ -192,6 +192,21 @@ def problemas_da_regiao(id_regiao: str, regiao: dict) -> list[str]:
                     if abs(soma - 100) > TOLERANCIA_PCT:
                         problemas.append(f"{onde}: percentuais somam {soma:.2f}, não 100")
 
+    # Eleitorado e abstenção só aparecem onde o local está na base oficial do
+    # TSE. Quando aparecem, a abstenção é parte do eleitorado — se passar dele,
+    # ou ficar negativa, o cruzamento está errado.
+    eleitorado = regiao.get("eleitorado", {})
+    for ano, por_turno in regiao.get("abstencao", {}).items():
+        for turno, valor in por_turno.items():
+            apto = eleitorado.get(ano, {}).get(turno)
+            onde = f"região {id_regiao}, {ano}/{turno}"
+            if valor < 0:
+                problemas.append(f"{onde}: abstenção negativa ({valor})")
+            elif apto is None:
+                problemas.append(f"{onde}: abstenção sem eleitorado correspondente")
+            elif valor > apto:
+                problemas.append(f"{onde}: abstenção {valor:,} maior que o eleitorado {apto:,}")
+
     for cargo, por_ano in resultados.get("nao_nominal", {}).items():
         for ano, por_turno in por_ano.items():
             for turno, tipos in por_turno.items():
