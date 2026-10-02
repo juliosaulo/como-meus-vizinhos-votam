@@ -36,27 +36,117 @@ Nacional de Endereços para Fins Estatísticos, do IBGE), que tem ~111 milhões 
 coordenada. É um problema de *record linkage* entre duas bases sem chave comum, com texto sujo dos
 dois lados.
 
-## Por que ainda casamos com o CNEFE, se o TSE publica coordenada
+## Duas fontes de coordenada, e por que as duas ficam
 
-Até setembro de 2026 este documento afirmava que o TSE não publicava a coordenada dos locais. Isso
-**não é verdade**: o arquivo `eleitorado_local_votacao_AAAA` dos dados abertos traz latitude e
-longitude para 100% dos locais, em 2018, 2022 e 2026. Não dá para saber, daqui, se a coluna já vinha
-preenchida quando este artefato foi construído — o TSE regera esses arquivos, e a cópia de 2022
-disponível hoje foi gerada em 30/09/2024.
+O TSE também publica a coordenada dos locais, no arquivo `eleitorado_local_votacao_AAAA` dos dados
+abertos. As duas fontes foram medidas uma contra a outra, e as duas ficam. O que segue são os
+números dessa medição — inclusive os que não favorecem este artefato.
 
-Conferido o conteúdo, a conclusão é que as duas fontes se complementam, e nenhuma substitui a outra:
+### Cobertura: o dado oficial não estava lá quando este artefato foi construído
 
-- **Elas discordam.** Nos 73.315 locais presentes nas duas, metade concorda dentro de 38 m, mas
-  **11,4% divergem mais de 5 km**. Nesses casos, comparando cada ponto com a nuvem de pontos do seu
-  próprio município, quem destoa é o do TSE em 29% das vezes, contra 14% dos nossos.
-- **A escolha muda a resposta.** Trocar a nossa coordenada pela oficial mudaria o local atribuído a
-  **16% a 37% dos endereços**, conforme o município — e de 57% a 90% dessa mudança vem de uma
-  minoria de pontos mal colocados, não do deslocamento típico de ~35 m.
-- **A coordenada casada é um endereço do CNEFE.** As regiões ficam exatamente em cima de um ponto do
-  mesmo cadastro contra o qual o passo 31 mede distância, e é isso que faz de `dist_min` uma guarda:
-  local real tem endereço colado nele.
+Contando só coordenada **utilizável**, isto é, fora os sentinelas `-1` e os pontos fora do
+território brasileiro que o passo 10 descarta:
 
-Por isso a divisão de trabalho, implementada no passo 10 e aplicada no passo 11:
+| edição | locais | com coordenada | sem |
+|---|---:|---:|---:|
+| 2018 | 94.904 | 79,3% | 19.629 |
+| 2022 | 92.427 | 92,8% | 6.611 |
+| 2026 | 95.116 | **99,1%** | 896 |
+
+A base oficial melhorou muito em 2026. Para o recorte deste artefato — locais de 2018 e 2022 — ela
+deixava de 7% a 21% dos locais sem coordenada, e é por isso que o casamento com o CNEFE não é
+trabalho redundante.
+
+### Concordância: o maior teste externo que este artefato já teve
+
+73.102 locais têm coordenada nas duas fontes. A distância entre os dois pontos:
+
+| as duas concordam dentro de | |
+|---|---:|
+| 10 m | 17,1% |
+| 50 m | 55,0% |
+| 100 m | 63,6% |
+| 500 m | 76,9% |
+| 5 km | **88,9%** |
+
+Mediana de 38 m. Dois métodos independentes — classificador supervisionado contra o CNEFE de um
+lado, cadastro da Justiça Eleitoral do outro — caem no mesmo prédio em quase 9 de cada 10 casos. É
+evidência a favor dos dois, sobre mais do que o triplo dos 21.890 casos que foram rotulados à mão,
+e vinda de uma fonte que não participou de nenhuma etapa da construção.
+
+A divergência também não é efeito de comparar safras diferentes: contra as três edições do arquivo
+oficial o resultado é praticamente o mesmo — 11,06% (2018), 11,08% (2022) e 11,12% (2026) de locais
+acima de 5 km.
+
+### Onde discordam, nenhuma das duas é oráculo
+
+Os 8.129 locais que divergem mais de 5 km reúnem 7,2 milhões de eleitores, 4,6% do eleitorado de
+2026. Para saber quem erra, montou-se um árbitro independente das duas: **quantos endereços do
+CNEFE existem em volta de cada um dos dois pontos**. Local de votação real fica cercado de
+endereços. Endereços a menos de 5 m são descartados da contagem dos dois lados, porque a coordenada
+deste artefato é ela própria um endereço do CNEFE — sem esse descarte a comparação seria circular.
+
+Rodado nos 8.129 casos, nas 27 UFs, consultando 8,1 milhões de endereços do CNEFE em 01/10/2026:
+
+| | ponto deste artefato | ponto do TSE |
+|---|---:|---:|
+| endereços em 250 m (mediana) | 40 | 52 |
+| endereços em 1 km (mediana) | 130 | 148 |
+| ponto plausível por uma ordem de grandeza | 1.017 (12,5%) | 1.011 (12,4%) |
+| isolado: nenhum endereço em 1 km | **13 (0,2%)** | 413 (5,1%) |
+
+Empate técnico — 1.017 contra 1.011, com 75% dos casos sem veredicto. **Não há base para afirmar
+que a coordenada deste artefato é melhor que a oficial onde as duas discordam.** A única assimetria
+clara está no extremo: o arquivo oficial coloca 413 locais, com 241 mil eleitores, onde não existe
+um só endereço num raio de 1 km; aqui isso acontece 13 vezes.
+
+Os erros têm assinaturas diferentes, e o árbitro as distingue caso a caso:
+
+- **Deste lado, rua homônima.** A Escola Municipal Charles Anderson Weaver, no Rio, tem o mesmo
+  texto de endereço nas duas fontes — "RUA CARLOS PACHECO AVILA S/N" — e os pontos distam 26,5 km:
+  o casamento pegou a rua certa no pedaço errado da cidade (128 endereços em volta, contra 2.000 do
+  ponto oficial). O mesmo padrão aparece em Brasília e em Salvador.
+- **Do lado oficial, ponto largado.** Em Salvador, três escolas têm 1.999 endereços em volta do
+  ponto daqui e de 2 a 10 em volta do oficial.
+
+### O TSE também discorda de si mesmo
+
+A coordenada oficial não é um valor fixo: o TSE regera esses arquivos, e o mesmo local muda de lugar
+entre edições.
+
+| par de edições | locais nas duas | coordenada idêntica | move > 50 m | move > 5 km | pior caso |
+|---|---:|---:|---:|---:|---:|
+| 2018 → 2022 | 71.104 | 90,2% | 3,07% | 0,31% | 193 km |
+| 2022 → 2026 | 80.991 | **58,1%** | 7,37% | 1,21% | **1.735 km** |
+
+Isso **não** explica a divergência de 11% — em 87% dos casos divergentes o ponto oficial havia sido
+estável nas três edições. Mas define o que significa "adotar a base oficial": adotar um valor que se
+move, inclusive por quilômetros, a cada regeração.
+
+### Dois limites deste artefato, para ficar registrado
+
+**Pontos degenerados** — vários locais sobre a mesma coordenada — são mais comuns aqui: 9,1% dos
+locais, contra 0,8% a 1,3% no arquivo oficial. Parte é legítima (duas seções no mesmo prédio), parte
+é casamento colando prédios diferentes no mesmo endereço.
+
+**A divergência se concentra onde a confiança do classificador era menor**, o que é coerente com o
+processo:
+
+| status | locais comparados | diverge > 5 km |
+|---|---:|---:|
+| `top1_auto` | 31.706 | 6,4% |
+| `auto_confiante_pre_ml` | 33.292 | 12,3% |
+| `top2_promovido` | 2.978 | 17,4% |
+| `revisao_manual_aceito` | 5.126 | **29,2%** |
+
+O status, porém, **não prevê quem está certo**: entre os casos com veredicto do árbitro, a fatia que
+aponta o ponto oficial é de 14,5% em `top1_auto` — o status mais confiável — e 11,0% em
+`revisao_manual_aceito`. Não existe regra por status que melhore a malha; a correção, quando vier,
+tem de ser caso a caso.
+
+### A decisão
+
+A divisão de trabalho, implementada no passo 10 e aplicada no passo 11:
 
 | Situação | Coordenada usada |
 |---|---|
@@ -66,9 +156,37 @@ Por isso a divisão de trabalho, implementada no passo 10 e aplicada no passo 11
 | local novo a menos de 50 m de um ponto já conhecido | a do ponto conhecido, por ser o mesmo prédio |
 
 O complemento oficial elevou a cobertura de **83,9% para 99,7%** dos locais, e a parcela dos votos
-que cai em local com coordenada de 88% para **99,5%**. O que este artefato faz hoje, além de ser a
-fonte primária, é **arbitrar** a base oficial: ele é a única evidência independente disponível para
-julgar os pontos em que o TSE parece errado.
+que cai em local com coordenada de 88% para **99,5%**.
+
+Por que não trocar tudo pela coordenada oficial, já que em 2026 ela cobre 99,1%:
+
+1. **Não há ganho medido.** O árbitro dá empate nos casos em que as duas discordam.
+2. **O custo é grande e certo.** Medido em quatro municípios, a troca mudaria o local atribuído a
+   **16% a 37% dos endereços** — e de 57% a 90% dessa mudança vem da minoria de pontos mal
+   colocados, não do deslocamento típico de ~38 m.
+3. **A base oficial se move.** 42% dos locais mudaram de coordenada entre 2022 e 2026; os ids
+   públicos dos links do site, e a malha de regiões, passariam a depender disso.
+4. **A coordenada casada é um endereço do CNEFE.** As regiões ficam exatamente sobre um ponto do
+   mesmo cadastro contra o qual o passo 31 mede distância, e é isso que faz de `dist_min` uma
+   guarda: local real tem endereço colado nele.
+
+E há um papel que só este artefato pode cumprir: **arbitrar a base oficial**. Não existe terceira
+fonte de coordenada de local de votação no Brasil. Os 413 pontos isolados do arquivo oficial só
+foram encontrados porque havia um segundo ponto para comparar.
+
+O relatório do pipeline que faz essa comparação é `publicado/divergencia_coordenadas.json`
+(`qualidade/comparar_coordenadas.py`). Ele usa um critério mais fraco que o árbitro desta seção —
+qual dos dois pontos foge da nuvem de pontos do próprio município —, e por isso devolve "indefinido"
+em 5.072 dos 8.710 casos que lista. O árbitro de densidade de endereços decide 2.028 deles, e
+substituí-lo no relatório é uma melhoria pendente.
+
+### Nota de histórico
+
+Até setembro de 2026 este documento afirmava que o TSE não publicava a coordenada dos locais, e uma
+versão posterior afirmou que publicava para 100% deles. As duas afirmações estavam erradas, e as
+medições acima as substituem. Não é possível reconstruir, daqui, se a coluna já vinha preenchida
+quando o artefato foi construído: o TSE regera os arquivos, e a cópia de 2022 disponível hoje foi
+gerada em 30/09/2024.
 
 ## Como cada coordenada foi decidida
 

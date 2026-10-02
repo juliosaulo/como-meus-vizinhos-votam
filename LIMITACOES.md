@@ -25,16 +25,27 @@ geocodificação por UF.
 
 | Etapa | Cobertura | O que se perde |
 |---|---|---|
-| Locais de votação com coordenada | 84,1% | locais cujo nome/endereço no TSE não permitiu geocodificar |
-| Votos dentro de alguma região | 87,4% | votos dados nos locais acima |
+| Locais de votação com coordenada | 99,7% | 276 locais sem coordenada em nenhuma das duas fontes |
+| Votos dentro de alguma região | 99,5% | votos dados nos locais acima |
 | Endereços atribuídos a uma região | 99,99% | endereços dos municípios sem nenhum local geocodificado |
 | Acerto do índice de ruas | 96,40% (rua + bairro + número) | ver abaixo |
 
-**A cobertura da geocodificação varia muito entre estados** — de 53,2% no Distrito Federal e 66,6%
-no Pará a 93,3% em São Paulo, seguindo a qualidade do endereçamento em cada região. Por isso a
-cobertura é publicada por UF, e não só como um número nacional.
+**A cobertura vem de duas fontes somadas:** 80.246 locais com coordenada vinda do artefato
+importado, que casa o cadastro do TSE com o CNEFE, e 23.270 com a coordenada oficial do TSE, onde o
+casamento não chegou. (O artefato tem 78.568 locais próprios; os 1.678 a mais são locais novos que
+caíram a menos de 50 m de um ponto já conhecido e herdaram esse ponto, por ser o mesmo prédio.) Sozinho, o
+casamento cobria 83,9% dos locais, com diferença grande entre estados — de 53,2% no Distrito Federal
+e 66,6% no Pará a 93,3% em São Paulo, seguindo a qualidade do endereçamento de cada região. Com o
+complemento oficial, nenhuma UF fica abaixo de 99,1%. A comparação entre as duas fontes, incluindo
+os casos em que elas discordam por quilômetros, está em
+[PROVENIENCIA.md](dados_importados/PROVENIENCIA.md).
 
-**Os totais desta base não são totais eleitorais.** Ela cobre só o voto espacializável (87,4% no
+**Coordenada não é a mesma coisa que acerto.** Cobrir 99,7% dos locais não significa que todos
+estejam no lugar certo: nos 11% de locais em que as duas fontes discordam mais de 5 km, a medição não
+consegue dizer qual das duas está certa — é empate técnico. Isso está medido e documentado no mesmo
+arquivo.
+
+**Os totais desta base não são totais eleitorais.** Ela cobre só o voto espacializável (99,5% no
 país). Para número oficial, a fonte é o TSE.
 
 ## O acerto depende do que o usuário informa

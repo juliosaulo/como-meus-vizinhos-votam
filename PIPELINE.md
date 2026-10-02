@@ -343,37 +343,38 @@ atribuição de cada endereço ao ponto mais próximo — nunca como polígono.
 
 A primeira guarda é a mais importante deste passo. Um `merge` que não encontra contrapartida não
 levanta exceção: devolve menos linhas, ou nenhuma, e o passo seguiria gravando uma base vazia. Como
-a cobertura esperada aqui é a da geocodificação (~84%), uma taxa perto de zero indica formato de
+a cobertura esperada aqui é a da malha completa (~99,5%), uma taxa perto de zero indica formato de
 chave divergente entre as duas bases, não ausência real de dado.
 
 ### Brasil
 
 | | |
 |---|---|
-| Linhas de voto que encontraram região | 44.088.115 de 49.861.547 (88,4%) |
-| Votos em local geocodificado | 629.774.906 de 720.522.302 (**87,4%**) |
-| Votos fora da malha | 90.747.396 |
-| Regiões ativas em 2022 | 74.142 |
-| Regiões realocadas | 410 |
-| Linhas de saída | 17.333.340 |
+| Linhas de voto que encontraram região | 49.616.732 de 49.861.547 (99,5%) |
+| Votos em local geocodificado | 717.237.591 de 720.522.302 (**99,5%**) |
+| Votos fora da malha | 3.284.711 |
+| Regiões ativas em 2022 | 88.583 |
+| Regiões realocadas (voto só em outro ano) | 2.537, carregando 4.517.210 votos |
+| Linhas de saída | 19.837.167 |
 
-**Os 90 milhões de votos fora da malha não são 90 milhões de eleitores.** O total soma seis
+**Os 3,3 milhões de votos fora da malha não são 3,3 milhões de eleitores.** O total soma seis
 recortes — Presidente e Deputado Federal, em 2018 e 2022, com os dois turnos de Presidente —, então
-o mesmo eleitor é contado até seis vezes. Numa eleição só: no 2º turno de 2022 foram 14.473.715
-votos fora, de 123.942.648 apurados (11,7%).
+o mesmo eleitor é contado até seis vezes. Numa eleição só: no 2º turno de 2022 foram 86.661 votos
+fora, de 123.942.648 apurados (0,1%).
 
 São votos dados em local de votação sem coordenada, que por isso não pertence a região nenhuma:
 
 | Situação do local | Votos | % | Locais |
 |---|---:|---:|---:|
-| Com coordenada — entram na malha | 629.774.906 | 87,4% | 78.425 |
-| No cadastro importado, sem coordenada | 82.967.323 | 11,5% | 14.849 |
-| Fora do cadastro importado | 7.780.073 | 1,1% | 4.377 |
+| Com coordenada — entram na malha | 717.237.591 | 99,5% | 95.522 |
+| No cadastro importado, sem coordenada | 517.272 | 0,1% | 248 |
+| Fora do cadastro importado | 2.767.439 | 0,4% | 1.881 |
 
-A primeira perda é a da geocodificação, a mesma que aparece como "84,1% dos locais com coordenada".
-A segunda é diferente: são locais que aparecem na votação de 2018 ou 2022 mas não existem no
-artefato importado, que deveria cobrir esses dois anos — provável mudança de zona eleitoral entre o
-cadastro e a apuração. Ainda não foi investigada.
+Estes números são de **depois** do complemento com a base oficial do TSE (passos 10 e 11). Antes
+dele a mesma tabela mostrava 87,4% dos votos na malha e 14.849 locais do cadastro importado sem
+coordenada: era a perda da geocodificação, que o complemento praticamente zerou. O que sobrou são
+locais que aparecem na votação de 2018 ou 2022 e não estão em nenhuma das duas fontes — provável
+mudança de zona eleitoral entre o cadastro e a apuração.
 
 ---
 
@@ -774,8 +775,8 @@ apresentar os números como exatos.
 
 | Perda | Onde acontece | Brasil |
 |---|---|---|
-| Local de votação sem coordenada | artefato importado | 84,1% com coordenada |
-| Voto em local sem coordenada | passo 22 | 87,4% dos votos em alguma região |
+| Local de votação sem coordenada | artefato importado + base oficial do TSE | 99,7% com coordenada |
+| Voto em local sem coordenada | passo 22 | 99,5% dos votos em alguma região |
 | Endereço ambíguo no índice | passo 32 | 15,9% dos endereços em chave ambígua; 23,8% sem número |
 
 Traz também o acerto medido pela validação ponta a ponta, a cobertura da geocodificação por UF e o
@@ -843,24 +844,34 @@ pytest tests/
 foi feito com a mesma numeração de regiões — mudar o recorte renumera as regiões, e aí a UF é
 refeita.
 
-**Resultado de 2026.** Não existe cadastro de locais de 2026 por seção antes da eleição: os locais
-vêm do próprio arquivo de votação por seção, que traz código, nome e endereço de cada local. Quando o
-TSE publicar o 1º turno:
+**Resultado de 2026.** A malha de 2026 já está pronta: o passo 10 lê
+`eleitorado_local_votacao_2026`, que traz nome, endereço e coordenada de 95.116 locais, e o passo 11
+a incorpora. O que falta é o voto, e ele chega por dois caminhos.
+
+*Na noite da apuração*, pelos **boletins de urna** — a única fonte com granularidade de local de
+votação enquanto não sai o CSV por seção. Todo o processo está em
+[coleta_2026/README.md](coleta_2026/README.md), e a noite é um comando:
+`python -u coleta_2026/domingo.py`, que coleta, converte, confere contra o resultado oficial do TSE,
+troca o `ANO_REFERENCIA_MALHA` e roda o pipeline do passo 22 em diante. O passo 21 **não** roda: ele
+reconstrói a tabela de votos a partir dos CSVs e levaria 2026 junto.
+
+*Semanas depois*, quando o TSE publica a votação por seção, o caminho volta ao normal do projeto:
 
 1. Coloque os arquivos nas pastas de sempre: `votacao_presidente/votacao_secao_2026_BR.zip`,
    `votacao_uf/2026/votacao_secao_2026_{UF}.zip` e `candidatos/2026/consulta_cand_2026.zip`.
 2. Em `config.py`, acrescente 2026 em `ANOS_ELEICAO` e o total oficial do 1º turno em
    `TOTAIS_OFICIAIS_PRESIDENTE[2026][1]`. Sem o total, a validação oficial é pulada com aviso.
-3. Meça os locais de 2026 contra a geocodificação:
-   `python qualidade/comparar_locais.py --ano 2026`. Mostra, por UF, quantos locais têm o mesmo id e
-   o mesmo nome ou endereço (a coordenada serve), quantos têm id conhecido com nome e endereço
-   diferentes (conferir no CSV) e quantos são novos (ficam sem coordenada).
-4. Se a cobertura for boa, troque a malha: `ANO_REFERENCIA_MALHA = 2026`. A atribuição de endereços
-   é refeita em `enderecos_regiao/2026/`; a de 2022 fica intacta, e voltar atrás é trocar o número.
-5. `python rodar_pipeline.py`.
+3. `ANO_REFERENCIA_MALHA = 2026`, se ainda não estiver.
+4. `python rodar_pipeline.py`. O passo 21 reescreve a tabela de votos a partir dos CSVs, e com isso
+   os números dos boletins dão lugar aos oficiais — que trazem a classificação final, inclusive os
+   votos que a urna gravou como nominais e a totalização considerou nulos.
 
-Sem o passo 4, 2026 entra como mais um ano sobre a malha de 2022: votos de locais que não existiam
-em 2022 são realocados para o local de 2022 mais próximo, e votos de locais sem coordenada ficam fora.
+Para medir os locais de 2026 contra a geocodificação antes de trocar a malha:
+`python qualidade/comparar_locais.py --ano 2026`. Mostra, por UF, quantos locais têm o mesmo id e o
+mesmo nome ou endereço, quantos têm id conhecido com nome e endereço diferentes e quantos são novos.
+
+Sem a troca do `ANO_REFERENCIA_MALHA`, 2026 entra como mais um ano sobre a malha de 2022: votos de
+locais que não existiam em 2022 são realocados para o local de 2022 mais próximo.
 
 O 2º turno não exige mudança de código: os turnos saem do próprio arquivo. Basta atualizar o arquivo
 bruto, cadastrar `TOTAIS_OFICIAIS_PRESIDENTE[2026][2]` e rodar de novo a partir do passo 21.

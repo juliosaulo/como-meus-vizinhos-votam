@@ -87,7 +87,10 @@ como a mesma área é razoável; quando a mudança é maior, o número de 2018 d
 território levemente diferente.
 
 Quando sair o resultado de 2026, os locais daquele ano passam a ser a referência e o histórico é
-realocado de novo. A atribuição de endereços (passo 31) é refeita, porque a lista de locais muda.
+realocado de novo. A atribuição de endereços (passo 31) é refeita, porque a lista de locais muda. A
+malha de 2026 já está incorporada — ela vem de `eleitorado_local_votacao_2026` —, e o que chega na
+noite da apuração é o voto, pelos boletins de urna
+([coleta_2026/README.md](coleta_2026/README.md)).
 
 ## Fontes
 
@@ -115,3 +118,8 @@ mesmo dia e na mesma urna.
   mesmo eleitor duas vezes.
 - **Voto soma, atributo de lugar deduplica.** Vários locais de votação podem dividir o mesmo
   prédio: o voto de cada um é distinto e se soma, o endereço é o mesmo e se deduplica.
+- **O boletim de urna registra o voto como a urna o gravou.** Na leitura dos boletins de 2026, voto
+  em candidatura anulada aparece como nominal, porque é isso que a urna gravou; a totalização
+  oficial o reclassifica depois. A diferença é medida e explicada em
+  [coleta_2026/README.md](coleta_2026/README.md), e desaparece quando o CSV oficial por seção
+  substitui os boletins.

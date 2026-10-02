@@ -45,18 +45,21 @@ que vai consumi-lo é uma etapa seguinte; aqui está a engenharia que torna a pe
 
 ## O problema
 
-O TSE publica o resultado de cada urna, e a urna fica num prédio com nome e endereço. Mas ninguém
-publica a coordenada desse prédio, nem qual eleitor vota onde — e a segunda coisa é dado pessoal,
-que não deveria mesmo ser pública.
+O TSE publica o resultado de cada urna, e a urna fica num prédio com nome e endereço. A coordenada
+desse prédio também é publicada, mas de forma recente e irregular: utilizável em 79% dos locais na
+edição de 2018, 93% na de 2022 e 99% na de 2026, e com 42% dos pontos mudando de lugar entre as duas
+últimas (medições em [PROVENIENCIA.md](dados_importados/PROVENIENCIA.md)). O que ninguém publica —
+nem deveria, porque é dado pessoal — é qual eleitor vota onde.
 
 Então "como votou a minha região" não é uma consulta: é uma inferência que precisa de três pontes.
 
 1. **Do endereço à coordenada.** O CNEFE (IBGE) tem 111 milhões de endereços brasileiros com
    latitude e longitude.
-2. **Do local de votação à coordenada.** Esta é a parte difícil, e entra pronta, como artefato
-   importado: pareamento de texto entre o cadastro do TSE e o CNEFE, com classificador
-   supervisionado e mais de 24 mil decisões manuais. Método completo em
-   [PROVENIENCIA.md](dados_importados/PROVENIENCIA.md).
+2. **Do local de votação à coordenada.** Esta é a parte difícil. Vem de duas fontes: um artefato
+   importado, que casa o cadastro do TSE com o CNEFE por texto, com classificador supervisionado e
+   mais de 24 mil decisões manuais, e a coordenada oficial do TSE onde o casamento não chega —
+   80.246 locais da primeira e 23.270 da segunda. As duas foram medidas uma contra a outra, com
+   método, limites e empates em [PROVENIENCIA.md](dados_importados/PROVENIENCIA.md).
 3. **Da coordenada ao local de votação.** Cada endereço é atribuído ao local de votação mais
    próximo dentro do próprio município, por uma árvore de vizinho mais próximo (`scipy.cKDTree`)
    sobre coordenadas projetadas em metros.
@@ -103,7 +106,8 @@ Cada passo — entradas, o que faz, saídas, guardas e números da execução na
 | [PIPELINE.md](PIPELINE.md) | **como** cada passo funciona, com os números de cada etapa |
 | [METODOLOGIA.md](METODOLOGIA.md) | **por que** as decisões de método são estas, e quais são as fontes |
 | [LIMITACOES.md](LIMITACOES.md) | o que o dado não cobre e onde ele erra |
-| [PROVENIENCIA.md](dados_importados/PROVENIENCIA.md) | de onde vêm as coordenadas dos locais de votação |
+| [PROVENIENCIA.md](dados_importados/PROVENIENCIA.md) | de onde vêm as coordenadas dos locais de votação, e as duas fontes medidas uma contra a outra |
+| [coleta_2026/README.md](coleta_2026/README.md) | como o resultado de 2026 é lido dos boletins de urna, na noite da apuração |
 | `pipeline/` | os passos, numerados na ordem em que rodam |
 | `qualidade/` | as guardas, a validação ponta a ponta e os relatórios |
 | `publicado/` | o produto: JSON por município, prontos para o site |
@@ -133,7 +137,7 @@ Sem PHP, o site continua funcionando: só as prévias de link é que deixam de e
 pip install -r requirements.txt
 python rodar_pipeline.py --listar     # ver os passos
 python rodar_pipeline.py              # rodar tudo — Brasil inteiro, cerca de uma hora
-pytest tests/                         # 109 testes, ~1s, sem precisar dos dados
+pytest tests/                         # 177 testes, ~4s, sem precisar dos dados
 ```
 
 O recorte (UFs, anos, cargos) fica em [`config.py`](config.py). O padrão é o Brasil inteiro, que
@@ -233,8 +237,8 @@ Números da execução nacional, publicados em `publicado/cobertura.json`:
 
 | | |
 |---|---|
-| Locais de votação com coordenada | **84,1%** |
-| Votos dentro de alguma região | **87,4%** |
+| Locais de votação com coordenada | **99,7%** (80.246 do artefato importado, 23.270 do TSE) |
+| Votos dentro de alguma região | **99,5%** |
 | Endereços atribuídos a uma região | **99,99%** |
 | Acerto do índice, ponta a ponta | **96,40%** com rua, bairro e número; 92,44% com rua e número |
 | Endereços sem número (S/N) | 23,8% |
@@ -256,8 +260,8 @@ para separá-las.
 
 **Duas coisas que este número não mede.** Primeira: se a pessoa realmente vota naquele local — a
 premissa "vota no mais próximo" é do projeto inteiro e está discutida em
-[LIMITACOES.md](LIMITACOES.md). Segunda: os locais sem coordenada, que ficam fora da conta e
-aparecem nas linhas de cobertura acima.
+[LIMITACOES.md](LIMITACOES.md). Segunda: os 276 locais que seguem sem coordenada, que ficam fora da
+conta e aparecem nas linhas de cobertura acima.
 
 | O que o usuário informa | Acerto |
 |---|---:|
@@ -282,10 +286,12 @@ Detalhes em [LIMITACOES.md](LIMITACOES.md).
 Brasil completo e validado ponta a ponta: 27 estados, 5.563 municípios, 74.142 regiões. Próximo
 passo: o site.
 
-O resultado de **2026** entra quando o TSE publicar a votação por seção: é acrescentar o ano e o
-total oficial no `config.py`. Os locais de votação de 2026 vêm do próprio arquivo de votação; depois
-de medir quantos já têm coordenada (`qualidade/comparar_locais.py`), a malha passa a ter 2026 como
-referência, com os votos de 2018 e 2022 realocados para ela. Passo a passo em
+O resultado de **2026** entra por dois caminhos. Na noite da apuração, pelos **boletins de urna**,
+que são a única fonte com granularidade de local de votação enquanto o TSE não publica o CSV por
+seção — processo, parser e guardas em [coleta_2026/README.md](coleta_2026/README.md). Semanas depois,
+quando sai a base oficial por seção, o caminho volta ao normal do projeto: acrescentar o ano em
+`ANOS_ELEICAO` e rodar o passo 21. Nos dois casos a malha passa a ter 2026 como referência
+(`ANO_REFERENCIA_MALHA`), com os votos de 2018 e 2022 realocados para ela. Passo a passo em
 [PIPELINE.md](PIPELINE.md#mudando-o-recorte).
 
 ## Licença
