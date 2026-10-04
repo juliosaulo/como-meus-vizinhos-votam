@@ -161,3 +161,58 @@ class TestCSPDoServidor:
 
     def test_nao_abre_para_qualquer_origem(self):
         assert "*" not in self.conectar_permitidos()
+
+
+class TestEleicaoDeCadaCargo:
+    """O endereço do resultado agregado leva o código da eleição.
+
+    Presidente é apurado na eleição federal; governador, senador e os deputados,
+    na estadual, porque a unidade eleitoral deles é a UF. Usar o código da
+    federal para todos pedia o deputado no lugar errado e recebia 404 — e a
+    comparação com município, estado e Brasil ficava vazia na tela, sem erro
+    nenhum aparecendo.
+    """
+
+    class ClienteFalso:
+        def __init__(self, eleicoes):
+            self._eleicoes = eleicoes
+
+        def eleicoes(self):
+            return self._eleicoes
+
+    @staticmethod
+    def eleicao(codigo, nome, turno="1", ciclo="ele2026"):
+        return tse.Eleicao(codigo=codigo, nome=nome, turno=turno, ciclo=ciclo,
+                           pleito="3220", data="04/10/2026")
+
+    def cliente(self):
+        return self.ClienteFalso([
+            self.eleicao("6257", "Eleição Ordinária Federal - 2026 1º Turno"),
+            self.eleicao("6259", "Eleição Ordinária Estadual - 2026 1º Turno"),
+            self.eleicao("6261", "Eleição Ordinária Municipal - 2026 1º Turno"),
+            self.eleicao("9999", "Eleição Ordinária Estadual - 2022 1º Turno", ciclo="ele2022"),
+        ])
+
+    def test_presidente_na_federal_e_deputado_na_estadual(self):
+        federal = self.eleicao("6257", "Eleição Ordinária Federal - 2026 1º Turno")
+        saida = ao_vivo.eleicoes_por_cargo(self.cliente(), 2026, 1, [1, 6], federal)
+        assert saida == {"1": "6257", "6": "6259"}
+
+    def test_cargos_municipais_saem_na_municipal(self):
+        federal = self.eleicao("6257", "Eleição Ordinária Federal - 2026 1º Turno")
+        saida = ao_vivo.eleicoes_por_cargo(self.cliente(), 2026, 1, [11, 13], federal)
+        assert saida == {"11": "6261", "13": "6261"}
+
+    def test_nao_mistura_ciclos(self):
+        """A estadual de 2022 está na mesma lista e não pode ser escolhida."""
+        federal = self.eleicao("6257", "Eleição Ordinária Federal - 2026 1º Turno")
+        saida = ao_vivo.eleicoes_por_cargo(self.cliente(), 2026, 1, [6], federal)
+        assert saida["6"] == "6259"
+
+    def test_cargo_sem_eleicao_fica_de_fora(self):
+        """Melhor o navegador cair no padrão do que apontar para a errada."""
+        cliente = self.ClienteFalso([
+            self.eleicao("6257", "Eleição Ordinária Federal - 2026 1º Turno")])
+        federal = self.eleicao("6257", "Eleição Ordinária Federal - 2026 1º Turno")
+        saida = ao_vivo.eleicoes_por_cargo(cliente, 2026, 1, [1, 6], federal)
+        assert saida == {"1": "6257"}

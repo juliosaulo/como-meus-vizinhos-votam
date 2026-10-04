@@ -106,10 +106,19 @@ function caminhoAux(cfg, uf, municipio, zona, secao) {
 }
 
 /** O resultado oficial agregado. `abrangencia` é "br", a UF, ou UF+município. */
+/** A eleição em que um cargo é apurado. Presidente sai na eleição federal;
+ *  governador, senador e os deputados saem na estadual. O endereço do resultado
+ *  agregado leva esse código, então usar sempre o da federal pedia o deputado no
+ *  lugar errado e recebia 404 — sem município, estado e Brasil na comparação. */
+function eleicaoDoCargo(cfg, cargo) {
+  return (cfg.eleicoes_por_cargo ?? {})[String(cargo)] ?? cfg.eleicao;
+}
+
 function caminhoAgregado(cfg, uf, abrangencia, cargo) {
   const pasta = abrangencia === "br" ? "br" : uf;
-  return `${cfg.base}/${cfg.ambiente}/${cfg.ciclo}/${cfg.eleicao}/dados/${pasta}`
-    + `/${abrangencia}-c${quatro(cargo)}-e${seis(cfg.eleicao)}-u.json`;
+  const eleicao = eleicaoDoCargo(cfg, cargo);
+  return `${cfg.base}/${cfg.ambiente}/${cfg.ciclo}/${eleicao}/dados/${pasta}`
+    + `/${abrangencia}-c${quatro(cargo)}-e${seis(eleicao)}-u.json`;
 }
 
 /** Qual transmissão vale: a totalizada; antes disso, a última recebida.

@@ -608,6 +608,13 @@ async function atualizarAoVivo(id) {
     aoVivoVerificado.delete(String(id));
     if (String(regiaoNaTela()) === String(id)) desenhar();
   }
+
+  // O município, o estado e o Brasil envelhecem junto com o local, e o botão é
+  // um pedido para ver tudo de novo. Eles só eram buscados no primeiro
+  // carregamento — `carregarAgregados` desiste quando já tem o município em
+  // memória —, então o comparativo ficava preso no percentual apurado da
+  // primeira visita enquanto o local ao lado avançava.
+  await completarAgregadosAoVivo();
 }
 
 function desenhar() {
