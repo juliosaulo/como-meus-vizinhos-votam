@@ -152,12 +152,17 @@ def ler_bus(caminho_zip: Path, eleicao: int, cargos: set[int]) -> tuple[Counter,
             if problemas:
                 recusar(nome, problemas[0], "problemas")
                 continue
-            if eleicao not in boletim.eleicoes:
+            # O cargo é procurado em todas as eleições do boletim. O TSE separa a
+            # eleição federal, que leva presidente, da estadual, que leva
+            # governador, senador e os deputados — inclusive o federal. Pegar só
+            # a eleição pedida trazia presidente e perdia deputado federal. O
+            # código do cargo é único, então varrer tudo não cria ambiguidade.
+            do_boletim = [cargo for cargos_da_eleicao in boletim.eleicoes.values()
+                          for cargo in cargos_da_eleicao if cargo.codigo in cargos]
+            if not do_boletim:
                 resumo["sem_eleicao"] += 1
                 continue
-            for cargo in boletim.eleicoes[eleicao]:
-                if cargo.codigo not in cargos:
-                    continue
+            for cargo in do_boletim:
                 for voto in cargo.votos:
                     chave = (boletim.municipio, boletim.zona, boletim.local, cargo.codigo,
                              voto.tipo, voto.partido, voto.numero)
@@ -358,7 +363,7 @@ def main() -> None:
         print(f"  {uf}: {resumo['bus']:,} BUs | {len(tabela):,} linhas | "
               f"{int(tabela['qt_votos'].sum()):,} votos"
               + (f" | {ruins:,} recusado(s)" if ruins else "")
-              + (f" | {resumo['sem_eleicao']:,} sem a eleição pedida"
+              + (f" | {resumo['sem_eleicao']:,} sem nenhum dos cargos pedidos"
                  if resumo["sem_eleicao"] else ""))
 
     df = pd.concat(tabelas, ignore_index=True)

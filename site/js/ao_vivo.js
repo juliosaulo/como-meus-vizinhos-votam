@@ -162,8 +162,14 @@ export function somar(boletins, { cfg, locaisDaRegiao, candidatos, uf }) {
     if (boletim.fase !== "oficial") continue;                   // simulado/treino: fora
     if (bu.conferir(boletim).length) continue;                  // não fecha: fora
     if (!locaisDaRegiao.has(boletim.local)) continue;           // outro local: fora
-    const cargos = boletim.eleicoes[cfg.eleicao];
-    if (!cargos) continue;
+    // O cargo é procurado em todas as eleições do boletim, não só na federal.
+    // O TSE separa a eleição federal (presidente) da estadual, e é na estadual
+    // que ficam governador, senador e os deputados — inclusive o federal. Olhar
+    // só `cfg.eleicao` trazia presidente e dizia que não havia deputado. O
+    // código do cargo é único, então não há ambiguidade em varrer tudo.
+    const cargos = Object.values(boletim.eleicoes).flat()
+      .filter(cargo => cfg.cargos[String(cargo.codigo)]);
+    if (!cargos.length) continue;
     usados++;
     for (const cargo of cargos) {
       const nome = cfg.cargos[String(cargo.codigo)];
