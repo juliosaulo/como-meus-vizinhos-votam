@@ -441,7 +441,7 @@ const aoVivoVerificado = new Map();
  *  consultas simultâneas do mesmo local são desperdício, e dez são risco. */
 const aoVivoEmVoo = new Set();
 
-async function completarComAoVivo(id) {
+async function completarComAoVivo(id, forcar = false) {
   if (id == null || !estado.municipio || aoVivoPedidos.has(String(id))) return;
   const regiao = estado.regioes?.[id];
   if (!regiao) return;
@@ -451,19 +451,23 @@ async function completarComAoVivo(id) {
   aoVivoPedidos.add(String(id));
   aoVivoEmVoo.add(String(id));
   try {
-    await buscarAoVivo(id, regiao);
+    await buscarAoVivo(id, regiao, forcar);
   } finally {
     aoVivoEmVoo.delete(String(id));
   }
 }
 
-async function buscarAoVivo(id, regiao) {
+async function buscarAoVivo(id, regiao, forcar) {
   const cfg = await aoVivo.configurar();
   // Sem configuração não dá para buscar, e não é falha deste local: desmarca
   // para a próxima tentativa poder acontecer.
   if (!cfg) { aoVivoPedidos.delete(String(id)); return; }
   estado.anoAoVivo = cfg.ano;
-  if (regiao.resultados?.presidente?.[cfg.ano]?.[cfg.turno]) return;
+  // "Este ano já existe" vale para o arquivo publicado, não para o que esta
+  // camada mesclou: o número mesclado é parcial e é justamente o que o botão
+  // vem renovar. Sem `forcar`, o clique voltava aqui e saía sem buscar nada —
+  // e sem redesenhar, deixando o botão preso em "buscando…".
+  if (!forcar && regiao.resultados?.presidente?.[cfg.ano]?.[cfg.turno]) return;
 
   aoVivoSituacao.set(String(id), "buscando");
   if (String(regiaoNaTela()) === String(id)) desenhar();
@@ -579,6 +583,7 @@ function avisoAoVivo(id) {
 async function atualizarAoVivo(id) {
   // Clique sobre busca em andamento não abre uma segunda: já está buscando.
   if (aoVivoEmVoo.has(String(id))) return;
+  const anterior = aoVivoPorRegiao.get(String(id));
   // Sem isto o clique relê o cache de três minutos e devolve a mesma resposta:
   // o botão parece não fazer nada, que é como ele parecia.
   aoVivo.esquecerOTemporario();
@@ -586,7 +591,17 @@ async function atualizarAoVivo(id) {
   aoVivoPorRegiao.delete(String(id));
   aoVivoSituacao.delete(String(id));
   aoVivoVerificado.delete(String(id));
-  await completarComAoVivo(id);
+  await completarComAoVivo(id, Boolean(anterior));
+
+  // A busca nova pode não voltar — o TSE oscila. O que já estava na tela
+  // continua valendo: trocar um parcial por "nenhuma urna processada" seria
+  // perder informação verdadeira por causa de uma falha de rede.
+  if (anterior && !aoVivoPorRegiao.has(String(id))) {
+    aoVivoPorRegiao.set(String(id), anterior);
+    aoVivoSituacao.set(String(id), "ok");
+    aoVivoVerificado.delete(String(id));
+    if (String(regiaoNaTela()) === String(id)) desenhar();
+  }
 }
 
 function desenhar() {
