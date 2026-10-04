@@ -119,6 +119,24 @@ try {
   const base = new URL("../../dados/teste/ao_vivo_2024/", location.href).href;
   conta(Boolean(await aoVivo.configurar(base)), "configuração do ensaio carrega");
 
+  // 7. o botão "tentar de novo" só serve para alguma coisa se a busca seguinte
+  // for mesmo à rede. Com o cache de três minutos intacto, ela não vai, e o
+  // clique devolve a resposta guardada — o defeito que isto trava.
+  {
+    const originalFetch = window.fetch;
+    let pedidos = 0;
+    window.fetch = (...args) => { pedidos++; return originalFetch(...args); };
+    try {
+      await aoVivo.configurar(base);
+      conta(pedidos === 0, "segunda chamada seguida usa o cache", `pedidos=${pedidos}`);
+      aoVivo.esquecerOTemporario();
+      await aoVivo.configurar(base);
+      conta(pedidos === 1, "depois de esquecer, a busca vai à rede", `pedidos=${pedidos}`);
+    } finally {
+      window.fetch = originalFetch;
+    }
+  }
+
   for (const caso of esperado.casos) {
     const inicio = performance.now();
     const r = await aoVivo.resultadoDaRegiao({

@@ -433,6 +433,9 @@ const aoVivoPorRegiao = new Map();
 const aoVivoPedidos = new Set();
 /** id da região → "buscando" | "sem" (nenhuma urna ainda) | "ok" */
 const aoVivoSituacao = new Map();
+/** id da região → quando o TSE foi consultado pela última vez sem achar urna.
+ *  É o que dá ao clique uma prova visível de que a consulta foi refeita. */
+const aoVivoVerificado = new Map();
 
 async function completarComAoVivo(id) {
   if (id == null || !estado.municipio || aoVivoPedidos.has(String(id))) return;
@@ -452,6 +455,7 @@ async function completarComAoVivo(id) {
   });
   if (!vivo) {
     aoVivoSituacao.set(String(id), "sem");
+    aoVivoVerificado.set(String(id), new Date());
     if (String(regiaoNaTela()) === String(id)) desenhar();
     return;
   }
@@ -496,6 +500,19 @@ function mesclarAoVivo(regiao, vivo) {
 
 /** O aviso de apuração em andamento, com a contagem de urnas.
  *  Sem ele o número parcial de um bairro pequeno pareceria resultado fechado. */
+/** "Verificado às 19:42:07." — é a prova de que o clique refez a consulta,
+ *  mesmo quando a resposta é a mesma. Com segundos de propósito: dois cliques
+ *  seguidos caem no mesmo minuto, e aí um relógio sem segundos não se mexe —
+ *  que era exatamente a impressão de botão quebrado. As outras tarjas marcam
+ *  hora e minuto, porque nelas o que muda é a contagem de urnas. */
+function horaDaVerificacao(id) {
+  const quando = aoVivoVerificado.get(String(id));
+  if (!quando) return "";
+  const hora = quando.toLocaleTimeString("pt-BR",
+    { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  return `Verificado às ${hora}.`;
+}
+
 function avisoAoVivo(id) {
   const situacao = aoVivoSituacao.get(String(id));
   if (!situacao) return "";
@@ -515,6 +532,7 @@ function avisoAoVivo(id) {
         <strong>${estado.anoAoVivo ? `${estado.anoAoVivo}: ` : ""}Nenhuma urna
         deste local processada ainda.</strong>
         O resultado aparece aqui conforme as urnas forem sendo processadas.
+        ${horaDaVerificacao(id)}
         <button class="atualizar-ao-vivo" data-atualizar="${id}">tentar de novo</button>
       </p>`;
   }
@@ -541,9 +559,13 @@ function avisoAoVivo(id) {
 }
 
 async function atualizarAoVivo(id) {
+  // Sem isto o clique relê o cache de três minutos e devolve a mesma resposta:
+  // o botão parece não fazer nada, que é como ele parecia.
+  aoVivo.esquecerOTemporario();
   aoVivoPedidos.delete(String(id));
   aoVivoPorRegiao.delete(String(id));
   aoVivoSituacao.delete(String(id));
+  aoVivoVerificado.delete(String(id));
   await completarComAoVivo(id);
 }
 

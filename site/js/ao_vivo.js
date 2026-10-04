@@ -57,6 +57,23 @@ function jaEhODia(data) {
   return hoje >= inicio;
 }
 
+/** Esquece o que foi guardado por tempo, para a próxima busca ir mesmo ao TSE.
+ *
+ *  O cache de três minutos existe para a busca automática não repetir pedido a
+ *  cada redesenho. Mas quem clica em "tentar de novo" está pedindo exatamente
+ *  para olhar outra vez agora, e devolver a resposta guardada faz o botão
+ *  parecer quebrado. Some só o que envelhece — a configuração de seções e os
+ *  agregados. O mapa de seções e a tabela de candidatos não mudam durante a
+ *  apuração, e rebuscá-los seria pedir de novo o que já se sabe.
+ */
+export function esquecerOTemporario() {
+  for (const chave of [...cache.keys()]) {
+    if (chave.startsWith("cs:") || chave.startsWith("agr:") || chave.startsWith("cfg:")) {
+      cache.delete(chave);
+    }
+  }
+}
+
 /** Busca com cache por tempo. Erro não é guardado: a próxima tentativa tenta. */
 async function comCache(chave, validadeMs, buscar) {
   const agora = Date.now();
