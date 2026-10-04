@@ -24,6 +24,9 @@ const estado = {
   achado: null, regiaoEscolhida: null,
   aba: "presidente", ano: null, turno: null, anoPedido: false, ufsLista: null,
   metadados: null, anoFuturo: null, apuradoOficial: null,
+  // Ano da eleição que a camada ao vivo acompanha, para a tarja poder
+  // nomeá-lo antes de existir qualquer resultado dele.
+  anoAoVivo: null,
   agregados: { municipio: null, uf: null, brasil: null },
 };
 
@@ -437,6 +440,7 @@ async function completarComAoVivo(id) {
   if (!regiao) return;
   const cfg = await aoVivo.configurar();
   if (!cfg) return;
+  estado.anoAoVivo = cfg.ano;
   if (regiao.resultados?.presidente?.[cfg.ano]?.[cfg.turno]) return;
 
   aoVivoPedidos.add(String(id));
@@ -508,7 +512,8 @@ function avisoAoVivo(id) {
     return `
       <p class="aviso-ao-vivo aguardando">
         <span class="marca" aria-hidden="true">◷</span>
-        <strong>Nenhuma urna deste local processada ainda.</strong>
+        <strong>${estado.anoAoVivo ? `${estado.anoAoVivo}: ` : ""}Nenhuma urna
+        deste local processada ainda.</strong>
         O resultado aparece aqui conforme as urnas forem sendo processadas.
         <button class="atualizar-ao-vivo" data-atualizar="${id}">tentar de novo</button>
       </p>`;
