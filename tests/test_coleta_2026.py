@@ -326,6 +326,54 @@ class TestFormatoOficialDoTse:
         assert bu.conferir(de_2022) == [] and bu.conferir(de_2024) == []
 
 
+class TestSenadoComDuasVagas:
+    """O caso que derrubou a camada ao vivo na noite de 2026.
+
+    O Senado renova um terço ou dois terços das cadeiras. Em 2026 foram dois
+    terços: cada eleitor votou em dois senadores, e a soma do cargo deu o dobro
+    do comparecimento. A conferência exigia igualdade, reprovava o boletim
+    inteiro — e junto com ele o resultado de presidente, que estava correto.
+    Como ela é a porta tanto da coleta em lote quanto da camada ao vivo, isso
+    significava nenhum resultado em lugar nenhum do país.
+    """
+
+    DE_2026 = Path(__file__).resolve().parent / "fixtures" / "bu_exemplo_2026_federal.bu"
+
+    @pytest.mark.skipif(not DE_2026.exists(), reason="fixture ausente")
+    def test_boletim_real_de_2026_fecha_a_conta(self):
+        b = bu.ler(self.DE_2026.read_bytes())
+        senador = [c for el in b.eleicoes.values() for c in el if c.codigo == 5]
+        assert senador, "a fixture precisa ter o cargo de senador"
+        assert senador[0].total == senador[0].comparecimento * 2
+        assert bu.conferir(b) == []
+
+    @staticmethod
+    def com_um_cargo(codigo: int, comparecimento: int, votos: int) -> bu.Boletim:
+        """Um boletim de um cargo só, para olhar a aritmética sem passar por DER."""
+        return bu.Boletim(
+            municipio="49956", zona=291, local=1040, secao=22, pleito=3220,
+            fase="oficial",
+            eleicoes={6259: [bu.Cargo(codigo, comparecimento,
+                                      [bu.Voto("nominal", votos, None, 123)])]},
+        )
+
+    def test_dobro_so_vale_para_senador(self):
+        """Presidente com o dobro de votos é erro de leitura, não eleição."""
+        assert any("cargo 1" in p
+                   for p in bu.conferir(self.com_um_cargo(1, 100, 200)))
+
+    def test_senador_com_o_triplo_continua_sendo_erro(self):
+        assert any("cargo 5" in p
+                   for p in bu.conferir(self.com_um_cargo(5, 100, 300)))
+
+    def test_senador_com_uma_vaga_tambem_passa(self):
+        """2022 renovou um terço: um voto por eleitor, e isso segue válido."""
+        assert bu.conferir(self.com_um_cargo(5, 100, 100)) == []
+
+    def test_senador_com_duas_vagas_passa(self):
+        assert bu.conferir(self.com_um_cargo(5, 100, 200)) == []
+
+
 class TestRecusaDeEstrutura:
     """Uma mudança de formato tem de virar recusa contada, nunca número errado.
 

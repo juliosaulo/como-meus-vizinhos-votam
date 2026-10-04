@@ -249,14 +249,23 @@ function lerVoto(no) {
  *  A conferência que importa: a soma dos votos de um cargo é o comparecimento
  *  daquela urna. Quem aparece vota uma vez por cargo, em alguém, em branco ou
  *  nulo. Se isso não fecha, a leitura está errada — e o resultado não vai à tela. */
+/* Quantos votos cada eleitor dá em cada cargo — ver VOTOS_POR_ELEITOR em
+ * coleta_2026/bu.py. É um em quase todos; no Senado em renovação de dois terços,
+ * como 2026, são dois, e a soma do cargo dá o dobro do comparecimento. */
+const VOTOS_POR_ELEITOR = { 5: [1, 2] };   // 5 = senador
+const PADRAO_VOTOS_POR_ELEITOR = [1];
+
 export function conferir(boletim) {
   const problemas = [];
   for (const [codigoEleicao, cargos] of Object.entries(boletim.eleicoes)) {
     for (const cargo of cargos) {
       const total = cargo.votos.reduce((soma, voto) => soma + voto.quantidade, 0);
-      if (total !== cargo.comparecimento) {
+      const porEleitor = VOTOS_POR_ELEITOR[cargo.codigo] ?? PADRAO_VOTOS_POR_ELEITOR;
+      const aceitos = porEleitor.map(n => cargo.comparecimento * n);
+      if (!aceitos.includes(total)) {
         problemas.push(`eleição ${codigoEleicao}, cargo ${cargo.codigo}: votos somam `
-          + `${total} e o comparecimento declarado é ${cargo.comparecimento}`);
+          + `${total} e o comparecimento declarado é ${cargo.comparecimento} `
+          + `(esperava ${[...new Set(aceitos)].sort((a, b) => a - b).join(" ou ")})`);
       }
       for (const voto of cargo.votos) {
         if (voto.tipo.startsWith("desconhecido")) {

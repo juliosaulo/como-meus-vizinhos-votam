@@ -270,21 +270,34 @@ def _ler_voto(no: der.No) -> Voto:
     )
 
 
+# Quantos votos cada eleitor dá em cada cargo. É um em quase todos — mas o
+# Senado renova um terço ou dois terços das cadeiras a cada quatro anos, e na
+# renovação de dois terços cada eleitor escolhe dois senadores. Aí a soma do
+# cargo dá o dobro do comparecimento, sem nada de errado. Foi o que aconteceu em
+# 2026: a conferência reprovava todo boletim do país por causa disto.
+VOTOS_POR_ELEITOR = {5: (1, 2)}   # 5 = senador
+PADRAO_VOTOS_POR_ELEITOR = (1,)
+
+
 def conferir(boletim: Boletim) -> list[str]:
     """Problemas que um BU bem formado não pode ter.
 
     A conferência que importa: **a soma dos votos de um cargo é o comparecimento**
-    daquela urna. Quem aparece vota uma vez por cargo, em alguém, em branco ou
-    nulo. Se isso não fecha, o parser leu errado — e é melhor saber aqui do que
-    descobrir depois de publicar.
+    daquela urna, vezes o número de votos que cada eleitor dá naquele cargo —
+    um, salvo no Senado em renovação de dois terços. Se isso não fecha, o parser
+    leu errado, e é melhor saber aqui do que descobrir depois de publicar.
     """
     problemas = []
     for codigo_eleicao, cargos in boletim.eleicoes.items():
         for cargo in cargos:
-            if cargo.total != cargo.comparecimento:
+            por_eleitor = VOTOS_POR_ELEITOR.get(cargo.codigo, PADRAO_VOTOS_POR_ELEITOR)
+            aceitos = {cargo.comparecimento * n for n in por_eleitor}
+            if cargo.total not in aceitos:
+                esperado = " ou ".join(f"{v:,}" for v in sorted(aceitos))
                 problemas.append(
                     f"eleição {codigo_eleicao}, cargo {cargo.codigo}: votos somam "
-                    f"{cargo.total:,} e o comparecimento declarado é {cargo.comparecimento:,}"
+                    f"{cargo.total:,} e o comparecimento declarado é "
+                    f"{cargo.comparecimento:,} (esperava {esperado})"
                 )
             for voto in cargo.votos:
                 if voto.quantidade < 0:

@@ -15,6 +15,7 @@
  */
 
 import * as aoVivo from "../js/ao_vivo.js";
+import * as bu from "../js/bu.js";
 
 const linhas = [];
 let falhas = 0;
@@ -111,6 +112,29 @@ const opcoes = { cfg: CFG, candidatos: CANDIDATOS, uf: "rr",
 
 // 6. nenhum boletim utilizável devolve null, não zero
 conta(aoVivo.somar([null, null], opcoes) === null, "sem boletim devolve null");
+
+/* --------------------------------- senado com duas vagas, boletim real de 2026 */
+
+// Em 2026 cada eleitor votou em dois senadores, e a soma do cargo deu o dobro do
+// comparecimento. A conferência exigia igualdade e reprovava o boletim inteiro —
+// com o resultado de presidente dentro dele. Nenhum local do país mostrava nada.
+try {
+  const bruto = await (await fetch("../../tests/fixtures/bu_exemplo_2026_federal.bu"))
+    .arrayBuffer();
+  const b = bu.ler(bruto);
+  const senador = Object.values(b.eleicoes).flat().find(c => c.codigo === 5);
+  const soma = senador.votos.reduce((t, v) => t + v.quantidade, 0);
+  conta(soma === senador.comparecimento * 2, "senador soma o dobro do comparecimento",
+    `${soma} para ${senador.comparecimento}`);
+  conta(bu.conferir(b).length === 0, "o boletim de 2026 fecha a conta",
+    bu.conferir(b).join("; "));
+
+  const presidente = b.eleicoes["6257"].find(c => c.codigo === 1);
+  conta(presidente.comparecimento === 135, "presidente lido junto",
+    `comparecimento=${presidente.comparecimento}`);
+} catch (erro) {
+  conta(false, `boletim de 2026 não pôde ser lido: ${erro.message}`);
+}
 
 /* ----------------------------------------------- busca real, eleição de 2024 */
 
