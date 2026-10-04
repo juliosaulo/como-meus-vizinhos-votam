@@ -180,13 +180,14 @@ qual dos dois pontos foge da nuvem de pontos do próprio município —, e por i
 em 5.072 dos 8.710 casos que lista. O árbitro de densidade de endereços decide 2.028 deles, e
 substituí-lo no relatório é uma melhoria pendente.
 
-### Nota de histórico
+### Uma ressalva sobre as datas
 
-Até setembro de 2026 este documento afirmava que o TSE não publicava a coordenada dos locais, e uma
-versão posterior afirmou que publicava para 100% deles. As duas afirmações estavam erradas, e as
-medições acima as substituem. Não é possível reconstruir, daqui, se a coluna já vinha preenchida
-quando o artefato foi construído: o TSE regera os arquivos, e a cópia de 2022 disponível hoje foi
-gerada em 30/09/2024.
+Versões anteriores deste documento descreveram a cobertura oficial de forma incorreta — primeiro
+como inexistente, depois como integral. Valem as medições acima.
+
+Também não é possível reconstruir se a coordenada já vinha preenchida quando este artefato foi
+construído: o TSE regera esses arquivos, e a cópia de 2022 disponível hoje foi gerada em
+30/09/2024.
 
 ## Como cada coordenada foi decidida
 

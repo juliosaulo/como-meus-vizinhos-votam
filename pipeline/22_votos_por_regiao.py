@@ -33,6 +33,7 @@ from scipy.spatial import cKDTree
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import config
+import malha
 from qualidade import validacoes
 
 
@@ -68,10 +69,20 @@ def juntar_votos_regiao(votos: pd.DataFrame, de_para: pd.DataFrame) -> pd.DataFr
     return juntado
 
 
-def regioes_ativas_na_referencia(votos: pd.DataFrame) -> set[int]:
-    ativo = votos[votos["ano_eleicao"] == config.ANO_REFERENCIA_MALHA]["id_regiao"].unique()
-    print(f"  regiões ativas em {config.ANO_REFERENCIA_MALHA}: {len(ativo):,}")
-    return set(ativo)
+def regioes_ativas_na_referencia(votos: pd.DataFrame,
+                                 de_para: pd.DataFrame | None = None) -> set[int]:
+    """As regiões que existem no ano de referência da malha.
+
+    "Existir" é ter local de votação funcionando no ano, não ter voto apurado —
+    ver `pipeline/malha.py` para o porquê. Sem o arquivo de eleitorado, cai na
+    definição pelo voto, que é a resposta certa depois da eleição.
+    """
+    com_voto = set(votos[votos["ano_eleicao"] == config.ANO_REFERENCIA_MALHA]["id_regiao"])
+    com_local = malha.regioes_do_ano(config.ANO_REFERENCIA_MALHA, de_para)
+    ativo = com_voto | com_local
+    print(f"  regiões ativas em {config.ANO_REFERENCIA_MALHA}: {len(ativo):,} "
+          f"({len(com_local):,} com local em funcionamento, {len(com_voto):,} com voto apurado)")
+    return ativo
 
 
 def mapear_para_referencia(dim: pd.DataFrame, ativas: set[int]) -> dict[int, int]:
@@ -123,7 +134,7 @@ def main() -> None:
     dim = pd.read_parquet(config.DIR_INTERMEDIARIO / "dim_regiao.parquet")
 
     votos = juntar_votos_regiao(votos, de_para)
-    ativas = regioes_ativas_na_referencia(votos)
+    ativas = regioes_ativas_na_referencia(votos, de_para)
     mapa = mapear_para_referencia(dim, ativas)
 
     total_antes = int(votos["qt_votos"].sum())

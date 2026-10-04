@@ -13,6 +13,7 @@ UFs já processadas.
 from __future__ import annotations
 
 import argparse
+import os
 import subprocess
 import sys
 import time
@@ -36,8 +37,23 @@ PASSOS = [
 ]
 
 
+# Windows, com a saída redirecionada para arquivo, escolhe cp1252 — e o primeiro
+# "→" de um nome de passo derruba a execução inteira com UnicodeEncodeError, em
+# geral de madrugada e depois de horas de processamento. Isto fecha o assunto
+# para este processo e para os filhos, sem depender de ninguém lembrar de
+# exportar PYTHONIOENCODING.
+for fluxo in (sys.stdout, sys.stderr):
+    try:
+        fluxo.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):
+        pass
+
+AMBIENTE = {**os.environ, "PYTHONIOENCODING": "utf-8", "PYTHONUNBUFFERED": "1"}
+
+
 def rodar(script: str) -> None:
-    resultado = subprocess.run([sys.executable, script], cwd=BASE_DIR)
+    # `-u` para a saída aparecer no log enquanto o passo roda, não só no fim.
+    resultado = subprocess.run([sys.executable, "-u", script], cwd=BASE_DIR, env=AMBIENTE)
     if resultado.returncode != 0:
         raise SystemExit(f"\nFALHOU: {script} (código {resultado.returncode})")
 

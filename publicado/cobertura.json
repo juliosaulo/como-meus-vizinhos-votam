@@ -37,7 +37,7 @@
       "PRESIDENTE",
       "DEPUTADO FEDERAL"
     ],
-    "ano_referencia_malha": 2022
+    "ano_referencia_malha": 2026
   },
   "geocodificacao": {
     "locais_votacao": 103792,
@@ -217,25 +217,25 @@
     "votos_apurados": 720522302,
     "votos_em_regiao": 717237591,
     "pct": 99.5,
-    "regioes_com_voto": 88583,
+    "regioes_com_voto": 85586,
     "nota": "A diferença são votos dados em locais sem coordenada. Totais eleitorais oficiais não devem ser lidos desta base — ela cobre só o que é espacializável."
   },
   "enderecos": {
     "enderecos": 111101340,
     "sem_numero": 26470806,
     "pct_sem_numero": 23.8,
-    "em_chave_ambigua": 18801017,
-    "pct_em_chave_ambigua": 16.9,
-    "acerto_medido_pct": 92.44,
+    "em_chave_ambigua": 19024869,
+    "pct_em_chave_ambigua": 17.1,
+    "acerto_medido_pct": 91.59,
     "acerto_por_caminho_pct": {
-      "so_rua": 78.29,
-      "so_rua_domicilios": 79.36,
-      "rua_bairro": 87.61,
-      "rua_bairro_domicilios": 88.51,
-      "rua_numero": 92.44,
-      "rua_numero_domicilios": 93.53,
-      "completo": 96.4,
-      "completo_domicilios": 97.1
+      "so_rua": 76.54,
+      "so_rua_domicilios": 77.72,
+      "rua_bairro": 86.25,
+      "rua_bairro_domicilios": 87.19,
+      "rua_numero": 91.59,
+      "rua_numero_domicilios": 92.77,
+      "completo": 95.77,
+      "completo_domicilios": 96.54
     },
     "nota": "Endereço sem número (S/N) é a principal fonte de imprecisão: rua e número são a chave de consulta, e sem número todos os endereços da rua compartilham a mesma resposta. É mais comum em área rural."
   }

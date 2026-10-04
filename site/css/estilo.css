@@ -23,6 +23,7 @@
   --verde-fundo: #e9f4ed;
   --verde-fio: #c9e3d4;
   --vermelho: #a3273a;
+  --ambar: #a8740f;
   --cinza: #9aa7b8;
   --serifa: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
   --sans: "Segoe UI", system-ui, -apple-system, sans-serif;
@@ -372,6 +373,36 @@ body.via-link .so-link { display: block; }
 
 .aviso { display: flex; gap: 12px; align-items: flex-start; background: var(--faixa);
          border-left: 3px solid var(--azul-claro); padding: 13px 16px; margin: 16px 0; font-size: 14px; }
+/* Apuração em andamento. O aviso não é decoração: número parcial de um bairro
+   pequeno, sem dizer quantas urnas entraram, pareceria resultado fechado.
+   São quatro estados, e a cor da borda é o que os distingue de relance:
+   buscando (cinza), sem urna (âmbar), parcial (azul), concluída (verde). */
+.aviso-ao-vivo { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline;
+                 background: var(--faixa); border-left: 3px solid var(--azul);
+                 padding: 10px 14px; margin: 14px 0 4px; font-size: 13.5px;
+                 line-height: 1.45; color: var(--tinta); }
+.aviso-ao-vivo strong { color: var(--azul-escuro); }
+.aviso-ao-vivo .marca { font-size: 15px; line-height: 1; }
+.aviso-ao-vivo.parcial .marca { color: var(--azul); }
+.aviso-ao-vivo.completo { border-left-color: var(--verde); background: var(--verde-fundo); }
+.aviso-ao-vivo.completo strong { color: var(--verde); }
+.aviso-ao-vivo.completo .marca { color: var(--verde); font-weight: 700; }
+.aviso-ao-vivo.aguardando { border-left-color: var(--ambar); }
+.aviso-ao-vivo.aguardando strong { color: var(--ambar); }
+.aviso-ao-vivo.aguardando .marca { color: var(--ambar); }
+.aviso-ao-vivo.buscando { border-left-color: var(--fio-frio); color: var(--tinta-suave); }
+
+/* O girador: só CSS, para não carregar imagem numa noite de pico. */
+.girando { width: 13px; height: 13px; border-radius: 50%; display: inline-block;
+           border: 2px solid var(--azul-palido); border-top-color: var(--azul);
+           animation: girar .7s linear infinite; }
+@keyframes girar { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .girando { animation-duration: 2.5s; } }
+.atualizar-ao-vivo { background: none; border: 0; padding: 0; margin-left: 4px;
+                     color: var(--azul); font: inherit; text-decoration: underline;
+                     cursor: pointer; }
+.atualizar-ao-vivo:hover { color: var(--azul-escuro); }
+
 .nota { color: var(--tinta-suave); font-size: 12.5px; margin-top: 14px; }
 .vazio { color: var(--tinta-suave); font-size: 14px; }
 .erro { color: var(--vermelho); font-size: 14px; }

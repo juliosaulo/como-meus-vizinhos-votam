@@ -96,14 +96,34 @@ foreach ($candidatos as $c) {
     $placar[] = $c['nome'] . ' ' . pct((float) $c['pct']);
 }
 $eleicao = "Presidente {$local['ano']}, {$local['turno']}º turno";
-$descricao = $placar
-    ? "{$eleicao}: " . implode(' × ', $placar) .
-      '. Veja como votou o local de votação mais próximo do seu endereço.'
-    : 'Veja como votou o local de votação mais próximo do seu endereço.';
+
+// Durante a apuração, a prévia do link não pode mostrar a eleição passada.
+// O resultado ao vivo é buscado no navegador, direto no TSE: o servidor não o
+// tem, e `publicado/` ainda traz o ano anterior. Mostrar aquele placar ao lado
+// de um texto que fala da eleição de agora confundiria quem recebe o link — e
+// o cartão é o que a maioria vê. Então, enquanto a camada ao vivo estiver
+// ligada e o ano dela não estiver publicado, a prévia fica neutra: a imagem
+// genérica do site, sem número, e o convite para abrir.
+$ao_vivo = ler_json(__DIR__ . '/publicado/ao_vivo/config.json');
+$apurando = is_array($ao_vivo)
+    && !empty($ao_vivo['ativo'])
+    && (string) ($ao_vivo['ano'] ?? '') !== (string) ($local['ano'] ?? '');
 
 $url = SITE . "/l/{$municipio}/{$id}";
-$card = SITE . "/card/{$municipio}/{$id}.png";
-$alt = "Resultado de {$eleicao} em {$local['local']}, {$mun['nome']} ({$mun['uf']}).";
+if ($apurando) {
+    $descricao = 'Apuração de ' . htmlspecialchars((string) $ao_vivo['ano'], ENT_QUOTES)
+        . ' em andamento. Abra para ver como está votando o local de votação mais '
+        . 'próximo do seu endereço.';
+    $card = SITE . '/img/og.png';
+    $alt = "Como meus vizinhos votam — {$local['local']}, {$mun['nome']} ({$mun['uf']}).";
+} else {
+    $descricao = $placar
+        ? "{$eleicao}: " . implode(' × ', $placar) .
+          '. Veja como votou o local de votação mais próximo do seu endereço.'
+        : 'Veja como votou o local de votação mais próximo do seu endereço.';
+    $card = SITE . "/card/{$municipio}/{$id}.png";
+    $alt = "Resultado de {$eleicao} em {$local['local']}, {$mun['nome']} ({$mun['uf']}).";
+}
 
 // ---------------------------------------------------------------- página
 $html = file_get_contents(__DIR__ . '/index.html');

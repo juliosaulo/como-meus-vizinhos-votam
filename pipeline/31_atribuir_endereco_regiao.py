@@ -25,6 +25,7 @@ from scipy.spatial import cKDTree
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import config
+import malha
 from qualidade import validacoes
 
 TAMANHO_BLOCO = 400_000
@@ -99,17 +100,26 @@ def arvores_por_municipio(regioes: pd.DataFrame) -> dict[str, tuple[cKDTree, lis
 
 
 def carregar_regioes_alvo() -> pd.DataFrame:
-    """Regiões que podem ser exibidas: as que têm voto depois da realocação."""
+    """Regiões que podem ser exibidas: as da malha de referência, mais as que têm voto.
+
+    A união importa. Só "as que têm voto" deixaria de fora as regiões que existem
+    no ano de referência e ainda não têm resultado — o caso de 2026 na véspera da
+    eleição, em que a atribuição de endereços precisa estar pronta **antes** de o
+    voto chegar (ver `pipeline/malha.py`). E só "as da malha" deixaria de fora as
+    regiões que recebem voto realocado de um local que fechou.
+    """
     dim = pd.read_parquet(config.DIR_INTERMEDIARIO / "dim_regiao.parquet")
     votos = pd.read_parquet(config.DIR_INTERMEDIARIO / "votos_regiao.parquet", columns=["id_regiao"])
-    alvo = dim[dim["id_regiao"].isin(set(votos["id_regiao"]))].copy()
+    exibiveis = set(votos["id_regiao"]) | malha.regioes_do_ano(config.ANO_REFERENCIA_MALHA)
+    alvo = dim[dim["id_regiao"].isin(exibiveis)].copy()
 
     transformador = Transformer.from_crs(config.CRS_GEOGRAFICO, config.CRS_METRICO, always_xy=True)
     alvo["x"], alvo["y"] = transformador.transform(
         alvo["longitude_final"].values, alvo["latitude_final"].values
     )
     validacoes.checar_crs_metrico(config.CRS_METRICO, "árvore de vizinho mais próximo")
-    print(f"  regiões alvo (com voto): {len(alvo):,} em {alvo['cd_municipio_ibge'].nunique():,} município(s)")
+    print(f"  regiões alvo: {len(alvo):,} em "
+          f"{alvo['cd_municipio_ibge'].nunique():,} município(s)")
     return alvo
 
 

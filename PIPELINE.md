@@ -314,13 +314,42 @@ Leva os votos do local de votação para a região, na malha do ano de referênc
 ### O que acontece
 
 1. **Junta votos e regiões** pelo `id_local_votacao`. Votos em local sem coordenada ficam de fora.
-2. **Identifica as regiões ativas** no ano de referência (`config.ANO_REFERENCIA_MALHA`, hoje 2022):
-   as que têm voto naquele ano.
+2. **Identifica as regiões ativas** no ano de referência (`config.ANO_REFERENCIA_MALHA`, hoje 2022).
+   Ativa é a região que **existe** naquele ano: tem local de votação em funcionamento, segundo o
+   eleitorado por seção do passo 10, **ou** tem voto apurado. A união das duas definições está em
+   [`pipeline/malha.py`](pipeline/malha.py), e o motivo é a véspera de uma eleição — ver a caixa
+   abaixo.
 3. **Projeta as coordenadas** para EPSG:5880 (metros).
 4. **Realoca as regiões inativas.** Município a município, cada região sem voto no ano de referência
    aponta para a região ativa mais próxima, por árvore de vizinho mais próximo. Região ativa aponta
    para si mesma. Município sem nenhuma região ativa mantém as próprias regiões.
 5. **Substitui o `id_regiao`** de cada voto pelo da região de destino e **soma**.
+
+### Por que "ativa" não é "tem voto"
+
+As duas definições dão o mesmo conjunto depois de uma eleição: todo local que funcionou tem voto.
+Elas divergem na véspera, e é aí que importa.
+
+O TSE publica o eleitorado por seção **meses antes** da votação — em 2026, 95.116 locais com nome,
+endereço e coordenada. Então a malha de 2026 pode estar pronta antes do resultado, e é isso que
+permite trocar `ANO_REFERENCIA_MALHA` com antecedência, rodar as duas horas do passo 31 em
+tranquilidade e deixar o dia da apuração só com o voto.
+
+Se "ativa" fosse só "tem voto", a troca antecipada não funcionaria: zero regiões ativas, o
+fallback do item 4 manteria as regiões antigas, e os endereços nunca seriam atribuídos às regiões
+novas. Medido com a malha de 2026 antes de qualquer voto:
+
+| | |
+|---|---:|
+| regiões ativas em 2026 | **90.898** |
+| regiões realocadas | 7.083 |
+| regiões com resultado depois da realocação | 85.586 |
+| regiões publicadas **sem** resultado anterior | 5.312 |
+| votos preservados | 717.237.591 → 717.237.591 |
+
+As 5.312 são locais novos, que só passam a ter resultado quando o voto de 2026 chega. O passo 40
+as publica mesmo assim (ver lá), porque o índice de ruas do passo 32 já aponta endereços para
+elas — se não fossem publicadas, o site resolveria um endereço para uma região ausente do JSON.
 
 ### Saída
 
@@ -353,9 +382,10 @@ chave divergente entre as duas bases, não ausência real de dado.
 | Linhas de voto que encontraram região | 49.616.732 de 49.861.547 (99,5%) |
 | Votos em local geocodificado | 717.237.591 de 720.522.302 (**99,5%**) |
 | Votos fora da malha | 3.284.711 |
-| Regiões ativas em 2022 | 88.583 |
-| Regiões realocadas (voto só em outro ano) | 2.537, carregando 4.517.210 votos |
-| Linhas de saída | 19.837.167 |
+| Regiões ativas em 2026 (malha de referência) | 90.898 |
+| Regiões realocadas | 7.083 |
+| Regiões com voto depois da realocação | 85.586 |
+| Linhas de saída | 19.445.200 |
 
 **Os 3,3 milhões de votos fora da malha não são 3,3 milhões de eleitores.** O total soma seis
 recortes — Presidente e Deputado Federal, em 2018 e 2022, com os dois turnos de Presidente —, então
@@ -370,11 +400,10 @@ São votos dados em local de votação sem coordenada, que por isso não pertenc
 | No cadastro importado, sem coordenada | 517.272 | 0,1% | 248 |
 | Fora do cadastro importado | 2.767.439 | 0,4% | 1.881 |
 
-Estes números são de **depois** do complemento com a base oficial do TSE (passos 10 e 11). Antes
-dele a mesma tabela mostrava 87,4% dos votos na malha e 14.849 locais do cadastro importado sem
-coordenada: era a perda da geocodificação, que o complemento praticamente zerou. O que sobrou são
-locais que aparecem na votação de 2018 ou 2022 e não estão em nenhuma das duas fontes — provável
-mudança de zona eleitoral entre o cadastro e a apuração.
+A perda da geocodificação, que era a maior delas, é praticamente zerada pelo complemento com a
+base oficial do TSE (passos 10 e 11). O que sobra são locais que aparecem na votação de 2018 ou
+2022 e não estão em nenhuma das duas fontes — provável mudança de zona eleitoral entre o cadastro
+e a apuração.
 
 ---
 
@@ -397,7 +426,9 @@ que responde à pergunta do site, e o mais pesado do pipeline.
 
 ### O que acontece
 
-1. **Define as regiões-alvo**: as que têm voto em `votos_regiao`, já na malha de referência. Projeta
+1. **Define as regiões-alvo**: as que têm voto em `votos_regiao` **mais** as da malha do ano de
+   referência (`pipeline/malha.py`) — a união, para que local novo sem resultado também receba
+   endereços, e para que região que recebe voto realocado não fique de fora. Projeta
    as coordenadas para EPSG:5880.
 2. **Constrói uma árvore de vizinho mais próximo por município** (`scipy.cKDTree`).
 3. Para cada UF:
@@ -539,6 +570,13 @@ rua, e uma linha por região em cada rua, rua × bairro e município × bairro.
 **Script:** `pipeline/40_build_dados_publicados.py`
 **Entradas:** `dim_regiao` (11), `votos_regiao` (22) e as cinco tabelas do passo 32
 **Saída:** pasta `publicado/`
+
+**Quais regiões entram:** as que têm resultado **ou** as que existem na malha de referência
+(`regioes_a_publicar`). A segunda metade publica região sem resultado nenhum — 5.312 delas, com a
+malha de 2026 — e isso é deliberado: o índice de ruas aponta endereços para elas, e sem a região
+no JSON o site resolveria um endereço para uma chave ausente. Região sem resultado não entra em
+`compartilhar/`, porque o resumo do link exige um resultado de presidente, e a tela precisa dizer
+"local novo, sem resultado anterior" em vez de mostrar vazio.
 
 Monta os arquivos que o site consome: estáticos, em JSON, fatiados por município para que cada
 consulta baixe só o necessário.
@@ -749,10 +787,10 @@ das UFs, por caminho de consulta:
 
 | O que o usuário informa | Todos os endereços | Só domicílios |
 |---|---:|---:|
-| Só a rua | 78,29% | 79,36% |
-| Rua + bairro | 87,61% | 88,51% |
-| Rua + número | 92,44% | 93,53% |
-| Rua + bairro + número | **96,40%** | **97,10%** |
+| Só a rua | 76,54% | 77,72% |
+| Rua + bairro | 86,25% | 87,19% |
+| Rua + número | 91,59% | 92,77% |
+| Rua + bairro + número | **95,77%** | **96,54%** |
 
 A coluna de domicílios é a que descreve o usuário do site, e é a maior: o índice desempata por
 domicílio, então acerta mais onde mora gente do que em obras e comércios.

@@ -1,0 +1,150 @@
+<!doctype html><meta charset="utf-8">
+<title>camada ao vivo</title>
+<pre id="saida">rodando…</pre>
+<script type="module">
+/* Testa `site/js/ao_vivo.js` em duas camadas.
+ *
+ * A primeira é a aritmética, com boletins fabricados: a soma, as guardas e a
+ * forma de saída, que tem de ser igual à do JSON publicado para a tela não
+ * saber a diferença. Sem rede.
+ *
+ * A segunda é a busca de verdade, contra o servidor do TSE, com a eleição de
+ * 2024 — real e encerrada. O valor esperado vem do parser em Python sobre os
+ * mesmos boletins, calculado por `coleta_2026/teste_ao_vivo_js.py`. É o teste
+ * que prova que a camada funciona com dado de verdade antes do dia.
+ */
+
+import * as aoVivo from "../js/ao_vivo.js";
+
+const linhas = [];
+let falhas = 0;
+const conta = (ok, rotulo, extra = "") => {
+  if (!ok) falhas++;
+  linhas.push(`${ok ? "ok   " : "FALHA"} ${rotulo}${extra ? " — " + extra : ""}`);
+};
+
+/* ----------------------------------------------- boletins fabricados */
+
+const CFG = { eleicao: "619", cargos: { 11: "prefeito" }, ano: "2024", turno: "1" };
+const CANDIDATOS = {
+  presidente: {},
+  RR: { 44: { nome: "CATARINA GUERRA", partido: "PL" },
+        15: { nome: "ARTHUR HENRIQUE", partido: "MDB" } },
+};
+
+const voto = (tipo, quantidade, numero = null, partido = null) =>
+  ({ tipo, quantidade, numero, partido });
+
+const boletim = ({ local = 1015, secao = 1, comparecimento = 100, votos = [],
+  fase = "oficial" }) => ({
+  municipio: "03018", zona: 1, local, secao, pleito: 452, fase,
+  eleicoes: { 619: [{ codigo: 11, comparecimento, votos }] },
+});
+
+const opcoes = { cfg: CFG, candidatos: CANDIDATOS, uf: "rr",
+  locaisDaRegiao: new Set([1015]) };
+
+// 1. soma de duas urnas do mesmo local
+{
+  const r = aoVivo.somar([
+    boletim({ secao: 1, comparecimento: 100,
+      votos: [voto("nominal", 60, 44), voto("nominal", 30, 15),
+        voto("branco", 6), voto("nulo", 4)] }),
+    boletim({ secao: 2, comparecimento: 50,
+      votos: [voto("nominal", 20, 44), voto("nominal", 25, 15),
+        voto("branco", 3), voto("nulo", 2)] }),
+  ], opcoes);
+  conta(r?.urnas === 2, "soma duas urnas", `urnas=${r?.urnas}`);
+  conta(r?.totais.prefeito === 150, "comparecimento soma", `${r?.totais.prefeito}`);
+  const lista = r?.resultados.prefeito ?? [];
+  conta(lista[0]?.nome === "CATARINA GUERRA" && lista[0]?.votos === 80,
+    "primeiro colocado com nome do cadastro", JSON.stringify(lista[0]));
+  conta(lista[0]?.pct === 59.26, "pct sobre os válidos", `${lista[0]?.pct}`);
+  conta(r?.naoNominal.prefeito.branco.votos === 9
+    && r?.naoNominal.prefeito.nulo.votos === 6, "branco e nulo somados");
+  conta(r?.naoNominal.prefeito.branco.pct === 6, "pct de branco sobre comparecimento",
+    `${r?.naoNominal.prefeito.branco.pct}`);
+}
+
+// 2. guarda: boletim que não fecha a própria conta é descartado
+{
+  const r = aoVivo.somar([
+    boletim({ secao: 1, comparecimento: 100, votos: [voto("nominal", 100, 44)] }),
+    boletim({ secao: 2, comparecimento: 999, votos: [voto("nominal", 10, 44)] }),
+  ], opcoes);
+  conta(r?.urnas === 1 && r?.totais.prefeito === 100,
+    "urna que não fecha o comparecimento fica fora", `urnas=${r?.urnas}`);
+}
+
+// 3. guarda: boletim de outro local não entra nesta região
+{
+  const r = aoVivo.somar([
+    boletim({ local: 9999, secao: 1, comparecimento: 100,
+      votos: [voto("nominal", 100, 44)] }),
+  ], opcoes);
+  conta(r === null, "boletim de outro local não forma resultado");
+}
+
+// 4. legenda vira o nome do partido; número sem cadastro aparece como número
+{
+  const r = aoVivo.somar([
+    boletim({ comparecimento: 100,
+      votos: [voto("legenda", 40, 44), voto("nominal", 60, 77)] }),
+  ], opcoes);
+  const nomes = (r?.resultados.prefeito ?? []).map(c => c.nome);
+  conta(nomes.includes("PL"), "legenda com a sigla do partido", nomes.join(", "));
+  conta(nomes.includes("Número 77"), "número sem cadastro não vira vazio", nomes.join(", "));
+}
+
+// 5. guarda: boletim de simulado ou treinamento não entra
+{
+  const r = aoVivo.somar([
+    boletim({ secao: 1, comparecimento: 100, votos: [voto("nominal", 100, 44)] }),
+    boletim({ secao: 2, fase: "simulado", comparecimento: 50,
+      votos: [voto("nominal", 50, 44)] }),
+    boletim({ secao: 3, fase: "treinamento", comparecimento: 50,
+      votos: [voto("nominal", 50, 44)] }),
+  ], opcoes);
+  conta(r?.urnas === 1 && r?.totais.prefeito === 100,
+    "só boletim de fase oficial entra na conta", `urnas=${r?.urnas}`);
+}
+
+// 6. nenhum boletim utilizável devolve null, não zero
+conta(aoVivo.somar([null, null], opcoes) === null, "sem boletim devolve null");
+
+/* ----------------------------------------------- busca real, eleição de 2024 */
+
+try {
+  const esperado = await (await fetch("../../dados/teste/ao_vivo_esperado.json")).json();
+  const base = new URL("../../dados/teste/ao_vivo_2024/", location.href).href;
+  conta(Boolean(await aoVivo.configurar(base)), "configuração do ensaio carrega");
+
+  for (const caso of esperado.casos) {
+    const inicio = performance.now();
+    const r = await aoVivo.resultadoDaRegiao({
+      idRegiao: caso.id_regiao, municipioIbge: caso.municipio_ibge, uf: caso.uf, base });
+    const ms = Math.round(performance.now() - inicio);
+    if (!r) {
+      conta(false, `região ${caso.id_regiao}: nada voltou`);
+      continue;
+    }
+    conta(r.urnas === caso.urnas, `região ${caso.id_regiao}: ${caso.urnas} urnas`,
+      `veio ${r.urnas}`);
+    conta(r.totais[caso.cargo] === caso.comparecimento,
+      `região ${caso.id_regiao}: comparecimento ${caso.comparecimento}`,
+      `veio ${r.totais[caso.cargo]} em ${ms} ms`);
+    const porNumero = {};
+    for (const item of r.resultados[caso.cargo]) porNumero[item.nome] = item.votos;
+    const certo = Object.entries(caso.por_votavel)
+      .every(([nome, votos]) => porNumero[nome] === votos);
+    conta(certo, `região ${caso.id_regiao}: votos por votável`,
+      certo ? `${Object.keys(caso.por_votavel).length} votáveis` : JSON.stringify(porNumero));
+  }
+} catch (erro) {
+  conta(false, `a busca real não rodou: ${erro.message}`);
+}
+
+linhas.push(falhas ? `\n${falhas} FALHA(S)` : "\nsem falhas");
+document.getElementById("saida").textContent = linhas.join("\n");
+document.title = falhas ? `FALHA (${falhas})` : "ok";
+</script>

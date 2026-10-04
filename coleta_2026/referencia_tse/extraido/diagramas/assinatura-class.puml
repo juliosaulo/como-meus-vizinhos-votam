@@ -1,0 +1,133 @@
+@startuml
+
+Title "Estrutura do arquivo de assinaturas da MR"
+
+left to right direction
+
+hide empty members
+
+!define aenum       #fa9441
+!define choice      #59b9de
+!define sequence    #21c834
+!define tipo        #c39deb
+!define aenum_b     #fce2c5
+!define choice_b    #c3ebfa
+!define sequence_b  #b7f5bd
+!define tipo_b      #ede3ff
+
+package Envelope {
+    class EntidadeAssinaturaResultado           << (S, sequence) >>
+    class EntidadeAssinatura                    << (S, sequence) >>
+    class ModeloUrna                            << (E, aenum) >>
+}
+
+package AutoAssinatura as "Auto assinatura" {
+    class AlgoritmoAssinaturaInfo               << (S, sequence) >>
+    class AlgoritmoAssinatura                   << (E, aenum) >>
+    class AlgoritmoHash                         << (E, aenum) >>
+    class AlgoritmoHashInfo                     << (S, sequence) >>
+    class AutoAssinaturaDigital                 << (S, sequence) >>
+    class DescritorChave                        << (S, sequence) >>
+}
+
+package Assinatura_grp as "Assinatura" {
+    class Assinatura                            << (S, sequence) >>
+    class AssinaturaArquivo                     << (S, sequence) >>
+    class AssinaturaDigital                     << (S, sequence) >>
+}
+
+' Detalhes das entidades
+
+class AlgoritmoAssinaturaInfo sequence_b {
+    **algoritmo**
+    **bits** INTEGER
+}
+
+class AlgoritmoAssinatura aenum_b {
+    **rsa** (1)
+    **ecdsa** (2)
+    **cepesc** (3)
+}
+
+class AlgoritmoHash aenum_b {
+    **sha1** (1)
+    **sha256** (2)
+    **sha384** (3)
+    **sha512** (4)
+}
+
+class AlgoritmoHashInfo sequence_b {
+    **algoritmo**
+}
+
+class Assinatura sequence_b {
+    **arquivosAssinados**
+}
+
+class AssinaturaArquivo sequence_b {
+    **nomeArquivo** GeneralString
+    **assinatura**
+}
+
+class AssinaturaDigital sequence_b {
+    **tamanho** INTEGER
+    **hash** OCTET STRING
+    **assinatura** OCTET STRING
+}
+
+class AutoAssinaturaDigital sequence_b {
+    **usuario**
+    **algoritmoHash**
+    **algoritmoAssinatura**
+    **assinatura**
+}
+
+class DescritorChave sequence_b {
+    **nomeUsuario** GeneralString
+    **serial** INTEGER
+}
+
+class EntidadeAssinatura sequence_b {
+    **dataHoraCriacao** DataHoraJE
+    **versao** INTEGER
+    **autoAssinado**
+    **conteudoAutoAssinado** OCTET STRING
+    **certificadoDigital** OCTET STRING OPTIONAL
+    **conjuntoChave** GeneralString OPTIONAL
+}
+
+class EntidadeAssinaturaResultado sequence_b {
+    **modeloUrna**
+    **assinaturaSW**
+    **assinaturaHW**
+}
+
+class ModeloUrna aenum_b {
+    **ue2009** (9)
+    **ue2010** (10)
+    **ue2011** (11)
+    **ue2013** (13)
+    **ue2015** (15)
+    **ue2020** (20)
+}
+
+AlgoritmoAssinaturaInfo *--> AlgoritmoAssinatura: algoritmo
+
+AlgoritmoHashInfo *--> AlgoritmoHash: algoritmo
+
+Assinatura *-->"*" AssinaturaArquivo: arquivosAssinados
+
+AssinaturaArquivo *--> AssinaturaDigital: assinatura
+
+AutoAssinaturaDigital *--> DescritorChave: usuario
+AutoAssinaturaDigital *--> AlgoritmoHashInfo: algoritmoHash
+AutoAssinaturaDigital *--> AlgoritmoAssinaturaInfo: algoritmoAssinatura
+AutoAssinaturaDigital *--> AssinaturaDigital: assinatura
+
+EntidadeAssinatura *--> AutoAssinaturaDigital: autoAssinado
+EntidadeAssinatura *..> Assinatura: conteudoAutoAssinado
+
+EntidadeAssinaturaResultado *--> ModeloUrna: modeloUrna
+EntidadeAssinaturaResultado *-->"2" EntidadeAssinatura: assinaturaHW\nassinaturaSW
+
+@enduml

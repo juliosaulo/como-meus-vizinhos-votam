@@ -32,10 +32,10 @@ try {
     ["1100015", "AVENIDA BRASIL", 0, null, "provavel", 8],
     ["1100205", "RUA SEM DENOMINACAO", null, "ABUNA", "exata", 1],
     ["1100205", "AVENIDA CALAMA", null, "EMBRATEL", "exata", 1],
-    ["1100205", "AVENIDA CALAMA", null, "APONIA", "provavel", 3],
-    ["1100205", "AVENIDA CALAMA", 5000, null, "interpolada", 17],
+    ["1100205", "AVENIDA CALAMA", null, "APONIA", "provavel", 4],
+    ["1100205", "AVENIDA CALAMA", 5000, null, "interpolada", 19],
     ["1100205", "RUA FRANCISCO SAID", null, null, "exata", 1],
-    ["1100205", "AVENIDA CALAMA", null, "NAO EXISTE", "provavel", 17],
+    ["1100205", "AVENIDA CALAMA", null, "NAO EXISTE", "provavel", 19],
   ];
   for (const [mun, nomeRua, numero, bairro, confianca, opcoes] of casos) {
     const ruas = (await dados.ruas(mun)).ruas;

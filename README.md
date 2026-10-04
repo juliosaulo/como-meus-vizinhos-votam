@@ -240,7 +240,7 @@ Números da execução nacional, publicados em `publicado/cobertura.json`:
 | Locais de votação com coordenada | **99,7%** (80.246 do artefato importado, 23.270 do TSE) |
 | Votos dentro de alguma região | **99,5%** |
 | Endereços atribuídos a uma região | **99,99%** |
-| Acerto do índice, ponta a ponta | **96,40%** com rua, bairro e número; 92,44% com rua e número |
+| Acerto do índice, ponta a ponta | **95,77%** com rua, bairro e número; 91,59% com rua e número |
 | Endereços sem número (S/N) | 23,8% |
 
 ### O que é "acerto"
@@ -265,10 +265,10 @@ conta e aparecem nas linhas de cobertura acima.
 
 | O que o usuário informa | Acerto |
 |---|---:|
-| Só a rua | 78,29% |
-| Rua + bairro | 87,61% |
-| Rua + número | 92,44% |
-| Rua + bairro + número | **96,40%** |
+| Só a rua | 76,54% |
+| Rua + bairro | 86,25% |
+| Rua + número | 91,59% |
+| Rua + bairro + número | **95,77%** |
 
 O erro não está espalhado: concentra-se em **endereço sem número**, que é 23,8% do país. Num sítio
 da zona rural onde o CNEFE não registra número, todos os endereços da via recebem a mesma resposta —

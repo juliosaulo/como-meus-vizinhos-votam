@@ -33,7 +33,7 @@ function barra(rotulo, partes) {
 }
 
 export function render(estado) {
-  const { resultados, ano, turno, agregados, municipio, ufNome } = estado;
+  const { resultados, ano, turno, agregados, municipio, ufNome, apuradoOficial } = estado;
   const local = resultados?.presidente?.[ano]?.[turno];
   if (!local) return '<p class="vazio">Sem resultado deste ano no local.</p>';
   if (!agregados?.municipio) {
@@ -76,6 +76,24 @@ export function render(estado) {
           </div>`;
       }).join("")}
     </div>
-    <p class="nota">Município, estado e Brasil vêm da apuração completa do TSE, incluindo os locais
-    de votação sem coordenada; a linha do local mostra apenas as urnas dele.</p>`;
+    ${notaApuracao(apuradoOficial, ano, turno, municipio, ufNome)}`;
+}
+
+/** Enquanto a apuração corre, município, estado e Brasil são parciais — e o
+ *  percentual de seções totalizadas é o do próprio TSE, não uma conta nossa. */
+function notaApuracao(apurado, ano, turno, municipio, ufNome) {
+  const completa = `<p class="nota">Município, estado e Brasil vêm da apuração completa do TSE,
+    incluindo os locais de votação sem coordenada; a linha do local mostra apenas as urnas
+    dele.</p>`;
+  if (!apurado || apurado.ano !== ano || apurado.turno !== turno) return completa;
+  const partes = [
+    [municipio?.nome ?? "Município", apurado.municipio],
+    [ufNome ?? "Estado", apurado.uf],
+    ["Brasil", apurado.brasil],
+  ].filter(([, a]) => a && a.secoes)
+    .map(([rotulo, a]) => `${rotulo} ${pct(a.pct)}`);
+  if (!partes.length) return completa;
+  return `<p class="nota"><strong>Apuração em andamento.</strong> Seções totalizadas pelo TSE:
+    ${partes.join(" · ")}. Município, estado e Brasil vêm do resultado oficial; a linha do local
+    é somada por nós, urna a urna.</p>`;
 }

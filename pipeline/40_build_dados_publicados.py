@@ -35,6 +35,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import config
+import malha
 from qualidade import validacoes
 
 NOMES_UF = {
@@ -557,6 +558,28 @@ def publicar_indices(dim: pd.DataFrame) -> None:
         )
 
 
+def regioes_a_publicar(dim: pd.DataFrame, votos: pd.DataFrame) -> pd.DataFrame:
+    """Região entra se tem resultado para mostrar **ou** se existe na malha de referência.
+
+    A segunda metade é o caso de 2026: o local funciona, o passo 31 já apontou
+    endereços para ele, e o resultado só chega no dia da apuração. Sem ela, o
+    site resolveria um endereço para uma região que não está no JSON — e a tela
+    quebraria em vez de dizer "local novo, sem resultado anterior".
+
+    Região publicada sem resultado não entra em `compartilhar/`: o resumo do
+    link exige um resultado de presidente, e `publicar_compartilhar` já a pula.
+    """
+    com_resultado = set(votos["id_regiao"])
+    da_malha = malha.regioes_do_ano(config.ANO_REFERENCIA_MALHA)
+    exibiveis = com_resultado | da_malha
+    saida = dim[dim["id_regiao"].isin(exibiveis)]
+    sem_resultado = len(saida) - saida["id_regiao"].isin(com_resultado).sum()
+    print(f"  regiões publicadas: {len(saida):,}"
+          + (f" | {sem_resultado:,} sem resultado anterior (locais novos em "
+             f"{config.ANO_REFERENCIA_MALHA})" if sem_resultado else ""))
+    return saida
+
+
 def main() -> None:
     print("=== 40 · dados publicados ===")
     config.garantir_pastas()
@@ -572,9 +595,7 @@ def main() -> None:
     ruas_bairro = ler("ruas_bairro_regioes")
     bairros_regioes = ler("bairros_regioes")
 
-    # Só publica região que tem resultado para mostrar.
-    dim = dim[dim["id_regiao"].isin(set(votos["id_regiao"]))]
-    print(f"  regiões publicadas: {len(dim):,}")
+    dim = regioes_a_publicar(dim, votos)
 
     resultados = calcular_resultados(votos)
     ids = montar_ids_publicos(dim)

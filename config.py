@@ -62,7 +62,7 @@ CARGOS_ALVO = ["PRESIDENTE", "DEPUTADO FEDERAL"]
 #
 # Deixar 2022 depois de 2026 publicado tem consequência: local que só existe em
 # 2026 ficaria inativo, e o voto dele seria somado ao local de 2022 mais próximo.
-ANO_REFERENCIA_MALHA = 2022
+ANO_REFERENCIA_MALHA = 2026
 
 # Atribuição endereço → região (passo 31), com checkpoint por UF. Fica numa
 # pasta por ano de referência: trocar a malha nunca reaproveita, por engano, a

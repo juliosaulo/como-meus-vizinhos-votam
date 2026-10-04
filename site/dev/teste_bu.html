@@ -1,0 +1,96 @@
+<!doctype html><meta charset="utf-8">
+<title>bu.js contra o parser em Python</title>
+<pre id="saida">rodando…</pre>
+<script type="module">
+/* Compara `site/js/bu.js` com `coleta_2026/bu.py`, boletim por boletim, sobre
+ * boletins reais. O arquivo de entrada é gerado por
+ * `python coleta_2026/teste_bu_js.py`, que também sobe o servidor e lê esta
+ * página — rodar esta página na mão só faz sentido para depurar um caso.
+ *
+ * O critério é igualdade total da forma canônica: identificação da seção, e
+ * depois cada eleição, cada cargo e cada votável na ordem em que aparecem no
+ * arquivo. Não é "parecido": é igual, ou é bug numa das duas. */
+
+import * as bu from "../js/bu.js";
+
+const linhas = [];
+const saida = document.getElementById("saida");
+let falhas = 0;
+
+const conta = (ok, rotulo) => {
+  if (!ok) falhas++;
+  if (!ok || linhas.length < 40) linhas.push(`${ok ? "ok   " : "FALHA"} ${rotulo}`);
+};
+
+/** A mesma forma canônica que o Python gera. */
+function canonico(boletim) {
+  const partes = [[boletim.municipio, boletim.zona, boletim.local,
+    boletim.secao, boletim.pleito].join("|")];
+  for (const codigo of Object.keys(boletim.eleicoes).map(Number).sort((a, b) => a - b)) {
+    partes.push(`e${codigo}`);
+    const cargos = [...boletim.eleicoes[codigo]].sort((a, b) => a.codigo - b.codigo);
+    for (const cargo of cargos) {
+      partes.push(`c${cargo.codigo}|${cargo.comparecimento}`);
+      for (const voto of cargo.votos) {
+        partes.push([voto.tipo, voto.partido ?? "-", voto.numero ?? "-",
+          voto.quantidade].join("|"));
+      }
+    }
+  }
+  return partes.join("\n");
+}
+
+const deBase64 = texto => Uint8Array.from(atob(texto), c => c.charCodeAt(0));
+
+try {
+  const resposta = await fetch("../../dados/teste/bus_rr.json");
+  if (!resposta.ok) throw new Error("gere a entrada: python coleta_2026/teste_bu_js.py");
+  const casos = await resposta.json();
+  linhas.push(`${casos.length} boletins reais para comparar`);
+
+  let divergentes = 0;
+  for (const caso of casos) {
+    let obtido;
+    try {
+      obtido = canonico(bu.ler(deBase64(caso.bytes)));
+    } catch (erro) {
+      conta(false, `${caso.nome}: ${erro.message}`);
+      continue;
+    }
+    if (obtido !== caso.canonico) {
+      divergentes++;
+      if (divergentes <= 3) {
+        const a = caso.canonico.split("\n");
+        const b = obtido.split("\n");
+        const i = a.findIndex((linha, j) => linha !== b[j]);
+        conta(false, `${caso.nome}: linha ${i} — python "${a[i]}" × js "${b[i]}"`);
+      }
+      continue;
+    }
+    const problemas = bu.conferir(bu.ler(deBase64(caso.bytes)));
+    if (JSON.stringify(problemas) !== JSON.stringify(caso.problemas)) {
+      conta(false, `${caso.nome}: conferir() diverge — python ${JSON.stringify(caso.problemas)}`
+        + ` × js ${JSON.stringify(problemas)}`);
+      continue;
+    }
+    conta(true, caso.nome);
+  }
+  if (divergentes) conta(false, `${divergentes} boletim(ns) com estrutura divergente`);
+
+  // Recusa: os mesmos casos que o Python recusa, o JavaScript também recusa.
+  for (const [rotulo, base64] of Object.entries((await (
+    await fetch("../../dados/teste/bus_recusa.json")).json()))) {
+    let recusou = false;
+    try { bu.ler(deBase64(base64)); } catch (erro) {
+      recusou = erro instanceof bu.BoletimInvalido;
+    }
+    conta(recusou, `recusa: ${rotulo}`);
+  }
+} catch (erro) {
+  conta(false, `o teste não rodou: ${erro.message}`);
+}
+
+linhas.push(falhas ? `\n${falhas} FALHA(S)` : "\nsem falhas");
+saida.textContent = linhas.join("\n");
+document.title = falhas ? `FALHA (${falhas})` : "ok";
+</script>

@@ -1,311 +1,311 @@
 {
   "nacional": {
     "enderecos": 111101340,
-    "distancia_media_m": 1386.9,
-    "pct_acima_5km": 6.39,
-    "pct_acima_25km": 0.399,
-    "regioes": 88506,
-    "regioes_com_endereco_acima_25km": 2863,
-    "distancia_maxima_km": 461.1,
-    "regioes_com_endereco_na_coordenada_exata": 74142
+    "distancia_media_m": 1345.2,
+    "pct_acima_5km": 6.27,
+    "pct_acima_25km": 0.37,
+    "regioes": 90804,
+    "regioes_com_endereco_acima_25km": 2861,
+    "distancia_maxima_km": 418.5,
+    "regioes_com_endereco_na_coordenada_exata": 70670
   },
   "por_uf": [
     {
       "sg_uf": "AC",
       "enderecos": 410524.0,
-      "distancia_media_m": 3624.0,
-      "pct_acima_5km": 19.89,
-      "pct_acima_25km": 2.665,
-      "regioes": 646.0,
-      "regioes_com_endereco_acima_25km": 69.0,
+      "distancia_media_m": 3428.1,
+      "pct_acima_5km": 19.69,
+      "pct_acima_25km": 2.171,
+      "regioes": 633.0,
+      "regioes_com_endereco_acima_25km": 66.0,
       "distancia_maxima_km": 122.0,
-      "regioes_com_endereco_na_coordenada_exata": 565.0
+      "regioes_com_endereco_na_coordenada_exata": 522.0
     },
     {
       "sg_uf": "AL",
       "enderecos": 1626565.0,
-      "distancia_media_m": 1825.7,
-      "pct_acima_5km": 11.45,
+      "distancia_media_m": 1756.5,
+      "pct_acima_5km": 11.21,
       "pct_acima_25km": 0.063,
-      "regioes": 959.0,
-      "regioes_com_endereco_acima_25km": 7.0,
-      "distancia_maxima_km": 31.2,
-      "regioes_com_endereco_na_coordenada_exata": 778.0
+      "regioes": 1040.0,
+      "regioes_com_endereco_acima_25km": 6.0,
+      "distancia_maxima_km": 30.9,
+      "regioes_com_endereco_na_coordenada_exata": 724.0
     },
     {
       "sg_uf": "AM",
       "enderecos": 1658970.0,
-      "distancia_media_m": 3515.1,
-      "pct_acima_5km": 13.56,
-      "pct_acima_25km": 3.075,
-      "regioes": 1469.0,
-      "regioes_com_endereco_acima_25km": 265.0,
-      "distancia_maxima_km": 461.1,
-      "regioes_com_endereco_na_coordenada_exata": 1080.0
+      "distancia_media_m": 3030.7,
+      "pct_acima_5km": 12.55,
+      "pct_acima_25km": 2.635,
+      "regioes": 1610.0,
+      "regioes_com_endereco_acima_25km": 279.0,
+      "distancia_maxima_km": 415.9,
+      "regioes_com_endereco_na_coordenada_exata": 1053.0
     },
     {
       "sg_uf": "AP",
       "enderecos": 312665.0,
-      "distancia_media_m": 1278.0,
-      "pct_acima_5km": 5.81,
-      "pct_acima_25km": 0.453,
-      "regioes": 345.0,
-      "regioes_com_endereco_acima_25km": 31.0,
+      "distancia_media_m": 1242.8,
+      "pct_acima_5km": 5.61,
+      "pct_acima_25km": 0.399,
+      "regioes": 344.0,
+      "regioes_com_endereco_acima_25km": 29.0,
       "distancia_maxima_km": 258.3,
-      "regioes_com_endereco_na_coordenada_exata": 304.0
+      "regioes_com_endereco_na_coordenada_exata": 262.0
     },
     {
       "sg_uf": "BA",
       "enderecos": 9047296.0,
-      "distancia_media_m": 1552.2,
-      "pct_acima_5km": 8.67,
-      "pct_acima_25km": 0.127,
-      "regioes": 8618.0,
-      "regioes_com_endereco_acima_25km": 118.0,
+      "distancia_media_m": 1518.5,
+      "pct_acima_5km": 8.51,
+      "pct_acima_25km": 0.128,
+      "regioes": 8746.0,
+      "regioes_com_endereco_acima_25km": 119.0,
       "distancia_maxima_km": 92.0,
-      "regioes_com_endereco_na_coordenada_exata": 6863.0
+      "regioes_com_endereco_na_coordenada_exata": 6491.0
     },
     {
       "sg_uf": "CE",
       "enderecos": 4750642.0,
-      "distancia_media_m": 878.3,
-      "pct_acima_5km": 2.59,
+      "distancia_media_m": 859.3,
+      "pct_acima_5km": 2.51,
       "pct_acima_25km": 0.0,
-      "regioes": 6532.0,
-      "regioes_com_endereco_acima_25km": 2.0,
+      "regioes": 6596.0,
+      "regioes_com_endereco_acima_25km": 4.0,
       "distancia_maxima_km": 28.7,
-      "regioes_com_endereco_na_coordenada_exata": 5465.0
+      "regioes_com_endereco_na_coordenada_exata": 5162.0
     },
     {
       "sg_uf": "DF",
       "enderecos": 1318887.0,
-      "distancia_media_m": 721.7,
+      "distancia_media_m": 721.2,
       "pct_acima_5km": 1.26,
       "pct_acima_25km": 0.0,
-      "regioes": 583.0,
+      "regioes": 584.0,
       "regioes_com_endereco_acima_25km": 0.0,
       "distancia_maxima_km": 19.2,
-      "regioes_com_endereco_na_coordenada_exata": 296.0
+      "regioes_com_endereco_na_coordenada_exata": 289.0
     },
     {
       "sg_uf": "ES",
       "enderecos": 2221348.0,
-      "distancia_media_m": 1240.1,
-      "pct_acima_5km": 6.59,
-      "pct_acima_25km": 0.093,
-      "regioes": 1604.0,
-      "regioes_com_endereco_acima_25km": 2.0,
-      "distancia_maxima_km": 43.8,
-      "regioes_com_endereco_na_coordenada_exata": 1280.0
+      "distancia_media_m": 1180.2,
+      "pct_acima_5km": 6.35,
+      "pct_acima_25km": 0.0,
+      "regioes": 1679.0,
+      "regioes_com_endereco_acima_25km": 0.0,
+      "distancia_maxima_km": 24.4,
+      "regioes_com_endereco_na_coordenada_exata": 1256.0
     },
     {
       "sg_uf": "GO",
       "enderecos": 3960937.0,
-      "distancia_media_m": 2186.2,
-      "pct_acima_5km": 10.25,
-      "pct_acima_25km": 1.561,
-      "regioes": 2373.0,
-      "regioes_com_endereco_acima_25km": 308.0,
+      "distancia_media_m": 2148.7,
+      "pct_acima_5km": 10.19,
+      "pct_acima_25km": 1.498,
+      "regioes": 2415.0,
+      "regioes_com_endereco_acima_25km": 315.0,
       "distancia_maxima_km": 120.9,
-      "regioes_com_endereco_na_coordenada_exata": 1888.0
+      "regioes_com_endereco_na_coordenada_exata": 1792.0
     },
     {
       "sg_uf": "MA",
       "enderecos": 3257843.0,
-      "distancia_media_m": 1555.1,
-      "pct_acima_5km": 8.49,
-      "pct_acima_25km": 0.219,
-      "regioes": 5179.0,
-      "regioes_com_endereco_acima_25km": 104.0,
+      "distancia_media_m": 1480.7,
+      "pct_acima_5km": 8.1,
+      "pct_acima_25km": 0.207,
+      "regioes": 5414.0,
+      "regioes_com_endereco_acima_25km": 90.0,
       "distancia_maxima_km": 119.2,
-      "regioes_com_endereco_na_coordenada_exata": 3839.0
+      "regioes_com_endereco_na_coordenada_exata": 3685.0
     },
     {
       "sg_uf": "MG",
       "enderecos": 12038190.0,
-      "distancia_media_m": 1547.9,
-      "pct_acima_5km": 8.81,
-      "pct_acima_25km": 0.273,
-      "regioes": 9654.0,
-      "regioes_com_endereco_acima_25km": 230.0,
+      "distancia_media_m": 1529.7,
+      "pct_acima_5km": 8.74,
+      "pct_acima_25km": 0.264,
+      "regioes": 9834.0,
+      "regioes_com_endereco_acima_25km": 235.0,
       "distancia_maxima_km": 73.3,
-      "regioes_com_endereco_na_coordenada_exata": 8786.0
+      "regioes_com_endereco_na_coordenada_exata": 8505.0
     },
     {
       "sg_uf": "MS",
       "enderecos": 1507819.0,
-      "distancia_media_m": 3436.9,
-      "pct_acima_5km": 12.58,
-      "pct_acima_25km": 3.536,
-      "regioes": 1008.0,
-      "regioes_com_endereco_acima_25km": 225.0,
-      "distancia_maxima_km": 300.1,
-      "regioes_com_endereco_na_coordenada_exata": 909.0
+      "distancia_media_m": 3342.0,
+      "pct_acima_5km": 12.57,
+      "pct_acima_25km": 3.473,
+      "regioes": 1011.0,
+      "regioes_com_endereco_acima_25km": 227.0,
+      "distancia_maxima_km": 300.3,
+      "regioes_com_endereco_na_coordenada_exata": 847.0
     },
     {
       "sg_uf": "MT",
       "enderecos": 1985314.0,
-      "distancia_media_m": 3964.3,
-      "pct_acima_5km": 16.71,
-      "pct_acima_25km": 4.021,
-      "regioes": 1418.0,
-      "regioes_com_endereco_acima_25km": 470.0,
+      "distancia_media_m": 3818.6,
+      "pct_acima_5km": 16.52,
+      "pct_acima_25km": 3.827,
+      "regioes": 1463.0,
+      "regioes_com_endereco_acima_25km": 475.0,
       "distancia_maxima_km": 225.9,
-      "regioes_com_endereco_na_coordenada_exata": 1124.0
+      "regioes_com_endereco_na_coordenada_exata": 1054.0
     },
     {
       "sg_uf": "PA",
       "enderecos": 3911170.0,
-      "distancia_media_m": 2251.3,
-      "pct_acima_5km": 10.93,
-      "pct_acima_25km": 1.142,
-      "regioes": 4966.0,
-      "regioes_com_endereco_acima_25km": 295.0,
-      "distancia_maxima_km": 424.5,
-      "regioes_com_endereco_na_coordenada_exata": 3234.0
+      "distancia_media_m": 2019.6,
+      "pct_acima_5km": 10.14,
+      "pct_acima_25km": 0.909,
+      "regioes": 5471.0,
+      "regioes_com_endereco_acima_25km": 281.0,
+      "distancia_maxima_km": 418.5,
+      "regioes_com_endereco_na_coordenada_exata": 3075.0
     },
     {
       "sg_uf": "PB",
       "enderecos": 2228886.0,
-      "distancia_media_m": 1608.6,
-      "pct_acima_5km": 10.05,
-      "pct_acima_25km": 0.045,
-      "regioes": 1692.0,
+      "distancia_media_m": 1546.8,
+      "pct_acima_5km": 9.66,
+      "pct_acima_25km": 0.042,
+      "regioes": 1781.0,
       "regioes_com_endereco_acima_25km": 12.0,
-      "distancia_maxima_km": 40.4,
-      "regioes_com_endereco_na_coordenada_exata": 1499.0
+      "distancia_maxima_km": 40.6,
+      "regioes_com_endereco_na_coordenada_exata": 1363.0
     },
     {
       "sg_uf": "PE",
       "enderecos": 5118947.0,
-      "distancia_media_m": 1360.0,
-      "pct_acima_5km": 7.88,
+      "distancia_media_m": 1329.4,
+      "pct_acima_5km": 7.72,
       "pct_acima_25km": 0.088,
-      "regioes": 3147.0,
-      "regioes_com_endereco_acima_25km": 20.0,
-      "distancia_maxima_km": 39.6,
-      "regioes_com_endereco_na_coordenada_exata": 2716.0
+      "regioes": 3274.0,
+      "regioes_com_endereco_acima_25km": 22.0,
+      "distancia_maxima_km": 39.1,
+      "regioes_com_endereco_na_coordenada_exata": 2558.0
     },
     {
       "sg_uf": "PI",
       "enderecos": 1891421.0,
-      "distancia_media_m": 1885.6,
-      "pct_acima_5km": 10.94,
-      "pct_acima_25km": 0.31,
-      "regioes": 3146.0,
-      "regioes_com_endereco_acima_25km": 83.0,
+      "distancia_media_m": 1878.9,
+      "pct_acima_5km": 11.01,
+      "pct_acima_25km": 0.306,
+      "regioes": 3187.0,
+      "regioes_com_endereco_acima_25km": 81.0,
       "distancia_maxima_km": 63.7,
-      "regioes_com_endereco_na_coordenada_exata": 2577.0
+      "regioes_com_endereco_na_coordenada_exata": 2453.0
     },
     {
       "sg_uf": "PR",
       "enderecos": 6122025.0,
-      "distancia_media_m": 1145.5,
-      "pct_acima_5km": 5.36,
-      "pct_acima_25km": 0.028,
-      "regioes": 4518.0,
-      "regioes_com_endereco_acima_25km": 28.0,
+      "distancia_media_m": 1125.2,
+      "pct_acima_5km": 5.3,
+      "pct_acima_25km": 0.03,
+      "regioes": 4663.0,
+      "regioes_com_endereco_acima_25km": 25.0,
       "distancia_maxima_km": 44.4,
-      "regioes_com_endereco_na_coordenada_exata": 4034.0
+      "regioes_com_endereco_na_coordenada_exata": 3904.0
     },
     {
       "sg_uf": "RJ",
       "enderecos": 8962200.0,
-      "distancia_media_m": 596.6,
-      "pct_acima_5km": 0.91,
+      "distancia_media_m": 570.9,
+      "pct_acima_5km": 0.86,
       "pct_acima_25km": 0.0,
-      "regioes": 4624.0,
+      "regioes": 4855.0,
       "regioes_com_endereco_acima_25km": 0.0,
       "distancia_maxima_km": 21.8,
-      "regioes_com_endereco_na_coordenada_exata": 3900.0
+      "regioes_com_endereco_na_coordenada_exata": 3781.0
     },
     {
       "sg_uf": "RN",
       "enderecos": 1845003.0,
-      "distancia_media_m": 1362.1,
-      "pct_acima_5km": 7.16,
-      "pct_acima_25km": 0.118,
-      "regioes": 1449.0,
-      "regioes_com_endereco_acima_25km": 17.0,
+      "distancia_media_m": 1326.0,
+      "pct_acima_5km": 6.89,
+      "pct_acima_25km": 0.117,
+      "regioes": 1507.0,
+      "regioes_com_endereco_acima_25km": 15.0,
       "distancia_maxima_km": 37.1,
-      "regioes_com_endereco_na_coordenada_exata": 1290.0
+      "regioes_com_endereco_na_coordenada_exata": 1204.0
     },
     {
       "sg_uf": "RO",
       "enderecos": 965370.0,
-      "distancia_media_m": 3502.6,
-      "pct_acima_5km": 21.33,
-      "pct_acima_25km": 1.587,
-      "regioes": 617.0,
+      "distancia_media_m": 3441.7,
+      "pct_acima_5km": 21.24,
+      "pct_acima_25km": 1.478,
+      "regioes": 656.0,
       "regioes_com_endereco_acima_25km": 117.0,
-      "distancia_maxima_km": 153.0,
-      "regioes_com_endereco_na_coordenada_exata": 517.0
+      "distancia_maxima_km": 151.9,
+      "regioes_com_endereco_na_coordenada_exata": 501.0
     },
     {
       "sg_uf": "RR",
       "enderecos": 260515.0,
-      "distancia_media_m": 4843.7,
-      "pct_acima_5km": 16.71,
-      "pct_acima_25km": 3.738,
-      "regioes": 329.0,
-      "regioes_com_endereco_acima_25km": 67.0,
+      "distancia_media_m": 4606.6,
+      "pct_acima_5km": 16.06,
+      "pct_acima_25km": 3.379,
+      "regioes": 343.0,
+      "regioes_com_endereco_acima_25km": 65.0,
       "distancia_maxima_km": 298.7,
-      "regioes_com_endereco_na_coordenada_exata": 288.0
+      "regioes_com_endereco_na_coordenada_exata": 249.0
     },
     {
       "sg_uf": "RS",
       "enderecos": 6456747.0,
-      "distancia_media_m": 1034.8,
-      "pct_acima_5km": 3.37,
-      "pct_acima_25km": 0.139,
-      "regioes": 7802.0,
-      "regioes_com_endereco_acima_25km": 84.0,
+      "distancia_media_m": 1055.2,
+      "pct_acima_5km": 3.6,
+      "pct_acima_25km": 0.148,
+      "regioes": 7571.0,
+      "regioes_com_endereco_acima_25km": 88.0,
       "distancia_maxima_km": 75.1,
-      "regioes_com_endereco_na_coordenada_exata": 6755.0
+      "regioes_com_endereco_na_coordenada_exata": 6374.0
     },
     {
       "sg_uf": "SC",
       "enderecos": 4181139.0,
-      "distancia_media_m": 1059.7,
-      "pct_acima_5km": 2.86,
-      "pct_acima_25km": 0.004,
-      "regioes": 3256.0,
+      "distancia_media_m": 1055.7,
+      "pct_acima_5km": 2.96,
+      "pct_acima_25km": 0.003,
+      "regioes": 3252.0,
       "regioes_com_endereco_acima_25km": 10.0,
-      "distancia_maxima_km": 30.7,
-      "regioes_com_endereco_na_coordenada_exata": 2668.0
+      "distancia_maxima_km": 30.5,
+      "regioes_com_endereco_na_coordenada_exata": 2506.0
     },
     {
       "sg_uf": "SE",
       "enderecos": 1258755.0,
-      "distancia_media_m": 1081.7,
-      "pct_acima_5km": 4.4,
+      "distancia_media_m": 1046.3,
+      "pct_acima_5km": 4.06,
       "pct_acima_25km": 0.001,
-      "regioes": 1128.0,
+      "regioes": 1159.0,
       "regioes_com_endereco_acima_25km": 2.0,
       "distancia_maxima_km": 25.3,
-      "regioes_com_endereco_na_coordenada_exata": 894.0
+      "regioes_com_endereco_na_coordenada_exata": 833.0
     },
     {
       "sg_uf": "SP",
       "enderecos": 22953725.0,
-      "distancia_media_m": 786.1,
-      "pct_acima_5km": 2.86,
-      "pct_acima_25km": 0.033,
-      "regioes": 10614.0,
-      "regioes_com_endereco_acima_25km": 86.0,
+      "distancia_media_m": 774.5,
+      "pct_acima_5km": 2.81,
+      "pct_acima_25km": 0.031,
+      "regioes": 10807.0,
+      "regioes_com_endereco_acima_25km": 83.0,
       "distancia_maxima_km": 55.1,
-      "regioes_com_endereco_na_coordenada_exata": 9911.0
+      "regioes_com_endereco_na_coordenada_exata": 9563.0
     },
     {
       "sg_uf": "TO",
       "enderecos": 848437.0,
-      "distancia_media_m": 3667.1,
-      "pct_acima_5km": 18.46,
-      "pct_acima_25km": 3.433,
-      "regioes": 830.0,
-      "regioes_com_endereco_acima_25km": 211.0,
+      "distancia_media_m": 3549.1,
+      "pct_acima_5km": 18.17,
+      "pct_acima_25km": 3.259,
+      "regioes": 909.0,
+      "regioes_com_endereco_acima_25km": 215.0,
       "distancia_maxima_km": 91.4,
-      "regioes_com_endereco_na_coordenada_exata": 682.0
+      "regioes_com_endereco_na_coordenada_exata": 664.0
     }
   ],
   "regioes_sem_endereco_na_coordenada": [
@@ -323,17 +323,30 @@
       "vezes_a_mediana_do_municipio": 8.3
     },
     {
-      "id_regiao": 78,
-      "uf": "AC",
-      "municipio": "CRUZEIRO DO SUL",
-      "local": "ESCOLA JOAQUIM NOGUEIRA",
-      "endereco": "COMUNIDADE PERIQUITO - RIO LIBERDADE",
-      "enderecos": 53,
-      "acima_25km": 47,
-      "distancia_media_km": 26.8,
-      "distancia_minima_m": 24638,
-      "distancia_maxima_km": 29.2,
-      "vezes_a_mediana_do_municipio": 35.0
+      "id_regiao": 2298,
+      "uf": "AM",
+      "municipio": "FONTE BOA",
+      "local": "E. M. FLUTUANTE CRISTO REI",
+      "endereco": "COMUNIDADE INGAIOARA - RIO PANOÃ - MARGEM DIREITA",
+      "enderecos": 63,
+      "acima_25km": 56,
+      "distancia_media_km": 28.8,
+      "distancia_minima_m": 24654,
+      "distancia_maxima_km": 37.5,
+      "vezes_a_mediana_do_municipio": 5.4
+    },
+    {
+      "id_regiao": 72008,
+      "uf": "RR",
+      "municipio": "BONFIM",
+      "local": "ESCOLA MUNICIPAL HÉLIA MARTINS",
+      "endereco": "VILA NOVO HORIZONTE DA SERRA",
+      "enderecos": 12,
+      "acima_25km": 0,
+      "distancia_media_km": 18.6,
+      "distancia_minima_m": 16020,
+      "distancia_maxima_km": 21.4,
+      "vezes_a_mediana_do_municipio": 4.9
     },
     {
       "id_regiao": 646,
@@ -346,7 +359,7 @@
       "distancia_media_km": 42.1,
       "distancia_minima_m": 16006,
       "distancia_maxima_km": 60.2,
-      "vezes_a_mediana_do_municipio": 78.0
+      "vezes_a_mediana_do_municipio": 59.1
     },
     {
       "id_regiao": 31034,
@@ -359,7 +372,7 @@
       "distancia_media_km": 17.9,
       "distancia_minima_m": 15489,
       "distancia_maxima_km": 19.5,
-      "vezes_a_mediana_do_municipio": 20.6
+      "vezes_a_mediana_do_municipio": 19.1
     },
     {
       "id_regiao": 72024,
@@ -367,12 +380,12 @@
       "municipio": "CANTÁ",
       "local": "CHAPEUZINHO VERMELHO E.M",
       "endereco": "VICINAL IX, CONFIANÇA III - VILA SANTA LUZIA DO BARAUANA",
-      "enderecos": 458,
-      "acima_25km": 236,
-      "distancia_media_km": 26.4,
+      "enderecos": 16,
+      "acima_25km": 0,
+      "distancia_media_km": 15.6,
       "distancia_minima_m": 13735,
-      "distancia_maxima_km": 44.9,
-      "vezes_a_mediana_do_municipio": 6.6
+      "distancia_maxima_km": 17.5,
+      "vezes_a_mediana_do_municipio": 5.0
     },
     {
       "id_regiao": 43608,
@@ -380,12 +393,12 @@
       "municipio": "MARCELÂNDIA",
       "local": "ESCOLA MUNICIPAL DE EDUCAÇÃO BÁSICA JAYTATÁ",
       "endereco": "ALDEIA SOBRADINHO",
-      "enderecos": 101,
-      "acima_25km": 69,
-      "distancia_media_km": 44.0,
+      "enderecos": 68,
+      "acima_25km": 37,
+      "distancia_media_km": 38.1,
       "distancia_minima_m": 12811,
-      "distancia_maxima_km": 80.0,
-      "vezes_a_mediana_do_municipio": 4.7
+      "distancia_maxima_km": 64.7,
+      "vezes_a_mediana_do_municipio": 3.2
     },
     {
       "id_regiao": 25999,
@@ -398,7 +411,20 @@
       "distancia_media_km": 13.8,
       "distancia_minima_m": 11438,
       "distancia_maxima_km": 15.4,
-      "vezes_a_mediana_do_municipio": 10.2
+      "vezes_a_mediana_do_municipio": 9.6
+    },
+    {
+      "id_regiao": 44798,
+      "uf": "PA",
+      "municipio": "ALTAMIRA",
+      "local": "ALDEIRA ARARA",
+      "endereco": "ZONA RURAL A MARGEM ESQUERDA DO RIO IRIRI 230 KM DE ALTAMIRA PELO RIO",
+      "enderecos": 93,
+      "acima_25km": 74,
+      "distancia_media_km": 44.7,
+      "distancia_minima_m": 10620,
+      "distancia_maxima_km": 69.4,
+      "vezes_a_mediana_do_municipio": 66.9
     },
     {
       "id_regiao": 29829,
@@ -411,7 +437,7 @@
       "distancia_media_km": 10.5,
       "distancia_minima_m": 10170,
       "distancia_maxima_km": 11.1,
-      "vezes_a_mediana_do_municipio": 4.9
+      "vezes_a_mediana_do_municipio": 5.0
     },
     {
       "id_regiao": 41614,
@@ -437,7 +463,7 @@
       "distancia_media_km": 48.9,
       "distancia_minima_m": 9259,
       "distancia_maxima_km": 85.9,
-      "vezes_a_mediana_do_municipio": 46.0
+      "vezes_a_mediana_do_municipio": 44.0
     },
     {
       "id_regiao": 33395,
@@ -450,7 +476,7 @@
       "distancia_media_km": 10.9,
       "distancia_minima_m": 9061,
       "distancia_maxima_km": 11.7,
-      "vezes_a_mediana_do_municipio": 8.9
+      "vezes_a_mediana_do_municipio": 9.5
     },
     {
       "id_regiao": 27419,
@@ -463,7 +489,7 @@
       "distancia_media_km": 10.1,
       "distancia_minima_m": 8735,
       "distancia_maxima_km": 12.2,
-      "vezes_a_mediana_do_municipio": 11.0
+      "vezes_a_mediana_do_municipio": 11.4
     },
     {
       "id_regiao": 84990,
@@ -476,7 +502,7 @@
       "distancia_media_km": 8.2,
       "distancia_minima_m": 8158,
       "distancia_maxima_km": 8.3,
-      "vezes_a_mediana_do_municipio": 6.9
+      "vezes_a_mediana_do_municipio": 5.8
     },
     {
       "id_regiao": 47146,
@@ -489,46 +515,20 @@
       "distancia_media_km": 9.9,
       "distancia_minima_m": 8067,
       "distancia_maxima_km": 11.5,
-      "vezes_a_mediana_do_municipio": 9.3
+      "vezes_a_mediana_do_municipio": 8.9
     },
     {
-      "id_regiao": 31361,
+      "id_regiao": 28367,
       "uf": "MA",
-      "municipio": "ZÉ DOCA",
-      "local": "ESCOLA MUNICIPAL JERÔNIMO PINHEIRO",
-      "endereco": "POVOADO ROSILÂNDIA",
-      "enderecos": 3,
+      "municipio": "JUNCO DO MARANHÃO",
+      "local": "UNIDADE ESCOLAR ROSEANA SARNEY",
+      "endereco": "VILA MENANDES OU VILA NOVO HORIZONTE, ZONA RURAL",
+      "enderecos": 100,
       "acima_25km": 0,
-      "distancia_media_km": 8.1,
-      "distancia_minima_m": 7977,
-      "distancia_maxima_km": 8.2,
-      "vezes_a_mediana_do_municipio": 6.0
-    },
-    {
-      "id_regiao": 4183,
-      "uf": "BA",
-      "municipio": "ALCOBAÇA",
-      "local": "CRECHE MAE MITA",
-      "endereco": "AVENIDA PRINCIPAL - ZONA RURAL",
-      "enderecos": 49,
-      "acima_25km": 0,
-      "distancia_media_km": 9.5,
-      "distancia_minima_m": 7592,
-      "distancia_maxima_km": 10.7,
-      "vezes_a_mediana_do_municipio": 2.6
-    },
-    {
-      "id_regiao": 17505,
-      "uf": "CE",
-      "municipio": "JAGUARUANA",
-      "local": "ASSOCIAÇÃO COMUNITÁRIA DE CAMPOS VERDES",
-      "endereco": "ASSENTAMENTO CAMPOS VERDES",
-      "enderecos": 11,
-      "acima_25km": 0,
-      "distancia_media_km": 7.7,
-      "distancia_minima_m": 7543,
-      "distancia_maxima_km": 7.9,
-      "vezes_a_mediana_do_municipio": 9.1
+      "distancia_media_km": 10.9,
+      "distancia_minima_m": 7848,
+      "distancia_maxima_km": 14.8,
+      "vezes_a_mediana_do_municipio": 6.3
     },
     {
       "id_regiao": 69500,
@@ -554,7 +554,7 @@
       "distancia_media_km": 9.2,
       "distancia_minima_m": 7397,
       "distancia_maxima_km": 10.6,
-      "vezes_a_mediana_do_municipio": 8.8
+      "vezes_a_mediana_do_municipio": 7.4
     },
     {
       "id_regiao": 47828,
@@ -567,7 +567,33 @@
       "distancia_media_km": 7.3,
       "distancia_minima_m": 7071,
       "distancia_maxima_km": 7.7,
-      "vezes_a_mediana_do_municipio": 5.7
+      "vezes_a_mediana_do_municipio": 5.5
+    },
+    {
+      "id_regiao": 2643,
+      "uf": "AM",
+      "municipio": "MANAQUIRI",
+      "local": "E. M. NOSSA SENHORA DE APARECIDA",
+      "endereco": "COMUNIDADE LAGO DO INAJÁ",
+      "enderecos": 17,
+      "acima_25km": 0,
+      "distancia_media_km": 7.3,
+      "distancia_minima_m": 6956,
+      "distancia_maxima_km": 7.8,
+      "vezes_a_mediana_do_municipio": 2.3
+    },
+    {
+      "id_regiao": 48719,
+      "uf": "PA",
+      "municipio": "PRAINHA",
+      "local": "BARRACÃO COMUNITÁRIO SÃO JUDAS TADEU",
+      "endereco": "COMUNIDADE SÃO JUDAS TADEU (RIO PARANAQUARA)",
+      "enderecos": 26,
+      "acima_25km": 0,
+      "distancia_media_km": 8.3,
+      "distancia_minima_m": 6669,
+      "distancia_maxima_km": 9.9,
+      "vezes_a_mediana_do_municipio": 3.1
     },
     {
       "id_regiao": 69967,
@@ -580,7 +606,7 @@
       "distancia_media_km": 8.6,
       "distancia_minima_m": 6423,
       "distancia_maxima_km": 9.4,
-      "vezes_a_mediana_do_municipio": 2.4
+      "vezes_a_mediana_do_municipio": 16.1
     },
     {
       "id_regiao": 30146,
@@ -606,7 +632,20 @@
       "distancia_media_km": 7.4,
       "distancia_minima_m": 6273,
       "distancia_maxima_km": 8.9,
-      "vezes_a_mediana_do_municipio": 3.2
+      "vezes_a_mediana_do_municipio": 3.3
+    },
+    {
+      "id_regiao": 28888,
+      "uf": "MA",
+      "municipio": "NOVA OLINDA DO MARANHÃO",
+      "local": "ESCOLA MUNICIPAL DA QUADRA VIII - E.M. PROFª MARIA LUZIA DOURADO",
+      "endereco": "QUADRA VIII",
+      "enderecos": 40,
+      "acima_25km": 0,
+      "distancia_media_km": 7.8,
+      "distancia_minima_m": 6172,
+      "distancia_maxima_km": 10.6,
+      "vezes_a_mediana_do_municipio": 5.8
     },
     {
       "id_regiao": 29792,
@@ -619,7 +658,7 @@
       "distancia_media_km": 8.9,
       "distancia_minima_m": 5971,
       "distancia_maxima_km": 16.5,
-      "vezes_a_mediana_do_municipio": 4.1
+      "vezes_a_mediana_do_municipio": 4.2
     },
     {
       "id_regiao": 44099,
@@ -635,6 +674,19 @@
       "vezes_a_mediana_do_municipio": 8.3
     },
     {
+      "id_regiao": 48672,
+      "uf": "PA",
+      "municipio": "PORTO DE MOZ",
+      "local": "EMEF SEGUIDORES DE CRISTO - VILA SÃO PEDRO",
+      "endereco": "RIO IPIXUNA - IGARAPÉ BACAR",
+      "enderecos": 115,
+      "acima_25km": 0,
+      "distancia_media_km": 9.0,
+      "distancia_minima_m": 5787,
+      "distancia_maxima_km": 14.1,
+      "vezes_a_mediana_do_municipio": 1.7
+    },
+    {
       "id_regiao": 33048,
       "uf": "MG",
       "municipio": "BURITIZEIRO",
@@ -646,58 +698,6 @@
       "distancia_minima_m": 5778,
       "distancia_maxima_km": 33.8,
       "vezes_a_mediana_do_municipio": 11.3
-    },
-    {
-      "id_regiao": 50081,
-      "uf": "PA",
-      "municipio": "VISEU",
-      "local": "EMEF DE MONTE MORIÁ",
-      "endereco": "LOCALIDADE DE MONTE MORIÁ",
-      "enderecos": 3,
-      "acima_25km": 0,
-      "distancia_media_km": 5.8,
-      "distancia_minima_m": 5750,
-      "distancia_maxima_km": 5.8,
-      "vezes_a_mediana_do_municipio": 5.3
-    },
-    {
-      "id_regiao": 79372,
-      "uf": "RS",
-      "municipio": "SÃO SEPÉ",
-      "local": "SALÃO DA CAPELA NOSSA SENHORA DA GRACA",
-      "endereco": "PASSO DOS FREIRE",
-      "enderecos": 198,
-      "acima_25km": 0,
-      "distancia_media_km": 10.4,
-      "distancia_minima_m": 5599,
-      "distancia_maxima_km": 16.1,
-      "vezes_a_mediana_do_municipio": 22.9
-    },
-    {
-      "id_regiao": 47763,
-      "uf": "PA",
-      "municipio": "MOJU",
-      "local": "EMEF LUIZ ANTONIO DE CASTRO",
-      "endereco": "VILA BUFETE - RAMAL PAU DA ISCA",
-      "enderecos": 22,
-      "acima_25km": 0,
-      "distancia_media_km": 6.8,
-      "distancia_minima_m": 5558,
-      "distancia_maxima_km": 7.5,
-      "vezes_a_mediana_do_municipio": 2.8
-    },
-    {
-      "id_regiao": 19436,
-      "uf": "CE",
-      "municipio": "QUIXERAMOBIM",
-      "local": "ESCOLA MARIA HOLANDA DE OLIVEIRA CASTRO",
-      "endereco": "FAZENDA ORATORIO",
-      "enderecos": 100,
-      "acima_25km": 0,
-      "distancia_media_km": 9.7,
-      "distancia_minima_m": 5391,
-      "distancia_maxima_km": 12.7,
-      "vezes_a_mediana_do_municipio": 6.0
     }
   ],
   "regioes_mais_distantes": [
@@ -725,7 +725,7 @@
       "distancia_media_km": 41.8,
       "distancia_minima_m": 0,
       "distancia_maxima_km": 136.6,
-      "vezes_a_mediana_do_municipio": 84.0
+      "vezes_a_mediana_do_municipio": 88.2
     },
     {
       "id_regiao": 50001,
@@ -733,12 +733,12 @@
       "municipio": "URUARÁ",
       "local": "EMEF MARCOS FREIRE",
       "endereco": "RODOVIA TRANSAMAZÔNICA VICINAL DO KM 160 SUL",
-      "enderecos": 3771,
-      "acima_25km": 2077,
+      "enderecos": 3757,
+      "acima_25km": 2066,
       "distancia_media_km": 25.7,
       "distancia_minima_m": 10,
       "distancia_maxima_km": 47.1,
-      "vezes_a_mediana_do_municipio": 3.3
+      "vezes_a_mediana_do_municipio": 4.3
     },
     {
       "id_regiao": 44380,
@@ -752,19 +752,6 @@
       "distancia_minima_m": 0,
       "distancia_maxima_km": 151.3,
       "vezes_a_mediana_do_municipio": 1.8
-    },
-    {
-      "id_regiao": 22610,
-      "uf": "ES",
-      "municipio": "SÃO MATEUS",
-      "local": "EMEF OURO NEGRO",
-      "endereco": "RUA NOVA VENÉCIA, S/N",
-      "enderecos": 5283,
-      "acima_25km": 1927,
-      "distancia_media_km": 18.2,
-      "distancia_minima_m": 0,
-      "distancia_maxima_km": 43.8,
-      "vezes_a_mediana_do_municipio": 41.6
     },
     {
       "id_regiao": 25461,
@@ -785,25 +772,12 @@
       "municipio": "CUIABÁ",
       "local": "ESCOLA MUNICIPAL NOVO RENASCER",
       "endereco": "FAZENDA VELHA",
-      "enderecos": 2905,
+      "enderecos": 2862,
       "acima_25km": 1835,
-      "distancia_media_km": 33.8,
+      "distancia_media_km": 34.2,
       "distancia_minima_m": 20,
       "distancia_maxima_km": 122.2,
-      "vezes_a_mediana_do_municipio": 80.9
-    },
-    {
-      "id_regiao": 2066,
-      "uf": "AM",
-      "municipio": "BOCA DO ACRE",
-      "local": "E. E. CORONEL JOSÉ ASSUNÇÃO",
-      "endereco": "AV BL 11, S/N",
-      "enderecos": 5610,
-      "acima_25km": 1771,
-      "distancia_media_km": 21.7,
-      "distancia_minima_m": 0,
-      "distancia_maxima_km": 92.2,
-      "vezes_a_mediana_do_municipio": 2.7
+      "vezes_a_mediana_do_municipio": 83.0
     },
     {
       "id_regiao": 42640,
@@ -816,85 +790,33 @@
       "distancia_media_km": 52.9,
       "distancia_minima_m": 0,
       "distancia_maxima_km": 107.7,
-      "vezes_a_mediana_do_municipio": 9.7
+      "vezes_a_mediana_do_municipio": 6.1
     },
     {
-      "id_regiao": 38140,
-      "uf": "MG",
-      "municipio": "PARACATU",
-      "local": "E. M. PROF. ADA SANTANA RIBEIRO",
-      "endereco": "RUA JOAQUIM BROCHADO, 880",
-      "enderecos": 4056,
-      "acima_25km": 1729,
-      "distancia_media_km": 23.5,
+      "id_regiao": 2066,
+      "uf": "AM",
+      "municipio": "BOCA DO ACRE",
+      "local": "E. E. CORONEL JOSÉ ASSUNÇÃO",
+      "endereco": "AV BL 11, S/N",
+      "enderecos": 4339,
+      "acima_25km": 1677,
+      "distancia_media_km": 26.0,
       "distancia_minima_m": 0,
-      "distancia_maxima_km": 68.3,
-      "vezes_a_mediana_do_municipio": 49.1
+      "distancia_maxima_km": 92.2,
+      "vezes_a_mediana_do_municipio": 20.2
     },
     {
-      "id_regiao": 42170,
-      "uf": "MS",
-      "municipio": "CORUMBÁ",
-      "local": "EEPG CARLOS DE CASTRO BRASIL",
-      "endereco": "AVENIDA RIO BRANCO, 979",
-      "enderecos": 1853,
-      "acima_25km": 1723,
-      "distancia_media_km": 142.9,
-      "distancia_minima_m": 0,
-      "distancia_maxima_km": 300.1,
-      "vezes_a_mediana_do_municipio": 467.8
-    },
-    {
-      "id_regiao": 23103,
+      "id_regiao": 23102,
       "uf": "GO",
       "municipio": "ABADIÂNIA",
-      "local": "CENTRO MUNICIPAL DE EDUCAÇÃO INFANTIL EMILIA DE OLIVEIRA NASCIMENTO",
-      "endereco": "RUA 13 DE MAIO QD. 78 LT. 01",
-      "enderecos": 3709,
-      "acima_25km": 1699,
-      "distancia_media_km": 19.2,
+      "local": "ESCOLA MUNICIPAL MARIA JOSUE PEREIRA",
+      "endereco": "RUA ALEXANIA QD 113 LT. 07/16",
+      "enderecos": 4334,
+      "acima_25km": 1664,
+      "distancia_media_km": 15.6,
       "distancia_minima_m": 0,
-      "distancia_maxima_km": 29.7,
-      "vezes_a_mediana_do_municipio": 5.0
-    },
-    {
-      "id_regiao": 3429,
-      "uf": "AM",
-      "municipio": "SANTO ANTÔNIO DO IÇÁ",
-      "local": "E. M. DAURAGUNE",
-      "endereco": "COM.MATIINTIM, RIO IÇA, MARGEM DIREITA, ZONA RURAL INDIGENA",
-      "enderecos": 2005,
-      "acima_25km": 1663,
-      "distancia_media_km": 65.9,
-      "distancia_minima_m": 0,
-      "distancia_maxima_km": 135.7,
-      "vezes_a_mediana_do_municipio": 81.2
-    },
-    {
-      "id_regiao": 97624,
-      "uf": "TO",
-      "municipio": "PARANÃ",
-      "local": "ESCOLA MUNICIPAL FLORACY BONFIM  PEREIRA DE ARAUJO",
-      "endereco": "RUA 7, QUADRA 39, LOTE 7/10, S/N",
-      "enderecos": 3802,
-      "acima_25km": 1603,
-      "distancia_media_km": 18.3,
-      "distancia_minima_m": 1,
-      "distancia_maxima_km": 69.6,
-      "vezes_a_mediana_do_municipio": 1.8
-    },
-    {
-      "id_regiao": 2529,
-      "uf": "AM",
-      "municipio": "JUTAÍ",
-      "local": "E. E. PADRE JOAO",
-      "endereco": "RUA FRANCISCO CAMPOS",
-      "enderecos": 3905,
-      "acima_25km": 1549,
-      "distancia_media_km": 46.9,
-      "distancia_minima_m": 42,
-      "distancia_maxima_km": 461.1,
-      "vezes_a_mediana_do_municipio": 82.6
+      "distancia_maxima_km": 30.1,
+      "vezes_a_mediana_do_municipio": 2.5
     },
     {
       "id_regiao": 71825,
@@ -907,7 +829,7 @@
       "distancia_media_km": 95.6,
       "distancia_minima_m": 0,
       "distancia_maxima_km": 148.0,
-      "vezes_a_mediana_do_municipio": 20.0
+      "vezes_a_mediana_do_municipio": 19.4
     },
     {
       "id_regiao": 23554,
@@ -936,6 +858,32 @@
       "vezes_a_mediana_do_municipio": 28.5
     },
     {
+      "id_regiao": 47698,
+      "uf": "PA",
+      "municipio": "MOJU",
+      "local": "EMEF CENTRO OURO (RENASCER - NOVA OLINDA)",
+      "endereco": "VILA NOVA OLINDA - VICINAL BADAROTE - ALTO MOJU",
+      "enderecos": 3627,
+      "acima_25km": 1499,
+      "distancia_media_km": 22.6,
+      "distancia_minima_m": 11,
+      "distancia_maxima_km": 58.9,
+      "vezes_a_mediana_do_municipio": 10.2
+    },
+    {
+      "id_regiao": 72310,
+      "uf": "RS",
+      "municipio": "ALEGRETE",
+      "local": "JACARAÍ-PÓLO EMEB CONSTANTINO DE SOUZA NUNES",
+      "endereco": "CORREDOR SANGA QUERO-QUERO",
+      "enderecos": 2548,
+      "acima_25km": 1497,
+      "distancia_media_km": 28.6,
+      "distancia_minima_m": 24,
+      "distancia_maxima_km": 70.3,
+      "vezes_a_mediana_do_municipio": 76.3
+    },
+    {
       "id_regiao": 2339,
       "uf": "AM",
       "municipio": "HUMAITÁ",
@@ -946,33 +894,7 @@
       "distancia_media_km": 28.6,
       "distancia_minima_m": 0,
       "distancia_maxima_km": 42.7,
-      "vezes_a_mediana_do_municipio": 10.6
-    },
-    {
-      "id_regiao": 47697,
-      "uf": "PA",
-      "municipio": "MOJU",
-      "local": "EMEF CURUÇÁ",
-      "endereco": "VILA CURUÇÁ - ALTO RIO MOJU",
-      "enderecos": 2290,
-      "acima_25km": 1437,
-      "distancia_media_km": 28.0,
-      "distancia_minima_m": 5,
-      "distancia_maxima_km": 57.0,
-      "vezes_a_mediana_do_municipio": 11.7
-    },
-    {
-      "id_regiao": 3461,
-      "uf": "AM",
-      "municipio": "SÃO GABRIEL DA CACHOEIRA",
-      "local": "E. M. DE ASSUNÇÃO DO IÇANA",
-      "endereco": "COM. ASSUNÇÃO DO IÇANA, RIO IÇANA",
-      "enderecos": 1543,
-      "acima_25km": 1418,
-      "distancia_media_km": 57.7,
-      "distancia_minima_m": 0,
-      "distancia_maxima_km": 88.2,
-      "vezes_a_mediana_do_municipio": 5.1
+      "vezes_a_mediana_do_municipio": 14.1
     },
     {
       "id_regiao": 41232,
@@ -985,33 +907,7 @@
       "distancia_media_km": 11.6,
       "distancia_minima_m": 0,
       "distancia_maxima_km": 35.7,
-      "vezes_a_mediana_do_municipio": 26.8
-    },
-    {
-      "id_regiao": 1985,
-      "uf": "AM",
-      "municipio": "BARCELOS",
-      "local": "EMEF FREDERICO MACHADO",
-      "endereco": "COMUNIDADE CUMARU MARGEM DIREITA DO RIO NEGRO",
-      "enderecos": 1613,
-      "acima_25km": 1388,
-      "distancia_media_km": 160.9,
-      "distancia_minima_m": 10,
-      "distancia_maxima_km": 292.6,
-      "vezes_a_mediana_do_municipio": 25.2
-    },
-    {
-      "id_regiao": 41630,
-      "uf": "MS",
-      "municipio": "ÁGUA CLARA",
-      "local": "EM MÁRCIA CRISTINA FIORATTI JAVAREZ",
-      "endereco": "RUA OSMAR CARDOSO DA SILVA, 244",
-      "enderecos": 2288,
-      "acima_25km": 1382,
-      "distancia_media_km": 45.5,
-      "distancia_minima_m": 0,
-      "distancia_maxima_km": 114.7,
-      "vezes_a_mediana_do_municipio": 17.3
+      "vezes_a_mediana_do_municipio": 26.5
     },
     {
       "id_regiao": 24926,
@@ -1050,7 +946,7 @@
       "distancia_media_km": 24.1,
       "distancia_minima_m": 0,
       "distancia_maxima_km": 112.1,
-      "vezes_a_mediana_do_municipio": 57.6
+      "vezes_a_mediana_do_municipio": 56.0
     },
     {
       "id_regiao": 9219,
@@ -1066,19 +962,6 @@
       "vezes_a_mediana_do_municipio": 12.4
     },
     {
-      "id_regiao": 49734,
-      "uf": "PA",
-      "municipio": "SENADOR JOSÉ PORFÍRIO",
-      "local": "EMEF PA RESSACA",
-      "endereco": "COMUNIDADE SALU DE ALMEIDA - VILA MOCOTÓ",
-      "enderecos": 5044,
-      "acima_25km": 1316,
-      "distancia_media_km": 18.7,
-      "distancia_minima_m": 14,
-      "distancia_maxima_km": 148.4,
-      "vezes_a_mediana_do_municipio": 3.0
-    },
-    {
       "id_regiao": 53558,
       "uf": "PE",
       "municipio": "ITAÍBA",
@@ -1090,21 +973,138 @@
       "distancia_minima_m": 0,
       "distancia_maxima_km": 35.1,
       "vezes_a_mediana_do_municipio": 2.0
+    },
+    {
+      "id_regiao": 41179,
+      "uf": "MG",
+      "municipio": "UBERLÂNDIA",
+      "local": "ESCOLA MUNICIPAL ODELCIA LEÃO CARNEIRO",
+      "endereco": "RUA SERRA PACARAÍMA 800",
+      "enderecos": 4594,
+      "acima_25km": 1286,
+      "distancia_media_km": 12.5,
+      "distancia_minima_m": 0,
+      "distancia_maxima_km": 45.1,
+      "vezes_a_mediana_do_municipio": 28.4
+    },
+    {
+      "id_regiao": 53557,
+      "uf": "PE",
+      "municipio": "ITAÍBA",
+      "local": "ESCOLA PEDRO DE ALCANTARA RAMOS",
+      "endereco": "TRAV. JOAO MARTINS DE OLIVEIRA ,S/N",
+      "enderecos": 4373,
+      "acima_25km": 1272,
+      "distancia_media_km": 15.0,
+      "distancia_minima_m": 0,
+      "distancia_maxima_km": 39.1,
+      "vezes_a_mediana_do_municipio": 2.5
+    },
+    {
+      "id_regiao": 42166,
+      "uf": "MS",
+      "municipio": "CORUMBÁ",
+      "local": "CENTRO UNIVERSITÁRIO DE CORUMBÁ",
+      "endereco": "RUA POCONÉ, - TEL 3907-5361",
+      "enderecos": 1890,
+      "acima_25km": 1257,
+      "distancia_media_km": 111.4,
+      "distancia_minima_m": 0,
+      "distancia_maxima_km": 300.3,
+      "vezes_a_mediana_do_municipio": 313.0
+    },
+    {
+      "id_regiao": 43131,
+      "uf": "MT",
+      "municipio": "COCALINHO",
+      "local": "ESCOLA MUNICIPAL RAIMUNDO SOARES NAVA",
+      "endereco": "AV JOSÉ UMBERTO MOREIRA DE LIMA S/N",
+      "enderecos": 2859,
+      "acima_25km": 1232,
+      "distancia_media_km": 38.8,
+      "distancia_minima_m": 0,
+      "distancia_maxima_km": 177.8,
+      "vezes_a_mediana_do_municipio": 2.5
+    },
+    {
+      "id_regiao": 2276,
+      "uf": "AM",
+      "municipio": "EIRUNEPÉ",
+      "local": "E. M.  EXPEDITO BARROSO DE ALENCAR",
+      "endereco": "RUA PREFEITO JOAO CAVALCANTE",
+      "enderecos": 3054,
+      "acima_25km": 1214,
+      "distancia_media_km": 33.4,
+      "distancia_minima_m": 0,
+      "distancia_maxima_km": 202.4,
+      "vezes_a_mediana_do_municipio": 37.6
+    },
+    {
+      "id_regiao": 23867,
+      "uf": "GO",
+      "municipio": "FLORES DE GOIÁS",
+      "local": "COLEGIO ESTADUAL MARECHAL HUMBERTO DE ALENCAR CASTELO BRANCO",
+      "endereco": "PRACA DA MATRIZ, N.13",
+      "enderecos": 2717,
+      "acima_25km": 1210,
+      "distancia_media_km": 20.6,
+      "distancia_minima_m": 0,
+      "distancia_maxima_km": 40.8,
+      "vezes_a_mediana_do_municipio": 3.5
+    },
+    {
+      "id_regiao": 38971,
+      "uf": "MG",
+      "municipio": "PRATA",
+      "local": "ESCOLA MUNICIPAL DOUTOR SEVERIANO VILELA JUNQUEIRA",
+      "endereco": "RUA CORONEL EMÍDIO MARQUES, 1178",
+      "enderecos": 3185,
+      "acima_25km": 1202,
+      "distancia_media_km": 17.5,
+      "distancia_minima_m": 0,
+      "distancia_maxima_km": 48.8,
+      "vezes_a_mediana_do_municipio": 12.2
+    },
+    {
+      "id_regiao": 25186,
+      "uf": "GO",
+      "municipio": "PORANGATU",
+      "local": "ESC MUN REUNIDA DE LINDA VISTA - POV LINDA VISTA",
+      "endereco": "POVOADO LINDA VISTA",
+      "enderecos": 2059,
+      "acima_25km": 1191,
+      "distancia_media_km": 27.5,
+      "distancia_minima_m": 13,
+      "distancia_maxima_km": 55.4,
+      "vezes_a_mediana_do_municipio": 55.3
+    },
+    {
+      "id_regiao": 38141,
+      "uf": "MG",
+      "municipio": "PARACATU",
+      "local": "ESCOLA MUNICIPAL JOSE SIMOES CUNHA",
+      "endereco": "FAZENDA LAGOA RICA",
+      "enderecos": 2623,
+      "acima_25km": 1175,
+      "distancia_media_km": 25.2,
+      "distancia_minima_m": 18,
+      "distancia_maxima_km": 58.5,
+      "vezes_a_mediana_do_municipio": 52.5
     }
   ],
   "regioes_que_destoam_do_municipio": [
     {
-      "id_regiao": 42170,
+      "id_regiao": 42166,
       "uf": "MS",
       "municipio": "CORUMBÁ",
-      "local": "EEPG CARLOS DE CASTRO BRASIL",
-      "endereco": "AVENIDA RIO BRANCO, 979",
-      "enderecos": 1853,
-      "acima_25km": 1723,
-      "distancia_media_km": 142.9,
+      "local": "CENTRO UNIVERSITÁRIO DE CORUMBÁ",
+      "endereco": "RUA POCONÉ, - TEL 3907-5361",
+      "enderecos": 1890,
+      "acima_25km": 1257,
+      "distancia_media_km": 111.4,
       "distancia_minima_m": 0,
-      "distancia_maxima_km": 300.1,
-      "vezes_a_mediana_do_municipio": 467.8
+      "distancia_maxima_km": 300.3,
+      "vezes_a_mediana_do_municipio": 313.0
     },
     {
       "id_regiao": 599,
@@ -1117,20 +1117,7 @@
       "distancia_media_km": 59.8,
       "distancia_minima_m": 701,
       "distancia_maxima_km": 122.0,
-      "vezes_a_mediana_do_municipio": 330.3
-    },
-    {
-      "id_regiao": 44785,
-      "uf": "PA",
-      "municipio": "ALMEIRIM",
-      "local": "EMEF - MONTEIRO LOBATO (COMUNIDADE REPARTIMENTO DO PILÃO)",
-      "endereco": "COMUNIDADE REPARTIMENTO DO PILÃO",
-      "enderecos": 469,
-      "acima_25km": 375,
-      "distancia_media_km": 205.0,
-      "distancia_minima_m": 0,
-      "distancia_maxima_km": 396.5,
-      "vezes_a_mediana_do_municipio": 244.3
+      "vezes_a_mediana_do_municipio": 256.9
     },
     {
       "id_regiao": 42121,
@@ -1138,12 +1125,25 @@
       "municipio": "CORUMBÁ",
       "local": "EM CARLOS CARCANO",
       "endereco": "ASSENTAMENTO MATO GRANDE",
-      "enderecos": 2274,
-      "acima_25km": 904,
-      "distancia_media_km": 62.0,
+      "enderecos": 2281,
+      "acima_25km": 911,
+      "distancia_media_km": 62.4,
       "distancia_minima_m": 11,
       "distancia_maxima_km": 265.4,
-      "vezes_a_mediana_do_municipio": 203.1
+      "vezes_a_mediana_do_municipio": 175.5
+    },
+    {
+      "id_regiao": 42178,
+      "uf": "MS",
+      "municipio": "CORUMBÁ",
+      "local": "MOINHO CULTURAL SUL-AMERICANO",
+      "endereco": "R. DOMINGOS SAHIB, 300",
+      "enderecos": 270,
+      "acima_25km": 140,
+      "distancia_media_km": 61.4,
+      "distancia_minima_m": 0,
+      "distancia_maxima_km": 159.7,
+      "vezes_a_mediana_do_municipio": 172.7
     },
     {
       "id_regiao": 3687,
@@ -1156,33 +1156,20 @@
       "distancia_media_km": 62.5,
       "distancia_minima_m": 0,
       "distancia_maxima_km": 258.3,
-      "vezes_a_mediana_do_municipio": 190.9
+      "vezes_a_mediana_do_municipio": 147.8
     },
     {
-      "id_regiao": 42178,
-      "uf": "MS",
-      "municipio": "CORUMBÁ",
-      "local": "MOINHO CULTURAL SUL-AMERICANO",
-      "endereco": "R. DOMINGOS SAHIB, 300",
-      "enderecos": 315,
-      "acima_25km": 140,
-      "distancia_media_km": 52.7,
-      "distancia_minima_m": 0,
-      "distancia_maxima_km": 159.7,
-      "vezes_a_mediana_do_municipio": 172.4
-    },
-    {
-      "id_regiao": 42120,
-      "uf": "MS",
-      "municipio": "CORUMBÁ",
-      "local": "EM DE PORTO ESPERANÇA",
-      "endereco": "PORTO ESPERANÇA, SN",
-      "enderecos": 1370,
-      "acima_25km": 1095,
-      "distancia_media_km": 46.4,
-      "distancia_minima_m": 0,
-      "distancia_maxima_km": 163.6,
-      "vezes_a_mediana_do_municipio": 151.9
+      "id_regiao": 2525,
+      "uf": "AM",
+      "municipio": "JUTAÍ",
+      "local": "E. M. INDÍGENA SÃO LUIZ",
+      "endereco": "ALDEIA INDÍGENA SÃO LUIZ - RIOZINHO",
+      "enderecos": 1135,
+      "acima_25km": 797,
+      "distancia_media_km": 94.0,
+      "distancia_minima_m": 67,
+      "distancia_maxima_km": 415.9,
+      "vezes_a_mediana_do_municipio": 147.6
     },
     {
       "id_regiao": 2266,
@@ -1195,7 +1182,33 @@
       "distancia_media_km": 46.0,
       "distancia_minima_m": 38,
       "distancia_maxima_km": 162.1,
-      "vezes_a_mediana_do_municipio": 130.8
+      "vezes_a_mediana_do_municipio": 140.1
+    },
+    {
+      "id_regiao": 42120,
+      "uf": "MS",
+      "municipio": "CORUMBÁ",
+      "local": "EM DE PORTO ESPERANÇA",
+      "endereco": "PORTO ESPERANÇA, SN",
+      "enderecos": 1370,
+      "acima_25km": 1095,
+      "distancia_media_km": 46.4,
+      "distancia_minima_m": 0,
+      "distancia_maxima_km": 163.6,
+      "vezes_a_mediana_do_municipio": 130.4
+    },
+    {
+      "id_regiao": 44785,
+      "uf": "PA",
+      "municipio": "ALMEIRIM",
+      "local": "EMEF - MONTEIRO LOBATO (COMUNIDADE REPARTIMENTO DO PILÃO)",
+      "endereco": "COMUNIDADE REPARTIMENTO DO PILÃO",
+      "enderecos": 469,
+      "acima_25km": 375,
+      "distancia_media_km": 205.0,
+      "distancia_minima_m": 0,
+      "distancia_maxima_km": 396.5,
+      "vezes_a_mediana_do_municipio": 114.7
     },
     {
       "id_regiao": 531,
@@ -1208,46 +1221,72 @@
       "distancia_media_km": 30.5,
       "distancia_minima_m": 5,
       "distancia_maxima_km": 107.2,
-      "vezes_a_mediana_do_municipio": 117.2
+      "vezes_a_mediana_do_municipio": 110.7
     },
     {
-      "id_regiao": 603,
-      "uf": "AC",
-      "municipio": "SENA MADUREIRA",
-      "local": "ESCOLA MUNICIPAL MARIA NOGUEIRA",
-      "endereco": "BR 364, KM 38 SENTIDO SENA MADUREIRA/RIO BRANCO, RAMAL DO OURO, KM 18",
-      "enderecos": 1483,
-      "acima_25km": 301,
-      "distancia_media_km": 18.8,
-      "distancia_minima_m": 2897,
-      "distancia_maxima_km": 32.3,
-      "vezes_a_mediana_do_municipio": 103.6
+      "id_regiao": 1863,
+      "uf": "AL",
+      "municipio": "TRAIPU",
+      "local": "UNID. CENTRO DE REFERÊNCIA ESPECIALIZADO DE ASSISTÊNCIA SOCIAL (CREAS)",
+      "endereco": "CONJUNTO HABITACIONAL ANTÔNIO MEDEIROS NETO",
+      "enderecos": 10483,
+      "acima_25km": 491,
+      "distancia_media_km": 13.9,
+      "distancia_minima_m": 5,
+      "distancia_maxima_km": 30.7,
+      "vezes_a_mediana_do_municipio": 107.3
     },
     {
-      "id_regiao": 48197,
-      "uf": "PA",
-      "municipio": "ÓBIDOS",
-      "local": "EMEIF SÃO JUDAS TADEU",
-      "endereco": "COMUNIDADE DO SAÚBÃO",
-      "enderecos": 764,
+      "id_regiao": 43713,
+      "uf": "MT",
+      "municipio": "NOVA MUTUM",
+      "local": "E.P.G. SÃO JOSÉ",
+      "endereco": "COMUNIDADE SÃO MANOEL",
+      "enderecos": 1011,
+      "acima_25km": 521,
+      "distancia_media_km": 49.6,
+      "distancia_minima_m": 0,
+      "distancia_maxima_km": 123.9,
+      "vezes_a_mediana_do_municipio": 104.9
+    },
+    {
+      "id_regiao": 42172,
+      "uf": "MS",
+      "municipio": "CORUMBÁ",
+      "local": "EM DELCÍDIO DO AMARAL",
+      "endereco": "AVENIDA RIO BRANCO, 782 - TEL 3232-5241 (ORELHÃO)",
+      "enderecos": 1012,
       "acima_25km": 358,
-      "distancia_media_km": 124.5,
-      "distancia_minima_m": 6,
-      "distancia_maxima_km": 424.5,
-      "vezes_a_mediana_do_municipio": 102.4
+      "distancia_media_km": 35.6,
+      "distancia_minima_m": 0,
+      "distancia_maxima_km": 218.5,
+      "vezes_a_mediana_do_municipio": 100.2
     },
     {
-      "id_regiao": 601,
-      "uf": "AC",
-      "municipio": "SENA MADUREIRA",
-      "local": "ESCOLA MUNICIPAL DE ENSINO FUNDAMENTAL JOSÉ DA ROCHA NEVES",
-      "endereco": "COMUNIDADE LUA NOVA - RIO MACAUÃ",
-      "enderecos": 1028,
-      "acima_25km": 128,
-      "distancia_media_km": 17.2,
-      "distancia_minima_m": 1303,
-      "distancia_maxima_km": 47.8,
-      "vezes_a_mediana_do_municipio": 94.9
+      "id_regiao": 2268,
+      "uf": "AM",
+      "municipio": "CODAJÁS",
+      "local": "E. M. SÃO FRANCISCO DO IRACEMA",
+      "endereco": "COM. DO IRACEMA, LAGO DO BADAJÓS, MARGEM DIREITA",
+      "enderecos": 429,
+      "acima_25km": 194,
+      "distancia_media_km": 31.2,
+      "distancia_minima_m": 10,
+      "distancia_maxima_km": 78.5,
+      "vezes_a_mediana_do_municipio": 95.1
+    },
+    {
+      "id_regiao": 26312,
+      "uf": "MA",
+      "municipio": "BALSAS",
+      "local": "ESCOLA MUNICIPAL SANTA MARIA",
+      "endereco": "POVOADO EXTREMA",
+      "enderecos": 974,
+      "acima_25km": 540,
+      "distancia_media_km": 26.9,
+      "distancia_minima_m": 13,
+      "distancia_maxima_km": 51.6,
+      "vezes_a_mediana_do_municipio": 92.2
     },
     {
       "id_regiao": 3551,
@@ -1263,30 +1302,30 @@
       "vezes_a_mediana_do_municipio": 92.2
     },
     {
-      "id_regiao": 2268,
-      "uf": "AM",
-      "municipio": "CODAJÁS",
-      "local": "E. M. SÃO FRANCISCO DO IRACEMA",
-      "endereco": "COM. DO IRACEMA, LAGO DO BADAJÓS, MARGEM DIREITA",
-      "enderecos": 429,
-      "acima_25km": 194,
-      "distancia_media_km": 31.2,
-      "distancia_minima_m": 10,
-      "distancia_maxima_km": 78.5,
-      "vezes_a_mediana_do_municipio": 88.8
+      "id_regiao": 42153,
+      "uf": "MS",
+      "municipio": "CORUMBÁ",
+      "local": "EE GABRIEL VANDONI DE BARROS",
+      "endereco": "RUA NOSSA SENHORA DA CANDELÁRIA, 01",
+      "enderecos": 714,
+      "acima_25km": 160,
+      "distancia_media_km": 32.7,
+      "distancia_minima_m": 0,
+      "distancia_maxima_km": 272.4,
+      "vezes_a_mediana_do_municipio": 92.0
     },
     {
-      "id_regiao": 605,
-      "uf": "AC",
-      "municipio": "SENA MADUREIRA",
-      "local": "EEFC - ESCOLA DE ENSINO FUNDAMENTAL CAZUMBÁ",
-      "endereco": "COMUNIDADE CAZUMBÁ RIO CAETE",
-      "enderecos": 1990,
-      "acima_25km": 224,
-      "distancia_media_km": 15.8,
-      "distancia_minima_m": 672,
-      "distancia_maxima_km": 53.7,
-      "vezes_a_mediana_do_municipio": 87.2
+      "id_regiao": 48198,
+      "uf": "PA",
+      "municipio": "ÓBIDOS",
+      "local": "EMEIF VAGNER MONTEIRO",
+      "endereco": "COMUNIDADE SANTO ANTÔNIO",
+      "enderecos": 1023,
+      "acima_25km": 702,
+      "distancia_media_km": 102.7,
+      "distancia_minima_m": 7,
+      "distancia_maxima_km": 418.5,
+      "vezes_a_mediana_do_municipio": 89.3
     },
     {
       "id_regiao": 42758,
@@ -1299,33 +1338,7 @@
       "distancia_media_km": 41.8,
       "distancia_minima_m": 0,
       "distancia_maxima_km": 136.6,
-      "vezes_a_mediana_do_municipio": 84.0
-    },
-    {
-      "id_regiao": 2529,
-      "uf": "AM",
-      "municipio": "JUTAÍ",
-      "local": "E. E. PADRE JOAO",
-      "endereco": "RUA FRANCISCO CAMPOS",
-      "enderecos": 3905,
-      "acima_25km": 1549,
-      "distancia_media_km": 46.9,
-      "distancia_minima_m": 42,
-      "distancia_maxima_km": 461.1,
-      "vezes_a_mediana_do_municipio": 82.6
-    },
-    {
-      "id_regiao": 3429,
-      "uf": "AM",
-      "municipio": "SANTO ANTÔNIO DO IÇÁ",
-      "local": "E. M. DAURAGUNE",
-      "endereco": "COM.MATIINTIM, RIO IÇA, MARGEM DIREITA, ZONA RURAL INDIGENA",
-      "enderecos": 2005,
-      "acima_25km": 1663,
-      "distancia_media_km": 65.9,
-      "distancia_minima_m": 0,
-      "distancia_maxima_km": 135.7,
-      "vezes_a_mediana_do_municipio": 81.2
+      "vezes_a_mediana_do_municipio": 88.2
     },
     {
       "id_regiao": 43349,
@@ -1333,103 +1346,51 @@
       "municipio": "CUIABÁ",
       "local": "ESCOLA MUNICIPAL NOVO RENASCER",
       "endereco": "FAZENDA VELHA",
-      "enderecos": 2905,
+      "enderecos": 2862,
       "acima_25km": 1835,
-      "distancia_media_km": 33.8,
+      "distancia_media_km": 34.2,
       "distancia_minima_m": 20,
       "distancia_maxima_km": 122.2,
-      "vezes_a_mediana_do_municipio": 80.9
+      "vezes_a_mediana_do_municipio": 83.0
     },
     {
-      "id_regiao": 3165,
+      "id_regiao": 97086,
+      "uf": "TO",
+      "municipio": "ARAGUAÍNA",
+      "local": "ESCOLA MUNICIPAL JOSE NOGUEIRA",
+      "endereco": "POVOADO PROJETO RIO PRETO",
+      "enderecos": 785,
+      "acima_25km": 372,
+      "distancia_media_km": 29.5,
+      "distancia_minima_m": 0,
+      "distancia_maxima_km": 58.9,
+      "vezes_a_mediana_do_municipio": 81.1
+    },
+    {
+      "id_regiao": 3487,
       "uf": "AM",
-      "municipio": "MANAUS",
-      "local": "E. M. CARLOS ANTONIO CARDOSO",
-      "endereco": "BR 174, KM 925, ANTIGO KM 41, ZONA RURAL",
-      "enderecos": 2085,
-      "acima_25km": 925,
-      "distancia_media_km": 22.8,
-      "distancia_minima_m": 6,
-      "distancia_maxima_km": 63.1,
-      "vezes_a_mediana_do_municipio": 80.0
+      "municipio": "SÃO SEBASTIÃO DO UATUMÃ",
+      "local": "E. E. COLEGIO DE SANTANA",
+      "endereco": "COMUNIDADE VILA DE SANTANA",
+      "enderecos": 1402,
+      "acima_25km": 537,
+      "distancia_media_km": 31.4,
+      "distancia_minima_m": 10,
+      "distancia_maxima_km": 139.4,
+      "vezes_a_mediana_do_municipio": 77.2
     },
     {
-      "id_regiao": 600,
-      "uf": "AC",
-      "municipio": "SENA MADUREIRA",
-      "local": "UNIDADE BÁSICA DE SAÚDE RECIFE",
-      "endereco": "SERINGAL RECIFE - RIO IACO",
-      "enderecos": 666,
-      "acima_25km": 91,
-      "distancia_media_km": 14.5,
-      "distancia_minima_m": 0,
-      "distancia_maxima_km": 35.3,
-      "vezes_a_mediana_do_municipio": 79.9
-    },
-    {
-      "id_regiao": 44793,
-      "uf": "PA",
-      "municipio": "ALTAMIRA",
-      "local": "EMEIF TREZE DE MAIO",
-      "endereco": "VILA CANOPUS",
-      "enderecos": 1237,
-      "acima_25km": 696,
-      "distancia_media_km": 47.5,
-      "distancia_minima_m": 0,
-      "distancia_maxima_km": 170.7,
-      "vezes_a_mediana_do_municipio": 79.5
-    },
-    {
-      "id_regiao": 646,
-      "uf": "AC",
-      "municipio": "TARAUACÁ",
-      "local": "ESCOLA ESTADUAL SÃO JOSÉ",
-      "endereco": "ALDEIA SÃO VICENTE, RIO HUMAITÁ",
-      "enderecos": 125,
-      "acima_25km": 102,
-      "distancia_media_km": 42.1,
-      "distancia_minima_m": 16006,
-      "distancia_maxima_km": 60.2,
-      "vezes_a_mediana_do_municipio": 78.0
-    },
-    {
-      "id_regiao": 43713,
-      "uf": "MT",
-      "municipio": "NOVA MUTUM",
-      "local": "E.P.G. SÃO JOSÉ",
-      "endereco": "COMUNIDADE SÃO MANOEL",
-      "enderecos": 1011,
-      "acima_25km": 521,
-      "distancia_media_km": 49.6,
-      "distancia_minima_m": 0,
-      "distancia_maxima_km": 123.9,
-      "vezes_a_mediana_do_municipio": 77.3
-    },
-    {
-      "id_regiao": 43410,
-      "uf": "MT",
-      "municipio": "DIAMANTINO",
-      "local": "E. M. BRAS MAIMONI",
-      "endereco": "RUA FREI MANOEL, S/N",
-      "enderecos": 1329,
-      "acima_25km": 593,
-      "distancia_media_km": 51.8,
-      "distancia_minima_m": 0,
-      "distancia_maxima_km": 134.3,
-      "vezes_a_mediana_do_municipio": 75.4
-    },
-    {
-      "id_regiao": 44795,
-      "uf": "PA",
-      "municipio": "ALTAMIRA",
-      "local": "EMEIF MANELITO",
-      "endereco": "RESEX RIO IRIRI LADO DIREITO - COMUNIDADE MANELITO",
-      "enderecos": 504,
-      "acima_25km": 366,
-      "distancia_media_km": 44.5,
-      "distancia_minima_m": 0,
-      "distancia_maxima_km": 86.5,
-      "vezes_a_mediana_do_municipio": 74.4
+      "id_regiao": 72310,
+      "uf": "RS",
+      "municipio": "ALEGRETE",
+      "local": "JACARAÍ-PÓLO EMEB CONSTANTINO DE SOUZA NUNES",
+      "endereco": "CORREDOR SANGA QUERO-QUERO",
+      "enderecos": 2548,
+      "acima_25km": 1497,
+      "distancia_media_km": 28.6,
+      "distancia_minima_m": 24,
+      "distancia_maxima_km": 70.3,
+      "vezes_a_mediana_do_municipio": 76.3
     },
     {
       "id_regiao": 25272,
@@ -1445,43 +1406,82 @@
       "vezes_a_mediana_do_municipio": 73.5
     },
     {
-      "id_regiao": 97086,
-      "uf": "TO",
-      "municipio": "ARAGUAÍNA",
-      "local": "ESCOLA MUNICIPAL JOSE NOGUEIRA",
-      "endereco": "POVOADO PROJETO RIO PRETO",
-      "enderecos": 785,
-      "acima_25km": 372,
-      "distancia_media_km": 29.5,
-      "distancia_minima_m": 0,
-      "distancia_maxima_km": 58.9,
-      "vezes_a_mediana_do_municipio": 71.8
+      "id_regiao": 44792,
+      "uf": "PA",
+      "municipio": "ALTAMIRA",
+      "local": "ESCOLA KRAJADJARA - ALDEIA BAU",
+      "endereco": "TERRA INDIGENA BAU",
+      "enderecos": 974,
+      "acima_25km": 747,
+      "distancia_media_km": 45.7,
+      "distancia_minima_m": 6,
+      "distancia_maxima_km": 134.0,
+      "vezes_a_mediana_do_municipio": 68.4
     },
     {
-      "id_regiao": 693,
+      "id_regiao": 44794,
+      "uf": "PA",
+      "municipio": "ALTAMIRA",
+      "local": "EMEEF GABIROTO",
+      "endereco": "RESEX DO MEIO RIO XINGU",
+      "enderecos": 298,
+      "acima_25km": 234,
+      "distancia_media_km": 45.1,
+      "distancia_minima_m": 328,
+      "distancia_maxima_km": 66.6,
+      "vezes_a_mediana_do_municipio": 67.5
+    },
+    {
+      "id_regiao": 12958,
+      "uf": "BA",
+      "municipio": "UBATÃ",
+      "local": "COLÉGIO MUNICIPAL EUGÊNIO ADERNE",
+      "endereco": "RUA DE FÉLIX, S/Nº - ZONA URBANA",
+      "enderecos": 1849,
+      "acima_25km": 206,
+      "distancia_media_km": 11.4,
+      "distancia_minima_m": 0,
+      "distancia_maxima_km": 30.1,
+      "vezes_a_mediana_do_municipio": 67.5
+    },
+    {
+      "id_regiao": 605,
       "uf": "AC",
-      "municipio": "XAPURI",
-      "local": "ESCOLA BELO JARDIM - ASSENTAMENTO TUPÁ",
-      "endereco": "RESERVA EXTRATIVISTA CHICO MENDES - ASSENTAMENTO TUPÁ",
-      "enderecos": 1777,
-      "acima_25km": 1153,
-      "distancia_media_km": 28.9,
-      "distancia_minima_m": 0,
-      "distancia_maxima_km": 74.2,
-      "vezes_a_mediana_do_municipio": 70.4
+      "municipio": "SENA MADUREIRA",
+      "local": "EEFC - ESCOLA DE ENSINO FUNDAMENTAL CAZUMBÁ",
+      "endereco": "COMUNIDADE CAZUMBÁ RIO CAETE",
+      "enderecos": 1938,
+      "acima_25km": 221,
+      "distancia_media_km": 15.7,
+      "distancia_minima_m": 672,
+      "distancia_maxima_km": 53.7,
+      "vezes_a_mediana_do_municipio": 67.2
     },
     {
-      "id_regiao": 77752,
-      "uf": "RS",
-      "municipio": "QUARAÍ",
-      "local": "ESCOLA MUN. ENS. FUND. WALTER ELIZALDE OSORIO (ANTIGA MARECHAL RONDON)",
-      "endereco": "COXILHA DE SAO RAFAEL",
-      "enderecos": 713,
-      "acima_25km": 108,
-      "distancia_media_km": 17.3,
+      "id_regiao": 601,
+      "uf": "AC",
+      "municipio": "SENA MADUREIRA",
+      "local": "ESCOLA MUNICIPAL DE ENSINO FUNDAMENTAL JOSÉ DA ROCHA NEVES",
+      "endereco": "COMUNIDADE LUA NOVA - RIO MACAUÃ",
+      "enderecos": 863,
+      "acima_25km": 32,
+      "distancia_media_km": 15.6,
+      "distancia_minima_m": 1303,
+      "distancia_maxima_km": 47.8,
+      "vezes_a_mediana_do_municipio": 67.0
+    },
+    {
+      "id_regiao": 44795,
+      "uf": "PA",
+      "municipio": "ALTAMIRA",
+      "local": "EMEIF MANELITO",
+      "endereco": "RESEX RIO IRIRI LADO DIREITO - COMUNIDADE MANELITO",
+      "enderecos": 504,
+      "acima_25km": 366,
+      "distancia_media_km": 44.5,
       "distancia_minima_m": 0,
-      "distancia_maxima_km": 39.5,
-      "vezes_a_mediana_do_municipio": 69.1
+      "distancia_maxima_km": 86.5,
+      "vezes_a_mediana_do_municipio": 66.7
     }
   ]
 }

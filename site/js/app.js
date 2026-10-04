@@ -5,9 +5,10 @@
  * número só quando o bairro ainda não resolveu. */
 
 import * as dados from "./dados.js";
+import * as aoVivo from "./ao_vivo.js";
 import { resolver, normalizar } from "./consulta.js";
 import { mostrar as mostrarNoMapa } from "./mapa.js";
-import { num } from "./formato.js";
+import { num, pct } from "./formato.js";
 import * as abaPresidente from "./abas/presidente.js";
 import * as abaComparativo from "./abas/comparativo.js";
 import * as abaEvolucao from "./abas/evolucao.js";
@@ -21,8 +22,8 @@ const estado = {
   municipios: null, ruas: null, regioes: null, locais: null,
   rua: null, bairro: null, numero: null,
   achado: null, regiaoEscolhida: null,
-  aba: "presidente", ano: null, turno: null, ufsLista: null,
-  metadados: null, anoFuturo: null,
+  aba: "presidente", ano: null, turno: null, anoPedido: false, ufsLista: null,
+  metadados: null, anoFuturo: null, apuradoOficial: null,
   agregados: { municipio: null, uf: null, brasil: null },
 };
 
@@ -118,13 +119,31 @@ function atualizarEndereco() {
   history.replaceState({ buscou: true }, "", alvo);
 }
 
+/** O texto que acompanha o link.
+ *
+ *  Durante a apuração ele leva os números, e aqui está o motivo: a imagem de
+ *  prévia é montada no servidor, a partir de `publicado/`, que ainda não tem o
+ *  ano corrente. O texto é montado aqui, onde o dado ao vivo está — então é ele
+ *  que carrega o resultado até a conversa de quem recebe. */
+function textoDoCompartilhamento(id) {
+  const nome = estado.regioes?.[id]?.local ?? "este local de votação";
+  const base = `Como votou ${nome}, em ${estado.municipio.nome} – ${estado.uf}`;
+  const vivo = aoVivoPorRegiao.get(String(id));
+  const lista = vivo?.resultados?.presidente ?? [];
+  if (!lista.length) return base;
+  const primeiros = lista.slice(0, 2).map(c => `${c.nome} ${pct(c.pct)}`).join(", ");
+  const urnas = vivo.urnas === vivo.urnasPedidas
+    ? `apuração concluída neste local, ${vivo.urnas} urnas processadas`
+    : `parcial, ${vivo.urnas} de ${vivo.urnasPedidas} urnas processadas`;
+  return `${base}: ${primeiros} — ${urnas}`;
+}
+
 async function compartilhar(botao) {
   const caminho = enderecoDoLocal();
   if (!caminho) return;
   const url = new URL(caminho, location.origin).href;
   const id = estado.regiaoEscolhida ?? estado.achado?.id;
-  const nome = estado.regioes?.[id]?.local ?? "este local de votação";
-  const texto = `Como votou ${nome}, em ${estado.municipio.nome} – ${estado.uf}`;
+  const texto = textoDoCompartilhamento(id);
 
   // A folha de compartilhamento nativa só vale a pena onde ela é o caminho
   // normal: no celular. O Windows também expõe `navigator.share`, mas abre um
@@ -138,7 +157,9 @@ async function compartilhar(botao) {
       if (erro?.name === "AbortError") return;  // a pessoa fechou a folha de compartilhar
     }
   }
-  avisarNoBotao(botao, await copiar(url) ? "Link copiado" : "Não consegui copiar");
+  // No computador vai texto e link juntos: é o que a pessoa cola na conversa.
+  const copiado = await copiar([texto, url].join("\n"));
+  avisarNoBotao(botao, copiado ? "Copiado" : "Não consegui copiar");
 }
 
 /** Copia para a área de transferência, pelo caminho moderno ou pelo antigo.
@@ -285,7 +306,7 @@ function limparMunicipio() {
   document.body.classList.remove("via-link");
   Object.assign(estado, {
     municipio: null, ruas: null, regioes: null, locais: null, rua: null, bairro: null, numero: null,
-    achado: null, regiaoEscolhida: null, ano: null, turno: null,
+    achado: null, regiaoEscolhida: null, ano: null, turno: null, anoPedido: false,
     agregados: { municipio: null, uf: null, brasil: null },
   });
   $("rua").value = ""; $("rua").disabled = true;
@@ -386,6 +407,141 @@ $("numero").addEventListener("input", e => {
 });
 
 // ---------------------------------------------------------------- desenho
+/* ---------------------------------------------------------------- ao vivo
+ *
+ * Na noite da apuração o resultado do ano corrente não está em `publicado/`:
+ * ele é buscado no TSE pelo navegador, boletim por boletim, pela camada em
+ * `ao_vivo.js`. Aqui ele é apenas **mesclado** no que a região já tem, na mesma
+ * forma dos outros anos — as abas não sabem a diferença, e o seletor de ano
+ * ganha o ano novo por consequência.
+ *
+ * Três decisões:
+ *
+ * - **Primeiro a tela, depois o ao vivo.** O histórico aparece do JSON, na hora.
+ *   A consulta ao TSE roda em segundo plano e, quando volta, redesenha. Se não
+ *   voltar, ou voltar sem nada, a página é a de ontem.
+ * - **Uma consulta por região, só quando ela está na tela.** Buscar os boletins
+ *   de todas as regiões de um município seriam milhares de requisições.
+ * - **Nunca sobrepõe o publicado.** Se o ano ao vivo já existe no JSON — depois
+ *   da totalização definitiva —, não há o que completar e nada é pedido.
+ */
+
+const aoVivoPorRegiao = new Map();
+const aoVivoPedidos = new Set();
+/** id da região → "buscando" | "sem" (nenhuma urna ainda) | "ok" */
+const aoVivoSituacao = new Map();
+
+async function completarComAoVivo(id) {
+  if (id == null || !estado.municipio || aoVivoPedidos.has(String(id))) return;
+  const regiao = estado.regioes?.[id];
+  if (!regiao) return;
+  const cfg = await aoVivo.configurar();
+  if (!cfg) return;
+  if (regiao.resultados?.presidente?.[cfg.ano]?.[cfg.turno]) return;
+
+  aoVivoPedidos.add(String(id));
+  aoVivoSituacao.set(String(id), "buscando");
+  if (String(regiaoNaTela()) === String(id)) desenhar();
+
+  const vivo = await aoVivo.resultadoDaRegiao({
+    idRegiao: id, municipioIbge: estado.municipio.cd, uf: estado.uf,
+  });
+  if (!vivo) {
+    aoVivoSituacao.set(String(id), "sem");
+    if (String(regiaoNaTela()) === String(id)) desenhar();
+    return;
+  }
+  aoVivoSituacao.set(String(id), "ok");
+
+  mesclarAoVivo(regiao, vivo);
+  aoVivoPorRegiao.set(String(id), vivo);
+  estado.anoFuturo = null;          // não está "em breve": está acontecendo
+  // Abre no ano que está sendo apurado — mas sem puxar o tapete de quem já
+  // escolheu outro ano enquanto a busca estava em voo.
+  if (!estado.anoPedido) {
+    estado.ano = vivo.ano;
+    estado.turno = vivo.turno;
+  }
+  if (String(regiaoNaTela()) === String(id)) desenhar();
+}
+
+const regiaoNaTela = () => estado.regiaoEscolhida ?? estado.achado?.id ?? null;
+
+/** Encaixa o resultado ao vivo na forma que o JSON publicado usa. */
+function mesclarAoVivo(regiao, vivo) {
+  const resultados = (regiao.resultados ??= {});
+  for (const [cargo, lista] of Object.entries(vivo.resultados)) {
+    (((resultados[cargo] ??= {})[vivo.ano]) ??= {})[vivo.turno] = lista;
+  }
+  for (const [cargo, naoNominal] of Object.entries(vivo.naoNominal)) {
+    ((((resultados.nao_nominal ??= {})[cargo] ??= {})[vivo.ano]) ??= {})[vivo.turno] =
+      naoNominal;
+  }
+  for (const [cargo, total] of Object.entries(vivo.totais)) {
+    ((((resultados.total_votos ??= {})[cargo] ??= {})[vivo.ano]) ??= {})[vivo.turno] =
+      total;
+  }
+  // Abstenção dá para calcular: o eleitorado de 2026 já é publicado pelo passo 10.
+  const eleitores = regiao.eleitorado?.[vivo.ano]?.[vivo.turno];
+  const comparecimento = vivo.totais.presidente ?? Object.values(vivo.totais)[0];
+  if (eleitores != null && comparecimento != null) {
+    ((regiao.abstencao ??= {})[vivo.ano] ??= {})[vivo.turno] =
+      Math.max(eleitores - comparecimento, 0);
+  }
+}
+
+/** O aviso de apuração em andamento, com a contagem de urnas.
+ *  Sem ele o número parcial de um bairro pequeno pareceria resultado fechado. */
+function avisoAoVivo(id) {
+  const situacao = aoVivoSituacao.get(String(id));
+  if (!situacao) return "";
+
+  if (situacao === "buscando") {
+    return `
+      <p class="aviso-ao-vivo buscando">
+        <span class="girando" aria-hidden="true"></span>
+        Buscando a apuração deste local no TSE…
+      </p>`;
+  }
+
+  if (situacao === "sem") {
+    return `
+      <p class="aviso-ao-vivo aguardando">
+        <span class="marca" aria-hidden="true">◷</span>
+        <strong>Nenhuma urna deste local processada ainda.</strong>
+        O resultado aparece aqui conforme as urnas forem sendo processadas.
+        <button class="atualizar-ao-vivo" data-atualizar="${id}">tentar de novo</button>
+      </p>`;
+  }
+
+  const vivo = aoVivoPorRegiao.get(String(id));
+  if (!vivo || estado.ano !== vivo.ano || estado.turno !== vivo.turno) return "";
+  const hora = vivo.atualizado.toLocaleTimeString("pt-BR",
+    { hour: "2-digit", minute: "2-digit" });
+  // "Processadas" é o que descreve o que foi feito deste lado, sem dizer nada
+  // sobre a origem do dado: cobre tanto a urna que ainda não transmitiu quanto
+  // a que chegou e não pôde entrar na conta. A distinção entre as duas é nossa,
+  // e fica nos contadores, não na tela de quem consulta.
+  const completo = vivo.urnas >= vivo.urnasPedidas;
+  const contagem = `${num(vivo.urnas)} de ${num(vivo.urnasPedidas)} urnas processadas`;
+  const texto = completo
+    ? `<strong>Apuração concluída neste local.</strong> ${contagem}.`
+    : `<strong>Apuração em andamento.</strong> ${contagem}.`;
+  return `
+    <p class="aviso-ao-vivo ${completo ? "completo" : "parcial"}">
+      <span class="marca" aria-hidden="true">${completo ? "✓" : "◐"}</span>
+      ${texto} Atualizado às ${hora}.
+      <button class="atualizar-ao-vivo" data-atualizar="${id}">atualizar</button>
+    </p>`;
+}
+
+async function atualizarAoVivo(id) {
+  aoVivoPedidos.delete(String(id));
+  aoVivoPorRegiao.delete(String(id));
+  aoVivoSituacao.delete(String(id));
+  await completarComAoVivo(id);
+}
+
 function desenhar() {
   estado.achado = estado.rua ? resolver(estado.rua, estado.numero, estado.bairro) : null;
 
@@ -407,6 +563,9 @@ function desenhar() {
     document.activeElement?.blur();
     scrollTo(0, 0);
   }
+
+  // Em segundo plano: completa com o ao vivo se houver apuração correndo.
+  if (agora) completarComAoVivo(regiaoNaTela());
 }
 
 function atualizarFiltros() {
@@ -578,12 +737,36 @@ function blocoEscolha(achado, idAtual) {
     </div>`;
 }
 
+/** O painel de um local novo: existe na malha, ainda não tem resultado nenhum. */
+function blocoSemHistorico(regiao, id) {
+  const ano = estado.metadados?.ano_referencia_malha ?? "";
+  return `
+    <div class="bloco">
+      <div class="bloco-titulo">
+        <h2>${regiao.local ?? "Local de votação"}</h2>
+        ${botoesDoResultado()}
+      </div>
+      ${avisoAoVivo(id)}
+      <div class="em-breve">
+        <div class="icone" aria-hidden="true">▦</div>
+        <h3>Local novo${ano ? ` em ${ano}` : ""}</h3>
+        <p>Este local de votação não existia nas eleições anteriores, então não há
+        resultado passado para mostrar aqui. O resultado desta eleição aparece
+        assim que as urnas deste prédio começarem a transmitir.</p>
+      </div>
+    </div>`;
+}
+
 function blocoResultados(id) {
   const regiao = estado.regioes[id];
   if (!regiao) return '<p class="vazio">Região sem dados publicados.</p>';
 
   const resultados = regiao.resultados ?? {};
   const anos = Object.keys(resultados.presidente ?? {}).sort();
+  // Local que só existe na malha nova não tem resultado anterior — são 5.312 em
+  // 2026. Sem este desvio, a tela cairia na maquinaria de anos com ano nenhum e
+  // escreveria "Resultados de undefined".
+  if (!anos.length) return blocoSemHistorico(regiao, id);
   if (!estado.ano || !anos.includes(estado.ano)) estado.ano = anos[anos.length - 1];
   const turnos = Object.keys(resultados.presidente?.[estado.ano] ?? {}).sort();
   if (!estado.turno || !turnos.includes(estado.turno)) estado.turno = turnos[turnos.length - 1];
@@ -593,6 +776,7 @@ function blocoResultados(id) {
   const contexto = {
     resultados, ano: estado.ano, turno: estado.turno, anoFuturo: estado.anoFuturo,
     agregados: estado.agregados, municipio: estado.municipio, ufNome: estado.ufNome,
+    apuradoOficial: estado.apuradoOficial,
     // Pode não existir: nem todo local está na base de eleitorado do TSE.
     abstencao: regiao.abstencao, eleitorado: regiao.eleitorado,
   };
@@ -632,6 +816,7 @@ function blocoResultados(id) {
             </div>` : ""}
         </div>`}
 
+      ${avisoAoVivo(id)}
       ${aba[2].render(contexto)}
     </div>`;
 }
@@ -669,10 +854,14 @@ function ligarEventosDoPainel() {
     desenhar();
   }));
   painel.querySelectorAll("[data-ano]").forEach(b => b.addEventListener("click", () => {
-    estado.ano = b.dataset.ano; estado.turno = null; desenhar();
+    estado.ano = b.dataset.ano; estado.turno = null; estado.anoPedido = true; desenhar();
   }));
   painel.querySelectorAll("[data-turno]").forEach(b => b.addEventListener("click", () => {
     estado.turno = b.dataset.turno; desenhar();
+  }));
+  painel.querySelectorAll("[data-atualizar]").forEach(b => b.addEventListener("click", () => {
+    b.textContent = "buscando…";
+    atualizarAoVivo(Number(b.dataset.atualizar));
   }));
 }
 
@@ -684,6 +873,37 @@ async function carregarAgregados() {
     dados.agregadoBrasil(),
   ]);
   estado.agregados = { municipio, uf, brasil };
+  await completarAgregadosAoVivo();
+}
+
+/** Município, estado e Brasil do ano corrente, direto do arquivo oficial do TSE.
+ *
+ *  O resultado do local é somado por nós, boletim a boletim; estes três o TSE
+ *  publica prontos, exatos e com o percentual oficial de seções totalizadas.
+ *  Somar os nossos boletins para chegar a um número que já existe seria pior em
+ *  tudo: mais requisições, mais chance de erro, e um número que não bateria com
+ *  o que a imprensa estaria citando na mesma hora. */
+async function completarAgregadosAoVivo() {
+  if (!estado.municipio) return;
+  const vivo = await aoVivo.agregadosAoVivo({
+    municipioIbge: estado.municipio.cd, uf: estado.uf,
+  });
+  if (!vivo) return;
+  for (const nivel of ["municipio", "uf", "brasil"]) {
+    const doNivel = vivo[nivel];
+    if (!doNivel) continue;
+    const base = estado.agregados[nivel] ?? {};
+    for (const [cargo, porAno] of Object.entries(doNivel)) {
+      if (cargo === "apurado") continue;
+      ((base[cargo] ??= {})[vivo.ano] ??= {})[vivo.turno] = porAno[vivo.ano][vivo.turno];
+    }
+    estado.agregados[nivel] = base;
+  }
+  estado.apuradoOficial = {
+    ano: vivo.ano, turno: vivo.turno,
+    municipio: vivo.municipio?.apurado, uf: vivo.uf?.apurado, brasil: vivo.brasil?.apurado,
+  };
+  desenhar();
 }
 
 function atualizarLateral() {

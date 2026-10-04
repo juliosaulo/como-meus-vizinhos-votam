@@ -28,7 +28,7 @@ geocodificação por UF.
 | Locais de votação com coordenada | 99,7% | 276 locais sem coordenada em nenhuma das duas fontes |
 | Votos dentro de alguma região | 99,5% | votos dados nos locais acima |
 | Endereços atribuídos a uma região | 99,99% | endereços dos municípios sem nenhum local geocodificado |
-| Acerto do índice de ruas | 96,40% (rua + bairro + número) | ver abaixo |
+| Acerto do índice de ruas | 95,77% (rua + bairro + número) | ver abaixo |
 
 **A cobertura vem de duas fontes somadas:** 80.246 locais com coordenada vinda do artefato
 importado, que casa o cadastro do TSE com o CNEFE, e 23.270 com a coordenada oficial do TSE, onde o
@@ -39,6 +39,13 @@ e 66,6% no Pará a 93,3% em São Paulo, seguindo a qualidade do endereçamento d
 complemento oficial, nenhuma UF fica abaixo de 99,1%. A comparação entre as duas fontes, incluindo
 os casos em que elas discordam por quilômetros, está em
 [PROVENIENCIA.md](dados_importados/PROVENIENCIA.md).
+
+**A malha é a de 2026, e isso tem dois efeitos visíveis.** Primeiro: 5.312 locais de votação
+são novos — existem em 2026 e não existiam em 2018 nem em 2022 —, então não têm resultado
+anterior para mostrar, e a página desses locais diz isso em vez de aparecer vazia. Segundo: malha
+mais fina custa acerto. São 90.898 regiões, e quanto mais locais dividem um município, mais
+regiões disputam a resposta de uma rua sem número. É o preço de usar os locais da eleição em
+curso em vez dos da anterior.
 
 **Coordenada não é a mesma coisa que acerto.** Cobrir 99,7% dos locais não significa que todos
 estejam no lugar certo: nos 11% de locais em que as duas fontes discordam mais de 5 km, a medição não
@@ -65,10 +72,10 @@ pessoa vota, e o quanto falta depende do que mais ela souber informar:
 
 | O que o usuário informa | Acerto | Só domicílios |
 |---|---:|---:|
-| Só a rua | 78,29% | 79,36% |
-| Rua + bairro | 87,61% | 88,51% |
-| Rua + número | 92,44% | 93,53% |
-| Rua + bairro + número | **96,40%** | **97,10%** |
+| Só a rua | 76,54% | 77,72% |
+| Rua + bairro | 86,25% | 87,19% |
+| Rua + número | 91,59% | 92,77% |
+| Rua + bairro + número | **95,77%** | **96,54%** |
 
 A segunda coluna é a que descreve o usuário do site: o índice desempata por domicílio, então acerta
 mais onde mora gente do que em obras e comércios.

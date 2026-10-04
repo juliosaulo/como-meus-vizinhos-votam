@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="pt-BR">
+<meta charset="utf-8">
+<title>Avisos da apuração — preview</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Os quatro estados da tarja de apuração, lado a lado, com o CSS do site.
+     Serve para olhar e decidir cor e texto sem precisar de boletim real.
+     `site/dev/` nunca vai para o servidor. -->
+<link rel="stylesheet" href="../css/estilo.css">
+<style>
+  body { background: var(--creme); color: var(--tinta); font-family: var(--sans);
+         margin: 0; padding: 28px 20px 60px; }
+  .folha { max-width: 760px; margin: 0 auto; }
+  h1 { font-family: var(--serifa); font-size: 26px; margin: 0 0 4px; }
+  .sub { color: var(--tinta-suave); font-size: 14px; margin: 0 0 28px; }
+  .caso { background: var(--papel); border: 1px solid var(--fio-frio);
+          border-radius: 6px; padding: 4px 18px 16px; margin-bottom: 18px; }
+  .quando { font-size: 12px; letter-spacing: .06em; text-transform: uppercase;
+            color: var(--tinta-suave); margin: 16px 0 0; }
+  .estreito { max-width: 390px; }
+  .nota-preview { color: var(--tinta-suave); font-size: 13px; margin: 6px 0 0; }
+</style>
+
+<div class="folha">
+  <h1>Avisos da apuração</h1>
+  <p class="sub">Os quatro estados da tarja, com as cores e o texto que vão ao ar.
+     Abaixo, os mesmos na largura de celular (390 px).</p>
+
+  <div class="caso">
+    <p class="quando">1 · enquanto busca no TSE</p>
+    <p class="aviso-ao-vivo buscando">
+      <span class="girando" aria-hidden="true"></span>
+      Buscando a apuração deste local no TSE…
+    </p>
+    <p class="nota-preview">Dura menos de meio segundo na mediana. O histórico já está
+      desenhado atrás.</p>
+  </div>
+
+  <div class="caso">
+    <p class="quando">2 · nenhuma urna processada ainda</p>
+    <p class="aviso-ao-vivo aguardando">
+      <span class="marca" aria-hidden="true">◷</span>
+      <strong>Nenhuma urna deste local processada ainda.</strong>
+      O resultado aparece aqui conforme as urnas forem sendo processadas.
+      <button class="atualizar-ao-vivo">tentar de novo</button>
+    </p>
+    <p class="nota-preview">É o que todo mundo vê às 17h de domingo.</p>
+  </div>
+
+  <div class="caso">
+    <p class="quando">3 · apuração em andamento</p>
+    <p class="aviso-ao-vivo parcial">
+      <span class="marca" aria-hidden="true">◐</span>
+      <strong>Apuração em andamento.</strong> 13 de 17 urnas processadas.
+      Atualizado às 19:42.
+      <button class="atualizar-ao-vivo">atualizar</button>
+    </p>
+    <p class="nota-preview">O estado que fica na tela a maior parte da noite.</p>
+  </div>
+
+  <div class="caso">
+    <p class="quando">4 · apuração concluída neste local</p>
+    <p class="aviso-ao-vivo completo">
+      <span class="marca" aria-hidden="true">✓</span>
+      <strong>Apuração concluída neste local.</strong> 13 de 13 urnas processadas.
+      Atualizado às 21:05.
+      <button class="atualizar-ao-vivo">atualizar</button>
+    </p>
+    <p class="nota-preview">Só aparece quando processadas e previstas se igualam.</p>
+  </div>
+
+  <p class="quando" style="margin-top:34px">no celular, 390 px</p>
+  <div class="caso estreito">
+    <p class="aviso-ao-vivo buscando">
+      <span class="girando" aria-hidden="true"></span>
+      Buscando a apuração deste local no TSE…
+    </p>
+    <p class="aviso-ao-vivo aguardando">
+      <span class="marca" aria-hidden="true">◷</span>
+      <strong>Nenhuma urna deste local processada ainda.</strong>
+      O resultado aparece aqui conforme as urnas forem sendo processadas.
+      <button class="atualizar-ao-vivo">tentar de novo</button>
+    </p>
+    <p class="aviso-ao-vivo parcial">
+      <span class="marca" aria-hidden="true">◐</span>
+      <strong>Apuração em andamento.</strong> 13 de 17 urnas processadas.
+      Atualizado às 19:42.
+      <button class="atualizar-ao-vivo">atualizar</button>
+    </p>
+    <p class="aviso-ao-vivo completo">
+      <span class="marca" aria-hidden="true">✓</span>
+      <strong>Apuração concluída neste local.</strong> 13 de 13 urnas processadas.
+      Atualizado às 21:05.
+      <button class="atualizar-ao-vivo">atualizar</button>
+    </p>
+  </div>
+</div>
+</html>

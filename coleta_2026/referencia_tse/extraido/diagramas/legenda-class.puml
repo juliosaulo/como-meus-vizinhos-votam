@@ -1,0 +1,132 @@
+@startuml
+
+left to right direction
+
+hide empty members
+
+!define aenum       #fa9441
+!define choice      #59b9de
+!define sequence    #21c834
+!define tipo        #c39deb
+!define aenum_b     #fce2c5
+!define choice_b    #c3ebfa
+!define sequence_b  #b7f5bd
+!define tipo_b      #ede3ff
+
+package Legenda {
+    class LegendaSequence   as "**Sequences**"              << (S, sequence) >>
+    class LegendaChoice     as "**Choices**"                << (C, choice) >>
+    class LegendaEnum       as "**Enums**"                  << (E, aenum) >>
+    class LegendaTipo       as "**Tipos simples**"          << (T, tipo) >>
+    ' Layout
+
+    LegendaSequence -[hidden]-> LegendaChoice
+    LegendaChoice -[hidden]-> LegendaEnum
+    LegendaEnum -[hidden]-> LegendaTipo
+}
+
+package Tipos {
+    class CodigoMunicipio          as "**CodigoMunicipio**"            << (T, tipo) >>
+    class DataHoraJE               as "**DataHoraJE**"                 << (T, tipo) >>
+    class IDEleicao                as "**IDEleicao**"                  << (T, tipo) >>
+    class IDPleito                 as "**IDPleito**"                   << (T, tipo) >>
+    class IDProcessoEleitoral      as "**IDProcessoEleitoral**"        << (T, tipo) >>
+    class NumeroCargoConsultaLivre as "**NumeroCargoConsultaLivre**"   << (T, tipo) >>
+    class NumeroInternoUrna        as "**NumeroInternoUrna**"          << (T, tipo) >>
+    class NumeroLocal              as "**NumeroLocal**"                << (T, tipo) >>
+    class NumeroPartido            as "**NumeroPartido**"              << (T, tipo) >>
+    class NumeroSecao              as "**NumeroSecao**"                << (T, tipo) >>
+    class NumeroSerieFlash         as "**NumeroSerieFlash**"           << (T, tipo) >>
+    class NumeroVotavel            as "**NumeroVotavel**"              << (T, tipo) >>
+    class NumeroZona               as "**NumeroZona**"                 << (T, tipo) >>
+    class QtdEleitores             as "**QtdEleitores**"               << (T, tipo) >>
+    class QuantidadeEscolhas       as "**QuantidadeEscolhas**"         << (T, tipo) >>
+    class VotoDigitado             as "**VotoDigitado**"               << (T, tipo) >>
+
+    CodigoMunicipio                -[hidden]-> DataHoraJE
+    DataHoraJE                     -[hidden]-> IDEleicao
+    IDEleicao                      -[hidden]-> IDPleito
+    IDProcessoEleitoral            -[hidden]-> NumeroCargoConsultaLivre
+    NumeroCargoConsultaLivre       -[hidden]-> NumeroInternoUrna
+    NumeroInternoUrna              -[hidden]-> NumeroLocal
+    NumeroPartido                  -[hidden]-> NumeroSecao
+    NumeroSecao                    -[hidden]-> NumeroSerieFlash
+    NumeroSerieFlash               -[hidden]-> NumeroVotavel
+    NumeroZona                     -[hidden]-> QtdEleitores
+    QtdEleitores                   -[hidden]-> QuantidadeEscolhas
+    QuantidadeEscolhas             -[hidden]-> VotoDigitado
+}
+
+class LegendaSequence sequence_b
+class LegendaChoice choice_b
+class LegendaEnum aenum_b
+class LegendaTipo tipo_b
+
+' Detalhes dos tipos
+
+class CodigoMunicipio tipo_b {
+    INTEGER [1..99999]
+}
+
+class DataHoraJE tipo_b {
+    GeneralString[15]
+    YYYYMMDDThhmmss
+}
+
+class IDEleicao tipo_b {
+    INTEGER [0..99999]
+}
+
+class IDPleito tipo_b {
+    INTEGER [0..99999]
+}
+
+class IDProcessoEleitoral tipo_b {
+    INTEGER [0..99999]
+}
+
+class NumeroCargoConsultaLivre tipo_b {
+    INTEGER [25..99]
+}
+
+class NumeroInternoUrna tipo_b {
+    INTEGER [0..99999999]
+}
+
+class NumeroLocal tipo_b {
+    INTEGER [1..9999]
+}
+
+class NumeroPartido tipo_b {
+    INTEGER [0..99]
+}
+
+class NumeroVotavel tipo_b {
+    INTEGER [0..99999]
+}
+
+class NumeroSecao tipo_b {
+    INTEGER [1..9999]
+}
+
+class NumeroSerieFlash tipo_b {
+    OCTET STRING [4]
+}
+
+class NumeroZona tipo_b {
+    INTEGER [1..9999]
+}
+
+class QtdEleitores tipo_b {
+    INTEGER [0..9999]
+}
+
+class QuantidadeEscolhas tipo_b {
+    INTEGER [1..50]
+}
+
+class VotoDigitado tipo_b {
+    NumericString [SIZE[1..5]]
+}
+
+@enduml
