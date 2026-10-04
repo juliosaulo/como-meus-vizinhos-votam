@@ -436,17 +436,35 @@ const aoVivoSituacao = new Map();
 /** id da região → quando o TSE foi consultado pela última vez sem achar urna.
  *  É o que dá ao clique uma prova visível de que a consulta foi refeita. */
 const aoVivoVerificado = new Map();
+/** Regiões com busca em andamento. O TSE bloqueia por dez minutos o IP que passa
+ *  de cem requisições por segundo, e uma consulta usa algumas dezenas: duas
+ *  consultas simultâneas do mesmo local são desperdício, e dez são risco. */
+const aoVivoEmVoo = new Set();
 
 async function completarComAoVivo(id) {
   if (id == null || !estado.municipio || aoVivoPedidos.has(String(id))) return;
   const regiao = estado.regioes?.[id];
   if (!regiao) return;
+  // Marcar antes do primeiro `await`. A marca ficava para depois da
+  // configuração chegar, e nessa janela o botão seguia na tela: um segundo
+  // clique passava pela guarda e abria outra consulta inteira em paralelo.
+  aoVivoPedidos.add(String(id));
+  aoVivoEmVoo.add(String(id));
+  try {
+    await buscarAoVivo(id, regiao);
+  } finally {
+    aoVivoEmVoo.delete(String(id));
+  }
+}
+
+async function buscarAoVivo(id, regiao) {
   const cfg = await aoVivo.configurar();
-  if (!cfg) return;
+  // Sem configuração não dá para buscar, e não é falha deste local: desmarca
+  // para a próxima tentativa poder acontecer.
+  if (!cfg) { aoVivoPedidos.delete(String(id)); return; }
   estado.anoAoVivo = cfg.ano;
   if (regiao.resultados?.presidente?.[cfg.ano]?.[cfg.turno]) return;
 
-  aoVivoPedidos.add(String(id));
   aoVivoSituacao.set(String(id), "buscando");
   if (String(regiaoNaTela()) === String(id)) desenhar();
 
@@ -559,6 +577,8 @@ function avisoAoVivo(id) {
 }
 
 async function atualizarAoVivo(id) {
+  // Clique sobre busca em andamento não abre uma segunda: já está buscando.
+  if (aoVivoEmVoo.has(String(id))) return;
   // Sem isto o clique relê o cache de três minutos e devolve a mesma resposta:
   // o botão parece não fazer nada, que é como ele parecia.
   aoVivo.esquecerOTemporario();
