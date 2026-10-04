@@ -3,7 +3,7 @@
 import { comOutros, tabelaCandidatos, blocoTotais, num } from "../formato.js";
 
 export function render(estado) {
-  const { resultados, ano, turno, abstencao } = estado;
+  const { resultados, ano, turno, abstencao, eleitorado, emApuracao } = estado;
   const candidatos = resultados?.presidente?.[ano]?.[turno];
   if (!candidatos) return semDados(ano);
 
@@ -12,7 +12,9 @@ export function render(estado) {
 
   return `
     ${tabelaCandidatos(comOutros(candidatos))}
-    ${blocoTotais(validos, naoNominal, abstencao?.[ano]?.[turno])}
+    ${emApuracao
+      ? blocoTotais(validos, naoNominal, eleitorado?.[ano]?.[turno], "Total de eleitores")
+      : blocoTotais(validos, naoNominal, abstencao?.[ano]?.[turno])}
     <p class="nota">Percentual sobre o voto válido — ${num(validos)} votos nominais apurados neste
     local. Brancos e nulos são contados à parte, sobre o total de comparecimento.</p>`;
 }

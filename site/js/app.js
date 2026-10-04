@@ -826,6 +826,11 @@ function blocoResultados(id) {
     apuradoOficial: estado.apuradoOficial,
     // Pode não existir: nem todo local está na base de eleitorado do TSE.
     abstencao: regiao.abstencao, eleitorado: regiao.eleitorado,
+    // Enquanto o ano em exibição é o que está sendo apurado pelo navegador, o
+    // comparecimento é só o das urnas já processadas. Abstenção calculada
+    // contra o eleitorado inteiro ficaria enorme e falsa — uma urna de nove
+    // faria parecer que oito em cada nove eleitores não votaram.
+    emApuracao: aoVivoPorRegiao.has(String(id)) && estado.ano === estado.anoAoVivo,
   };
 
   return `

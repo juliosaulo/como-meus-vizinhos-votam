@@ -57,7 +57,10 @@ export function tabelaCandidatos(candidatos) {
     </table>`;
 }
 
-export function blocoTotais(validos, naoNominal, abstencao) {
+/** Os totais do local. O último item é a abstenção; durante a apuração quem
+ *  chama troca por "Total de eleitores", porque com parte das urnas processadas
+ *  a abstenção calculada seria enorme e falsa. */
+export function blocoTotais(validos, naoNominal, ultimo, rotuloDoUltimo = "Abstenção") {
   const itens = [
     ["▤", "Votos válidos", validos],
     ["◻", "Brancos", naoNominal?.branco?.votos ?? 0],
@@ -65,7 +68,7 @@ export function blocoTotais(validos, naoNominal, abstencao) {
   ];
   // Só entra quando o eleitorado daquele local é conhecido: sem ele, a conta
   // não existe, e um zero ali seria lido como "ninguém faltou".
-  if (abstencao != null) itens.push(["◌", "Abstenção", abstencao]);
+  if (ultimo != null) itens.push(["◌", rotuloDoUltimo, ultimo]);
   return `
     <div class="totais">
       ${itens.map(([icone, rotulo, valor]) => `
