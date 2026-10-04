@@ -851,12 +851,14 @@ function blocoResultados(id) {
   // de dizer que o que está ali é o primeiro turno. O segundo entra desativado,
   // como o ano seguinte já faz no seletor de ano.
   const ultimoAno = anos[anos.length - 1];
-  const entreOsTurnos = Object.keys(resultados.presidente?.[ultimoAno] ?? {}).join() === "1";
-  const segundoTurnoEmBreve = estado.ano === ultimoAno && entreOsTurnos;
-  // Enquanto a eleição em curso não se decidiu, a próxima não é o que vem a
-  // seguir — o segundo turno é. Anunciar as duas ao mesmo tempo confunde, e no
-  // celular os dois "em breve" não cabem na mesma linha.
-  const anoFuturo = entreOsTurnos ? null : estado.anoFuturo;
+  const segundoTurnoEmBreve = estado.ano === ultimoAno
+    && Object.keys(resultados.presidente?.[ultimoAno] ?? {}).join() === "1";
+  // A próxima eleição só é notícia quando está perto. Assim que a do ano entra
+  // nos dados, o botão "em breve" passaria a anunciar uma eleição a quatro anos
+  // de distância — ruído, e no celular, onde os seletores ficam numa linha só,
+  // ruído que empurra a página para fora da tela.
+  const anoFuturo = estado.anoFuturo
+    && estado.anoFuturo - new Date().getFullYear() <= 1 ? estado.anoFuturo : null;
 
   const aba = ABAS.find(([chave]) => chave === estado.aba) ?? ABAS[0];
   const mostraTurno = estado.aba === "presidente" || estado.aba === "comparativo";
