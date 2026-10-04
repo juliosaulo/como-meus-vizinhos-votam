@@ -48,6 +48,6 @@ site/dev/_resultado.txt
 # Cache dos cards, criado pelo PHP a cada versão dos dados.
 site/cache/
 
-# Cópia do .htaccess que está no ar, para voltar atrás sem depender do git.
-# Fica em site/deploy/, que o deploy nunca envia.
-site/deploy/htaccess-no-ar.txt
+# Cópia de uma versão anterior do .htaccess, para voltar atrás sem depender do
+# git. Fica em site/deploy/, que o deploy nunca envia.
+site/deploy/htaccess-versao-anterior.txt

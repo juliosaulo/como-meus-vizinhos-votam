@@ -194,6 +194,11 @@ if (!isset($dados['locais'][$id])) {
     $id = (string) $canonico;
 }
 $local = $dados['locais'][$id];
+// Local novo na malha: está nos dados, mas não tem eleição anterior para
+// desenhar. A prévia dele usa a imagem genérica.
+if (empty($local['candidatos'])) {
+    para_imagem_padrao();
+}
 $mun = $dados['municipio'];
 
 $meta = ler_json(__DIR__ . '/publicado/metadados.json');

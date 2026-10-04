@@ -7,6 +7,7 @@ exatamente a aparência de uma lista correta, e passa despercebida a olho nu.
 
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -84,3 +85,41 @@ class TestResultadosPresidente:
         tabela = votos([("RO_1_1_1", "FULANA", "AA", "nominal", 10)])
         tabela.loc[0, "cargo"] = "DEPUTADO FEDERAL"
         assert publicacao.resultados_presidente(tabela, "cd_municipio_ibge") == {}
+
+
+class TestCompartilhar:
+    """O arquivo que o servidor lê para decidir se um link compartilhado existe.
+
+    Um local fora dele devolve 302 para a home: o link que a pessoa mandou no
+    grupo não abre. Por isso todo local tem de estar aqui, inclusive o que
+    estreou na malha e não tem eleição anterior para mostrar.
+    """
+
+    @staticmethod
+    def arquivo(tmp_path, resultados):
+        dim = pd.DataFrame([
+            {"cd_municipio_ibge": "1100049", "id_regiao": 71160, "nm_municipio": "CACOAL",
+             "sg_uf": "RO", "nm_local_votacao": "ESCOLA VELHA", "ds_endereco": "LINHA E"},
+            {"cd_municipio_ibge": "1100049", "id_regiao": 71169, "nm_municipio": "CACOAL",
+             "sg_uf": "RO", "nm_local_votacao": "CACOAL SHOPPING", "ds_endereco": "AV CASTELO"},
+        ])
+        ids = pd.DataFrame([
+            {"id_regiao": 71160, "id_publico": "11-1600", "chaves": ["11-1600"]},
+            {"id_regiao": 71169, "id_publico": "11-1708", "chaves": ["11-1708"]},
+        ])
+        publicacao.config.DIR_PUBLICADO = tmp_path
+        publicacao.publicar_compartilhar(dim, resultados, ids)
+        return json.loads((tmp_path / "compartilhar" / "1100049.json").read_text("utf-8"))
+
+    def test_local_sem_eleicao_anterior_entra_no_arquivo(self, tmp_path):
+        historico = {"presidente": {"2022": {"2": [
+            {"nome": "Fulana", "partido": "AA", "pct": 60.0, "votos": 60},
+        ]}}}
+        locais = self.arquivo(tmp_path, {71160: historico})["locais"]
+        assert sorted(locais) == ["11-1600", "11-1708"]
+        assert locais["11-1708"]["local"] == "CACOAL SHOPPING"
+        # Sem placar: é por isso que a prévia do link dele fica neutra.
+        assert "candidatos" not in locais["11-1708"]
+        assert "ano" not in locais["11-1708"]
+        assert locais["11-1600"]["ano"] == "2022"
+        assert locais["11-1600"]["candidatos"][0]["nome"] == "Fulana"

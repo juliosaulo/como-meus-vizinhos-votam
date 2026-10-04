@@ -178,6 +178,16 @@ def publicar_compartilhar(dim: pd.DataFrame, resultados: dict[int, dict],
                 if chave != publico:
                     apelidos[chave] = publico
 
+            # Todo local entra, com placar ou sem: é por este arquivo que o
+            # servidor decide se o link existe. Um local novo na malha, que não
+            # tem eleição anterior para mostrar, precisa abrir igual — é o
+            # navegador que conta a história dele.
+            locais[publico] = {
+                "regiao": int(linha.id_regiao),
+                "local": linha.nm_local_votacao,
+                "endereco": linha.ds_endereco,
+            }
+
             resultado = resultados.get(int(linha.id_regiao), {})
             presidente = resultado.get("presidente", {})
             if not presidente:
@@ -190,10 +200,7 @@ def publicar_compartilhar(dim: pd.DataFrame, resultados: dict[int, dict],
             ano_dep = max(deputado) if deputado else None
             primeiro_dep = deputado[ano_dep]["1"][0] if ano_dep else None
 
-            locais[publico] = {
-                "regiao": int(linha.id_regiao),
-                "local": linha.nm_local_votacao,
-                "endereco": linha.ds_endereco,
+            locais[publico].update({
                 "ano": ano,
                 "turno": turno,
                 # O card mostra os dois primeiros; o denominador é o voto válido,
@@ -207,7 +214,7 @@ def publicar_compartilhar(dim: pd.DataFrame, resultados: dict[int, dict],
                     "nome": primeiro_dep["nome"], "partido": primeiro_dep["partido"],
                     "pct": primeiro_dep["pct"], "ano": ano_dep,
                 },
-            }
+            })
 
         escrever_json(config.DIR_PUBLICADO / "compartilhar" / f"{cd_municipio}.json", {
             "municipio": {"cd": cd_municipio, "nome": grupo.iloc[0]["nm_municipio"],

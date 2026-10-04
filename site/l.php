@@ -95,7 +95,9 @@ $placar = [];
 foreach ($candidatos as $c) {
     $placar[] = $c['nome'] . ' ' . pct((float) $c['pct']);
 }
-$eleicao = "Presidente {$local['ano']}, {$local['turno']}º turno";
+// Local novo na malha não tem eleição anterior: só existe eleição a citar se
+// houver placar.
+$eleicao = $placar ? "Presidente {$local['ano']}, {$local['turno']}º turno" : '';
 
 // Durante a apuração, a prévia do link não pode mostrar a eleição passada.
 // O resultado ao vivo é buscado no navegador, direto no TSE: o servidor não o
@@ -109,18 +111,19 @@ $apurando = is_array($ao_vivo)
     && !empty($ao_vivo['ativo'])
     && (string) ($ao_vivo['ano'] ?? '') !== (string) ($local['ano'] ?? '');
 
+// Sem placar, não há card: o de um local novo na malha sairia vazio. A prévia
+// fica igual à da apuração — imagem genérica e convite para abrir.
 $url = SITE . "/l/{$municipio}/{$id}";
-if ($apurando) {
-    $descricao = 'Apuração de ' . htmlspecialchars((string) $ao_vivo['ano'], ENT_QUOTES)
-        . ' em andamento. Abra para ver como está votando o local de votação mais '
-        . 'próximo do seu endereço.';
+if ($apurando || !$placar) {
+    $descricao = $apurando
+        ? 'Apuração de ' . (string) $ao_vivo['ano'] . ' em andamento. Abra para ver '
+          . 'como está votando o local de votação mais próximo do seu endereço.'
+        : 'Veja como votou o local de votação mais próximo do seu endereço.';
     $card = SITE . '/img/og.png';
     $alt = "Como meus vizinhos votam — {$local['local']}, {$mun['nome']} ({$mun['uf']}).";
 } else {
-    $descricao = $placar
-        ? "{$eleicao}: " . implode(' × ', $placar) .
-          '. Veja como votou o local de votação mais próximo do seu endereço.'
-        : 'Veja como votou o local de votação mais próximo do seu endereço.';
+    $descricao = "{$eleicao}: " . implode(' × ', $placar) .
+        '. Veja como votou o local de votação mais próximo do seu endereço.';
     $card = SITE . "/card/{$municipio}/{$id}.png";
     $alt = "Resultado de {$eleicao} em {$local['local']}, {$mun['nome']} ({$mun['uf']}).";
 }

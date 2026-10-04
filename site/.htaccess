@@ -80,5 +80,7 @@ AddCharset utf-8 .json .js .css .webmanifest
   Header always set Permissions-Policy "geolocation=(), camera=(), microphone=()"
   # Só o próprio domínio, o Leaflet no cdnjs e os tiles da Stadia. 'unsafe-inline'
   # em estilos porque as barras recebem a largura por atributo style.
-  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data: https://tiles.stadiamaps.com https://cdnjs.cloudflare.com; connect-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests"
+  # `connect-src` inclui o servidor de resultados do TSE: é de lá que o navegador
+  # busca os boletins de urna do local em exibição, durante a apuração.
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data: https://tiles.stadiamaps.com https://cdnjs.cloudflare.com; connect-src 'self' https://resultados.tse.jus.br; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests"
 </IfModule>

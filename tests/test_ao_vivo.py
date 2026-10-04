@@ -12,6 +12,7 @@ JavaScript de verdade contra boletins reais.
 
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 
@@ -25,6 +26,7 @@ sys.path.insert(0, str(RAIZ / "pipeline"))
 
 import ao_vivo  # noqa: E402
 import converter  # noqa: E402
+import tse  # noqa: E402
 
 COLUNAS = ["AA_ELEICAO", "NR_TURNO", "SG_UF", "CD_MUNICIPIO", "NM_MUNICIPIO", "NR_ZONA",
            "NR_SECAO", "NR_LOCAL_VOTACAO", "NM_LOCAL_VOTACAO", "DS_ENDERECO",
@@ -133,3 +135,29 @@ class TestNomeDoCargo:
         assert ao_vivo.nome_do_cargo(1) == "presidente"
         assert ao_vivo.nome_do_cargo(6) == "deputado_federal"
         assert ao_vivo.nome_do_cargo(11) == "prefeito"
+
+
+class TestCSPDoServidor:
+    """A camada ao vivo busca no TSE, de dentro do navegador.
+
+    O site serve um Content-Security-Policy restrito, e `connect-src` é o que
+    decide se essa busca sai. Com `'self'` sozinho, como estava, o navegador
+    recusa toda chamada ao TSE e a apuração ao vivo simplesmente não acontece —
+    sem erro visível na tela, só uma linha no console. Não há como pegar isso
+    testando a página num servidor local sem o cabeçalho; então testa-se o
+    cabeçalho.
+    """
+
+    @staticmethod
+    def conectar_permitidos() -> list[str]:
+        linha = next(l for l in (RAIZ / "site/.htaccess").read_text("utf-8").splitlines()
+                     if "Content-Security-Policy" in l)
+        csp = re.search(r'"(.*)"', linha).group(1)
+        diretiva = next(d for d in csp.split(";") if d.strip().startswith("connect-src"))
+        return diretiva.split()[1:]
+
+    def test_permite_o_servidor_de_resultados_do_tse(self):
+        assert tse.BASE in self.conectar_permitidos()
+
+    def test_nao_abre_para_qualquer_origem(self):
+        assert "*" not in self.conectar_permitidos()
