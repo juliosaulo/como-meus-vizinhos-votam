@@ -501,7 +501,13 @@ const regiaoNaTela = () => estado.regiaoEscolhida ?? estado.achado?.id ?? null;
 function mesclarAoVivo(regiao, vivo) {
   const resultados = (regiao.resultados ??= {});
   for (const [cargo, lista] of Object.entries(vivo.resultados)) {
-    (((resultados[cargo] ??= {})[vivo.ano]) ??= {})[vivo.turno] = lista;
+    // O publicado traz só os deputados mais votados de cada local, e a aba diz
+    // isso na nota. O boletim traz todos: sem cortar, a tela listava dezenas de
+    // nomes com um voto cada, contradizendo a própria nota. O corte é o mesmo
+    // do passo 40, para o ao vivo e o publicado terem a mesma forma.
+    const corte = cargo === "deputado_federal"
+      ? (estado.metadados?.n_top_deputados ?? 3) : lista.length;
+    (((resultados[cargo] ??= {})[vivo.ano]) ??= {})[vivo.turno] = lista.slice(0, corte);
   }
   for (const [cargo, naoNominal] of Object.entries(vivo.naoNominal)) {
     ((((resultados.nao_nominal ??= {})[cargo] ??= {})[vivo.ano]) ??= {})[vivo.turno] =
