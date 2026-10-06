@@ -214,10 +214,10 @@
     "nota": "Cobertura das duas fontes somadas: a geocodificação contra o CNEFE (dados_importados/PROVENIENCIA.md) e, onde ela não chega, a base oficial do TSE. `por_origem` diz de onde veio a coordenada de cada local."
   },
   "voto": {
-    "votos_apurados": 720522302,
-    "votos_em_regiao": 717237591,
-    "pct": 99.5,
-    "regioes_com_voto": 85586,
+    "votos_apurados": 970564715,
+    "votos_em_regiao": 966573993,
+    "pct": 99.6,
+    "regioes_com_voto": 91031,
     "nota": "A diferença são votos dados em locais sem coordenada. Totais eleitorais oficiais não devem ser lidos desta base — ela cobre só o que é espacializável."
   },
   "enderecos": {
@@ -226,16 +226,16 @@
     "pct_sem_numero": 23.8,
     "em_chave_ambigua": 19024869,
     "pct_em_chave_ambigua": 17.1,
-    "acerto_medido_pct": 91.59,
+    "acerto_medido_pct": 90.44,
     "acerto_por_caminho_pct": {
-      "so_rua": 76.54,
-      "so_rua_domicilios": 77.72,
-      "rua_bairro": 86.25,
-      "rua_bairro_domicilios": 87.19,
-      "rua_numero": 91.59,
-      "rua_numero_domicilios": 92.77,
-      "completo": 95.77,
-      "completo_domicilios": 96.54
+      "so_rua": 75.65,
+      "so_rua_domicilios": 76.79,
+      "rua_bairro": 85.21,
+      "rua_bairro_domicilios": 86.12,
+      "rua_numero": 90.44,
+      "rua_numero_domicilios": 91.58,
+      "completo": 94.57,
+      "completo_domicilios": 95.3
     },
     "nota": "Endereço sem número (S/N) é a principal fonte de imprecisão: rua e número são a chave de consulta, e sem número todos os endereços da rua compartilham a mesma resposta. É mais comum em área rural."
   }
