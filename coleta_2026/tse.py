@@ -192,6 +192,36 @@ class Cliente:
                 f"/br-c{cargo}-{eleicao.sufixo_eleicao}-u.json")
 
 
+# Em qual espécie de eleição cada cargo é apurado. Presidente sai na federal;
+# governador, senador e os dois deputados saem na estadual, porque a unidade
+# eleitoral deles é a UF; prefeito e vereador, na municipal. O endereço de todo
+# resultado agregado leva o código da eleição, então errar isto é pedir o
+# arquivo de um cargo no lugar de outro — e receber 404.
+ESPECIE_DO_CARGO = {1: "federal", 3: "estadual", 5: "estadual", 6: "estadual",
+                    7: "estadual", 11: "municipal", 13: "municipal"}
+
+
+def eleicoes_por_cargo(cliente: "Cliente", ano: int, turno: int,
+                       cargos: list[int], federal: Eleicao) -> dict[str, str]:
+    """Código da eleição de cada cargo pedido, descoberto no ele-c.json.
+
+    A federal já vem resolvida por quem chamou; as outras saem da mesma lista,
+    pelo nome, como `eleicao_federal` faz. Cargo cuja eleição não aparece fica
+    de fora: quem chama decide o que fazer, e isso é melhor do que apontar para
+    a errada em silêncio.
+    """
+    por_especie = {"federal": federal.codigo}
+    for e in cliente.eleicoes():
+        nome = e.nome.lower()
+        if e.ciclo != f"ele{ano}" or e.turno != str(turno) or "ordin" not in nome:
+            continue
+        for especie in ("estadual", "municipal"):
+            if especie in nome:
+                por_especie.setdefault(especie, e.codigo)
+    return {str(c): por_especie[ESPECIE_DO_CARGO[c]] for c in cargos
+            if ESPECIE_DO_CARGO.get(c) in por_especie}
+
+
 def secoes_da_uf(config: dict, so_com_aux: bool = False) -> list[dict]:
     """Achata o EA16 numa lista de seções.
 

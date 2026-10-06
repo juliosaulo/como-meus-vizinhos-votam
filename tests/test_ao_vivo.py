@@ -195,18 +195,18 @@ class TestEleicaoDeCadaCargo:
 
     def test_presidente_na_federal_e_deputado_na_estadual(self):
         federal = self.eleicao("6257", "Eleição Ordinária Federal - 2026 1º Turno")
-        saida = ao_vivo.eleicoes_por_cargo(self.cliente(), 2026, 1, [1, 6], federal)
+        saida = tse.eleicoes_por_cargo(self.cliente(), 2026, 1, [1, 6], federal)
         assert saida == {"1": "6257", "6": "6259"}
 
     def test_cargos_municipais_saem_na_municipal(self):
         federal = self.eleicao("6257", "Eleição Ordinária Federal - 2026 1º Turno")
-        saida = ao_vivo.eleicoes_por_cargo(self.cliente(), 2026, 1, [11, 13], federal)
+        saida = tse.eleicoes_por_cargo(self.cliente(), 2026, 1, [11, 13], federal)
         assert saida == {"11": "6261", "13": "6261"}
 
     def test_nao_mistura_ciclos(self):
         """A estadual de 2022 está na mesma lista e não pode ser escolhida."""
         federal = self.eleicao("6257", "Eleição Ordinária Federal - 2026 1º Turno")
-        saida = ao_vivo.eleicoes_por_cargo(self.cliente(), 2026, 1, [6], federal)
+        saida = tse.eleicoes_por_cargo(self.cliente(), 2026, 1, [6], federal)
         assert saida["6"] == "6259"
 
     def test_cargo_sem_eleicao_fica_de_fora(self):
@@ -214,5 +214,5 @@ class TestEleicaoDeCadaCargo:
         cliente = self.ClienteFalso([
             self.eleicao("6257", "Eleição Ordinária Federal - 2026 1º Turno")])
         federal = self.eleicao("6257", "Eleição Ordinária Federal - 2026 1º Turno")
-        saida = ao_vivo.eleicoes_por_cargo(cliente, 2026, 1, [1, 6], federal)
+        saida = tse.eleicoes_por_cargo(cliente, 2026, 1, [1, 6], federal)
         assert saida == {"1": "6257"}

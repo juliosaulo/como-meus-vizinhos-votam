@@ -731,14 +731,14 @@ def nossos(nominal=(), legenda=(), brancos=0, nulos=0):
 
 class TestTotaisDoOficial:
     def test_caso_simples(self):
-        totais, _, avisos = conferir.totais_do_oficial(oficial(vnom=100, vb=5, vn=3))
+        totais, _, avisos, _ = conferir.totais_do_oficial(oficial(vnom=100, vb=5, vn=3))
         assert avisos == []
         assert totais == {"comparecimento": 108, "validos": 100, "brancos": 5, "nulos": 3}
 
     def test_anulado_sub_judice_conta_como_valido_para_nos(self):
         """São João da Baliza/RR, 2024: `vnom` 4.009 exclui os 836 do nº 15, que
         estão em `vansj`. A urna gravou nominal; a totalização reclassificou."""
-        totais, ajustes, _ = conferir.totais_do_oficial(
+        totais, ajustes, _, _ = conferir.totais_do_oficial(
             oficial(vnom=4009, vansj=836, vb=91, vn=119))
         assert totais["validos"] == 4845
         assert totais["nulos"] == 119
@@ -746,12 +746,12 @@ class TestTotaisDoOficial:
 
     def test_nominal_virado_nulo_volta_para_validos(self):
         """`vnt` é voto que a urna gravou nominal e a totalização pôs em nulo."""
-        totais, _, _ = conferir.totais_do_oficial(oficial(vnom=6405, vb=28, vn=108, vnt=1))
+        totais, _, _, _ = conferir.totais_do_oficial(oficial(vnom=6405, vb=28, vn=108, vnt=1))
         assert totais["validos"] == 6406
         assert totais["nulos"] == 108
 
     def test_legenda_entra_nos_validos(self):
-        totais, _, _ = conferir.totais_do_oficial(
+        totais, _, _, _ = conferir.totais_do_oficial(
             oficial(vnom=173490, vl=3308, vansj=1039, vb=3176, vn=2889, vnt=9))
         assert totais["validos"] == 177846
         assert totais["nulos"] == 2889
@@ -759,7 +759,7 @@ class TestTotaisDoOficial:
     def test_avisa_quando_a_identidade_do_arquivo_nao_fecha(self):
         conteudo = oficial(vnom=100, vb=5, vn=3)
         conteudo["v"]["tv"] = "999"
-        _, _, avisos = conferir.totais_do_oficial(conteudo)
+        _, _, avisos, _ = conferir.totais_do_oficial(conteudo)
         assert any("não fecha" in a for a in avisos)
 
 
@@ -780,7 +780,7 @@ class TestVotaveisDoOficial:
 
 class TestConferirTotais:
     def compara(self, df, conteudo):
-        deles, ajustes, _ = conferir.totais_do_oficial(conteudo)
+        deles, ajustes, _, _ = conferir.totais_do_oficial(conteudo)
         _, _, nossos_totais = conferir.nossos_numeros(df)
         return conferir.conferir_totais(nossos_totais, deles, ajustes, "teste")
 
@@ -1089,3 +1089,46 @@ class TestRepeticaoDeRede:
         _, dados, motivo, _ = coletar.baixar_secao(None, None, secao)
         assert dados is None
         assert "RemoteDisconnected" in motivo
+
+
+class TestResumoOficialQueNaoBate:
+    """O caso de Pernambuco, deputado federal, 2026.
+
+    O arquivo do TSE traz um resumo (`vvc`) e as partes (`vnom`, `vl`, `van`,
+    `vansj`). Em PE o resumo saiu 772 votos abaixo das próprias partes — o
+    bastante para a identidade `tv = vvc+vb+tvn` também não fechar. A causa são
+    candidaturas sub judice, contadas em `vansj` e ausentes da lista do
+    resultado.
+
+    Nosso número batia exatamente com as partes. Comparar contra o resumo
+    acusaria erro nosso onde não havia, e barraria a publicação do país inteiro
+    por uma soma de rodapé alheia.
+    """
+
+    @staticmethod
+    def com_resumo_menor(diferenca):
+        """Um oficial coerente, com o resumo rebaixado em `diferenca`."""
+        conteudo = oficial(vnom=5_101_066, vl=163_437, vansj=1_124,
+                           vb=387_863, vn=251_191, vnt=555)
+        v = conteudo["v"]
+        v["vvc"] = str(int(v["vvc"]) - diferenca)
+        return conteudo
+
+    def test_vale_o_detalhe_e_nao_o_resumo(self):
+        totais, _, _, _ = conferir.totais_do_oficial(self.com_resumo_menor(772))
+        # 5.101.066 + 163.437 + 1.124 (partes) + 555 (nulo técnico)
+        assert totais["validos"] == 5_266_182
+
+    def test_a_discordancia_vira_nota_e_nao_barra(self):
+        _, _, avisos, notas = conferir.totais_do_oficial(self.com_resumo_menor(772))
+        assert avisos == []
+        assert any("não bate com as próprias partes" in n for n in notas)
+
+    def test_arquivo_coerente_nao_gera_nota(self):
+        _, _, avisos, notas = conferir.totais_do_oficial(self.com_resumo_menor(0))
+        assert avisos == [] and notas == []
+
+    def test_resumo_maior_que_as_partes_continua_valendo(self):
+        """O máximo protege os dois lados: se o resumo for o maior, é ele."""
+        totais, _, _, _ = conferir.totais_do_oficial(self.com_resumo_menor(-500))
+        assert totais["validos"] == 5_266_182 + 500

@@ -155,33 +155,6 @@ def montar_candidatos(ano: int, pasta: Path | None = None,
     return saida
 
 
-# Em qual espécie de eleição cada cargo é apurado. Presidente sai na federal;
-# governador, senador e os dois deputados saem na estadual, porque a unidade
-# eleitoral deles é a UF; prefeito e vereador, na municipal.
-ESPECIE_DO_CARGO = {1: "federal", 3: "estadual", 5: "estadual", 6: "estadual",
-                    7: "estadual", 11: "municipal", 13: "municipal"}
-
-
-def eleicoes_por_cargo(cliente: tse.Cliente, ano: int, turno: int,
-                       cargos: list[int], federal: tse.Eleicao) -> dict[str, str]:
-    """Código da eleição de cada cargo pedido, descoberto no ele-c.json.
-
-    A federal já vem resolvida por quem chamou; as outras saem da mesma lista,
-    pelo nome, como `eleicao_federal` faz. Cargo cuja eleição não aparece fica
-    de fora, e o navegador cai no padrão — melhor do que apontar para a errada.
-    """
-    por_especie = {"federal": federal.codigo}
-    for e in cliente.eleicoes():
-        nome = e.nome.lower()
-        if e.ciclo != f"ele{ano}" or e.turno != str(turno) or "ordin" not in nome:
-            continue
-        for especie in ("estadual", "municipal"):
-            if especie in nome:
-                por_especie.setdefault(especie, e.codigo)
-    return {str(c): por_especie[ESPECIE_DO_CARGO[c]] for c in cargos
-            if ESPECIE_DO_CARGO.get(c) in por_especie}
-
-
 def escrever(caminho: Path, conteudo: dict) -> int:
     caminho.parent.mkdir(parents=True, exist_ok=True)
     texto = json.dumps(conteudo, ensure_ascii=False, separators=(",", ":"))
@@ -272,8 +245,8 @@ def main() -> None:
         # agregado leva esse código. Sem este mapa o navegador pedia deputado
         # federal na eleição do presidente e recebia 404 — a comparação com
         # município, estado e Brasil ficava vazia.
-        "eleicoes_por_cargo": eleicoes_por_cargo(cliente, args.ano, args.turno,
-                                                 args.cargo, eleicao),
+        "eleicoes_por_cargo": tse.eleicoes_por_cargo(cliente, args.ano, args.turno,
+                                                     args.cargo, eleicao),
         "base": tse.BASE,
     })
     print(f"\n  pronto. Para desligar: apague {DESTINO} ou rode com --desligar")

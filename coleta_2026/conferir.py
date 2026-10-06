@@ -38,6 +38,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+from dataclasses import replace
 from pathlib import Path
 
 import pandas as pd
@@ -97,17 +98,32 @@ def votaveis_do_oficial(conteudo: dict) -> tuple[dict, dict]:
     return nominais, legendas
 
 
-def totais_do_oficial(conteudo: dict) -> tuple[dict[str, int], dict[str, int], list[str]]:
-    """Os totais oficiais já traduzidos para o que a urna gravou (ver docstring)."""
+def totais_do_oficial(conteudo: dict) -> tuple[dict[str, int], dict[str, int],
+                                              list[str], list[str]]:
+    """Os totais oficiais traduzidos para o que a urna gravou (ver docstring).
+
+    Devolve, além dos totais e dos ajustes, duas listas: `avisos`, que barram a
+    publicação, e `notas`, que descrevem o arquivo oficial sem impedir nada.
+    """
     votos = {chave: int(valor) for chave, valor in conteudo.get("v", {}).items()
              if not chave.startswith("p")}
     eleitorado = conteudo.get("e", {})
     nulos_totais = votos.get("tvn", votos.get("vn", 0))
     reclassificados = votos.get("vnt", 0)
 
+    # `vvc` é o resumo; as partes são `vnom`, `vl`, `van` e `vansj`. Quando as
+    # duas discordam — e isso acontece —, vale a soma das partes: ela é o
+    # detalhe, e é dela que a urna derivou o que gravou. Em PE, deputado federal
+    # de 2026, o resumo saiu 772 votos abaixo das próprias partes, por causa de
+    # candidaturas sub judice que entram em `vansj` e não aparecem na lista do
+    # resultado. Comparar contra o resumo acusaria erro nosso onde o nosso
+    # número bate exatamente com o detalhe oficial.
+    partes = sum(votos.get(chave, 0) for chave in ("vnom", "vl", "van", "vansj"))
+    validos_oficiais = max(votos.get("vvc", 0), partes)
+
     totais = {
         "comparecimento": int(eleitorado.get("c", 0)),
-        "validos": votos.get("vvc", 0) + reclassificados,
+        "validos": validos_oficiais + reclassificados,
         "brancos": votos.get("vb", 0),
         "nulos": nulos_totais - reclassificados,
     }
@@ -115,16 +131,24 @@ def totais_do_oficial(conteudo: dict) -> tuple[dict[str, int], dict[str, int], l
 
     # Se a identidade do arquivo não fechar, é o nosso entendimento do formato que
     # está errado — e aí a comparação toda perde sentido. Melhor dizer.
-    avisos = []
-    soma = votos.get("vvc", 0) + votos.get("vb", 0) + nulos_totais
+    avisos: list[str] = []
+    notas: list[str] = []
+    soma = validos_oficiais + votos.get("vb", 0) + nulos_totais
     total_declarado = votos.get("tv", soma)
+    # Nota, não aviso: a discordância é dentro do arquivo do TSE, e já foi
+    # resolvida em favor do detalhe. Barrar a publicação por causa dela seria
+    # deixar o país inteiro sem resultado por uma soma de rodapé alheia.
+    if partes != votos.get("vvc", 0):
+        notas.append(f"o resumo oficial não bate com as próprias partes: "
+                     f"vvc {votos.get('vvc', 0):,} diferente de "
+                     f"vnom+vl+van+vansj {partes:,} — vale o detalhe")
     if total_declarado != soma:
         avisos.append(f"o arquivo oficial não fecha: tv {total_declarado:,} "
                       f"diferente de vvc+vb+tvn {soma:,}")
     if totais["comparecimento"] != total_declarado:
         avisos.append(f"comparecimento {totais['comparecimento']:,} "
                       f"diferente do total de votos {total_declarado:,}")
-    return totais, ajustes, avisos
+    return totais, ajustes, avisos, notas
 
 
 def nossos_numeros(df: pd.DataFrame) -> tuple[dict[str, int], dict[str, int], dict[str, int]]:
@@ -220,6 +244,18 @@ def main() -> None:
     eleicao = tse.Eleicao(codigo=args.eleicao, nome="", turno=str(args.turno),
                           ciclo=args.ciclo, pleito=args.pleito, data="")
 
+    # Quem manda no endereço do arquivo oficial é o cargo, não o `--eleicao`.
+    # Presidente é apurado na eleição federal; deputado federal, na estadual,
+    # porque a unidade eleitoral dele é a UF. Pedindo tudo na federal, a
+    # conferência de deputado recebia 404 em todas as 27 UFs e acusava
+    # divergência onde não havia — o número estava certo, o endereço é que não.
+    do_cargo = tse.eleicoes_por_cargo(cliente, args.ano, args.turno,
+                                      [args.cargo], eleicao).get(str(args.cargo))
+    if do_cargo and do_cargo != eleicao.codigo:
+        print(f"  cargo {args.cargo} é apurado na eleição {do_cargo}, "
+              f"não na {eleicao.codigo}")
+        eleicao = replace(eleicao, codigo=do_cargo)
+
     if not args.votos.exists():
         sys.exit(f"não achei {args.votos} — a conversão dos boletins ainda não rodou")
     df = pd.read_parquet(args.votos)
@@ -250,7 +286,9 @@ def main() -> None:
             problemas.append(f"{rotulo}: sem arquivo oficial para comparar")
             continue
 
-        deles_totais, ajustes, avisos = totais_do_oficial(conteudo)
+        deles_totais, ajustes, avisos, notas = totais_do_oficial(conteudo)
+        for nota in notas:
+            print(f"   i {nota}")
         for aviso in avisos:
             print(f"   x {aviso}")
             problemas.append(f"{rotulo}: {aviso}")
