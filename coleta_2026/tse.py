@@ -17,6 +17,7 @@ ser responsabilidade de quem chama.
 
 from __future__ import annotations
 
+import http.client
 import json
 import threading
 import time
@@ -115,7 +116,14 @@ class Cliente:
                     espera *= 2
                     continue
                 raise
-            except (urllib.error.URLError, TimeoutError):
+            # Conexão cortada no meio é falha de rede como qualquer outra, e
+            # tem de ser tentada de novo. `RemoteDisconnected` não é `URLError`,
+            # então escapava desta rede e derrubava a coleta inteira: numa
+            # execução de cinco horas, uma desconexão do servidor matou 83
+            # minutos de trabalho. As duas famílias cobrem o caso — ele é ao
+            # mesmo tempo `ConnectionResetError` e `HTTPException`.
+            except (urllib.error.URLError, TimeoutError, ConnectionError,
+                    http.client.HTTPException):
                 if tentativa == TENTATIVAS:
                     raise
                 time.sleep(espera)

@@ -75,7 +75,22 @@ def escolher_hash(aux: dict) -> dict | None:
 
 def baixar_secao(cliente: tse.Cliente, eleicao: tse.Eleicao,
                  secao: dict) -> tuple[dict, bytes | None, str, str]:
-    """Baixa o BU de uma seção: primeiro o auxiliar, que diz onde o BU está."""
+    """Baixa o BU de uma seção, e nunca derruba a coleta por causa de uma.
+
+    O cliente já tenta de novo em falha de rede. O que sobrevive a cinco
+    tentativas vira pendência anotada, como a seção sem arquivo: meio milhão de
+    downloads leva horas, e perder tudo por uma seção seria trocar um buraco
+    pequeno, que a conferência mede, por nenhum resultado.
+    """
+    try:
+        return _baixar_secao(cliente, eleicao, secao)
+    except Exception as erro:                      # noqa: BLE001 — ver docstring
+        return secao, None, f"falhou: {type(erro).__name__}: {erro}", ""
+
+
+def _baixar_secao(cliente: tse.Cliente, eleicao: tse.Eleicao,
+                  secao: dict) -> tuple[dict, bytes | None, str, str]:
+    """Primeiro o auxiliar, que diz onde o BU está; depois o BU."""
     caminho_aux = cliente.caminho_aux_secao(
         eleicao, secao["uf"], secao["municipio"], secao["zona"], secao["secao"])
     aux = cliente.json(caminho_aux, opcional=True)

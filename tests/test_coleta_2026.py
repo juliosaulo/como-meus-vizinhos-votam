@@ -13,6 +13,8 @@ Dois tipos de teste convivem aqui, de propósito:
 
 from __future__ import annotations
 
+import http.client
+import types
 import sys
 from pathlib import Path
 
@@ -1026,3 +1028,64 @@ class TestEtapas:
 
     def test_confere_presidente_e_deputado_federal(self):
         assert domingo.CONFERENCIAS == [(1, "br"), (6, "uf")]
+
+
+class TestRepeticaoDeRede:
+    """Meio milhão de downloads leva horas; uma falha de rede não pode matar tudo.
+
+    O caso real: a coleta caiu aos 83 minutos, com 143 mil boletins já baixados,
+    porque o servidor do TSE cortou uma conexão. A repetição só capturava
+    `URLError` e `TimeoutError`, e `RemoteDisconnected` não é nenhum dos dois —
+    passava direto e derrubava a execução inteira.
+    """
+
+    @staticmethod
+    def cliente_que_falha(erros):
+        """Um cliente cujo urlopen levanta os erros da lista, e depois responde."""
+        import urllib.request
+
+        restantes = list(erros)
+        chamadas = {"n": 0}
+
+        class Resposta:
+            def __enter__(self): return self
+            def __exit__(self, *a): return False
+            def read(self): return b"ok"
+
+        def falso(pedido, timeout=None):
+            chamadas["n"] += 1
+            if restantes:
+                raise restantes.pop(0)
+            return Resposta()
+
+        c = tse.Cliente()
+        c.limite = types.SimpleNamespace(aguardar=lambda: None)
+        return c, falso, chamadas, urllib.request
+
+    def test_tenta_de_novo_quando_a_conexao_cai(self, monkeypatch):
+        erro = http.client.RemoteDisconnected("Remote end closed connection")
+        cliente, falso, chamadas, req = self.cliente_que_falha([erro])
+        monkeypatch.setattr(req, "urlopen", falso)
+        monkeypatch.setattr(tse.time, "sleep", lambda s: None)
+        assert cliente.baixar("qualquer/caminho") == b"ok"
+        assert chamadas["n"] == 2          # falhou uma vez, acertou na seguinte
+
+    def test_desiste_depois_do_limite_de_tentativas(self, monkeypatch):
+        erros = [http.client.RemoteDisconnected("corte") for _ in range(tse.TENTATIVAS)]
+        cliente, falso, chamadas, req = self.cliente_que_falha(erros)
+        monkeypatch.setattr(req, "urlopen", falso)
+        monkeypatch.setattr(tse.time, "sleep", lambda s: None)
+        with pytest.raises(http.client.RemoteDisconnected):
+            cliente.baixar("qualquer/caminho")
+        assert chamadas["n"] == tse.TENTATIVAS
+
+    def test_secao_que_falha_vira_pendencia_e_nao_derruba(self, monkeypatch):
+        """A coleta anota e segue: um buraco pequeno, que a conferência mede,
+        é melhor que nenhum resultado."""
+        def explode(*a, **kw):
+            raise http.client.RemoteDisconnected("corte")
+        monkeypatch.setattr(coletar, "_baixar_secao", explode)
+        secao = {"uf": "RR", "municipio": "03018", "zona": "0001", "secao": "0001"}
+        _, dados, motivo, _ = coletar.baixar_secao(None, None, secao)
+        assert dados is None
+        assert "RemoteDisconnected" in motivo
