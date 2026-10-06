@@ -848,10 +848,24 @@ function blocoResultados(id) {
   const turnos = Object.keys(resultados.presidente?.[estado.ano] ?? {}).sort();
   if (!estado.turno || !turnos.includes(estado.turno)) estado.turno = turnos[turnos.length - 1];
 
+  // Entre os dois turnos de presidente passam semanas, e nesse intervalo o ano
+  // mais novo tem um turno só nos dados. O seletor então sumia, e a tela deixava
+  // de dizer que o que está ali é o primeiro turno. O segundo entra desativado,
+  // como o ano seguinte já faz no seletor de ano.
+  const ultimoAno = anos[anos.length - 1];
+  const segundoTurnoEmBreve = estado.ano === ultimoAno
+    && Object.keys(resultados.presidente?.[ultimoAno] ?? {}).join() === "1";
+  // A próxima eleição só é notícia quando está perto. Assim que a do ano entra
+  // nos dados, o botão "em breve" passaria a anunciar uma eleição a quatro anos
+  // de distância — ruído, e no celular, onde os seletores ficam numa linha só,
+  // ruído que empurra a página para fora da tela.
+  const anoFuturo = estado.anoFuturo
+    && estado.anoFuturo - new Date().getFullYear() <= 1 ? estado.anoFuturo : null;
+
   const aba = ABAS.find(([chave]) => chave === estado.aba) ?? ABAS[0];
   const mostraTurno = estado.aba === "presidente" || estado.aba === "comparativo";
   const contexto = {
-    resultados, ano: estado.ano, turno: estado.turno, anoFuturo: estado.anoFuturo,
+    resultados, ano: estado.ano, turno: estado.turno, anoFuturo,
     agregados: estado.agregados, municipio: estado.municipio, ufNome: estado.ufNome,
     apuradoOficial: estado.apuradoOficial,
     // Pode não existir: nem todo local está na base de eleitorado do TSE.
@@ -886,14 +900,15 @@ function blocoResultados(id) {
             <span class="rotulo">Ano da eleição</span>
             <span class="grupo">
               ${anos.map(a => `<button class="opcao ${a === estado.ano ? "ativa" : ""}" data-ano="${a}">${a}</button>`).join("")}
-              ${estado.anoFuturo ? `<button class="opcao" disabled>${estado.anoFuturo}<small>em breve</small></button>` : ""}
+              ${anoFuturo ? `<button class="opcao" disabled>${anoFuturo}<small>em breve</small></button>` : ""}
             </span>
           </div>
-          ${mostraTurno && turnos.length > 1 ? `
+          ${mostraTurno && (turnos.length > 1 || segundoTurnoEmBreve) ? `
             <div class="seletor">
               <span class="rotulo">Turno</span>
               <span class="grupo">
                 ${turnos.map(t => `<button class="opcao ${t === estado.turno ? "ativa" : ""}" data-turno="${t}">${t}º turno</button>`).join("")}
+                ${segundoTurnoEmBreve ? `<button class="opcao" disabled>2º turno<small>em breve</small></button>` : ""}
               </span>
             </div>` : ""}
         </div>`}
