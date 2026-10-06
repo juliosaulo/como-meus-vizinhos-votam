@@ -826,8 +826,10 @@ function blocoSemHistorico(regiao, id) {
         <div class="icone" aria-hidden="true">▦</div>
         <h3>Local novo${ano ? ` em ${ano}` : ""}</h3>
         <p>Este local de votação não existia nas eleições anteriores, então não há
-        resultado passado para mostrar aqui. O resultado desta eleição aparece
-        assim que as urnas deste prédio começarem a transmitir.</p>
+        resultado passado para mostrar aqui.
+        ${estado.anoAoVivo
+          ? "O resultado desta eleição aparece assim que as urnas deste prédio começarem a transmitir."
+          : "E não houve votos apurados aqui nesta eleição."}</p>
       </div>
     </div>`;
 }
