@@ -721,12 +721,12 @@ mesmos arquivos por `fetch`. Basta servir a pasta do projeto (`python -m http.se
 
 ### Brasil
 
-74.142 regiões publicadas em 16.722 arquivos, 809 MB: `ruas/` 419 MB, `regioes/` 213 MB,
-`bairros/` 31 MB e 146 MB de parquets analíticos.
+91.846 regiões publicadas em 33.508 arquivos, 1,07 GB: `ruas/` 429 MB, `regioes/` 340 MB,
+`bairros/` 31 MB, `agregados/` 17 MB e 209 MB de parquets analíticos.
 
 O que o navegador baixa é bem menos, porque JSON comprime muito: o `ruas/` da cidade de São Paulo,
-o maior do país, tem 9,7 MB crus e **2,1 MB com gzip** (o `regioes/` da mesma cidade, 6,1 MB, cai
-para 0,7 MB). No total, os 809 MB viram cerca de 144 MB servidos.
+o maior do país, tem 9,8 MB crus e **2,2 MB com gzip** (o `regioes/` da mesma cidade, 8,9 MB, cai
+para 1,2 MB). No total, os 818 MB de JSON viram 130 MB servidos.
 
 ---
 

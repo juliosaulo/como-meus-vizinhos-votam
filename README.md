@@ -151,7 +151,7 @@ e `locais_oficiais/`. Quem já tiver os arquivos em outro lugar aponta com a var
 
 ### O que este repositório versiona
 
-O produto completo tem 809 MB em 16.723 arquivos, e é reproduzível a partir de fontes públicas. Por
+O produto completo tem 1,07 GB em 33.508 arquivos, e é reproduzível a partir de fontes públicas. Por
 isso o repositório carrega o código, a documentação, o artefato importado com as coordenadas dos
 locais de votação (5,6 MB) e os arquivos leves do produto — índice de estados e municípios,
 cobertura, validação e diagnóstico.
@@ -162,12 +162,12 @@ bastante para abrir a página de demonstração sem rodar nada.
 ### Baixando os dados prontos
 
 Para consultar qualquer município sem processar nada, o produto completo está anexado à
-[última Release](https://github.com/juliosaulo/como-meus-vizinhos-votam/releases/latest): 227 MB
-compactados, 809 MB depois de abertos.
+[última Release](https://github.com/juliosaulo/como-meus-vizinhos-votam/releases/latest): 309 MB
+compactados, 1,03 GB depois de abertos. São os dados de 2018, 2022 e 2026.
 
 ```bash
 # a partir da pasta do projeto
-curl -L -o publicado.zip https://github.com/juliosaulo/como-meus-vizinhos-votam/releases/latest/download/publicado-brasil-2018-2022.zip
+curl -L -o publicado.zip https://github.com/juliosaulo/como-meus-vizinhos-votam/releases/latest/download/publicado-brasil-2018-2026.zip
 unzip -o publicado.zip            # Windows (PowerShell): Expand-Archive -Force publicado.zip .
 ```
 
