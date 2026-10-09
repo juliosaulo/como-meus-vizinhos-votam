@@ -461,17 +461,21 @@ def publicar_agregados() -> None:
     for uf, conteudo in por_uf.items():
         escrever_json(config.DIR_PUBLICADO / "agregados" / "ufs" / f"{uf}.json", conteudo)
 
-    brasil = agregado_brasil(votos)
+    brasil = agregado_brasil(votos, votos_local)
     escrever_json(config.DIR_PUBLICADO / "agregados" / "brasil.json", brasil)
     conferir_agregados(votos, por_uf, brasil)
     print(f"  agregados: {len(por_municipio):,} municípios, {len(por_uf)} UFs e Brasil")
 
 
-def agregado_brasil(votos: pd.DataFrame) -> dict:
+def agregado_brasil(votos: pd.DataFrame, votos_local: pd.DataFrame) -> dict:
     """Brasil a partir do total nacional do passo 21, que inclui o voto no exterior.
 
     Sem o exterior a soma fica 298 mil votos abaixo do divulgado pelo TSE; com
     ele, bate exatamente — e é isso que a guarda confere.
+
+    O ano que não passou pelo passo 21 (2026, que vem dos boletins de urna) sai
+    da soma de todos os locais, sem o recorte por município: é o que mantém o
+    exterior (UF "ZZ") no total.
     """
     arquivo = config.DIR_INTERMEDIARIO / "totais_nacionais.parquet"
     if not arquivo.exists():
@@ -492,6 +496,8 @@ def agregado_brasil(votos: pd.DataFrame) -> dict:
     )
     nacional = nacional.merge(partidos, on=["ano_eleicao", "nm_votavel"], how="left")
     nacional["cargo"] = "PRESIDENTE"
+    sem_total = votos_local[~votos_local["ano_eleicao"].isin(nacional["ano_eleicao"])]
+    nacional = pd.concat([nacional, sem_total], ignore_index=True)
     return resultados_presidente(nacional.assign(pais="BR"), "pais").get("BR", {})
 
 
