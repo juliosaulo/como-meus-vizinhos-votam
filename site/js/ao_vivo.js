@@ -277,10 +277,15 @@ function votosOficiaisPorNome(conteudo) {
 
 /** Número → nome e partido, uma vez por sessão. É a mesma tabela para o
  *  resultado do local e para os agregados oficiais — ver `agregadoDoOficial`. */
-function tabelaDeCandidatos(base, uf) {
+/* O servidor guarda .json por um ano, e estes arquivos não levam a versão dos
+ * dados na URL. O pleito faz esse papel: sem ele, quem visitou no 1º turno
+ * seguiria com o mapa de seções do 1º turno no 2º. */
+const doPleito = cfg => `?p=${cfg.pleito}`;
+
+function tabelaDeCandidatos(base, uf, cfg) {
   return comCache(`cand:${base}:${uf}`, Infinity, async () => ({
-    presidente: await json(`${base}candidatos/presidente.json`) ?? {},
-    [uf.toUpperCase()]: await json(`${base}candidatos/${uf.toUpperCase()}.json`) ?? {},
+    presidente: await json(`${base}candidatos/presidente.json${doPleito(cfg)}`) ?? {},
+    [uf.toUpperCase()]: await json(`${base}candidatos/${uf.toUpperCase()}.json${doPleito(cfg)}`) ?? {},
   }));
 }
 
@@ -322,7 +327,7 @@ export async function resultadoDaRegiao({ idRegiao, municipioIbge, uf,
     if (!cfg) return null;
 
     const mapa = await comCache(`sec:${base}:${municipioIbge}`, Infinity,
-      () => json(`${base}secoes/${municipioIbge}.json`));
+      () => json(`${base}secoes/${municipioIbge}.json${doPleito(cfg)}`));
     const secoes = mapa?.regioes?.[String(idRegiao)];
     if (!secoes?.length) return null;
 
@@ -334,7 +339,7 @@ export async function resultadoDaRegiao({ idRegiao, municipioIbge, uf,
     const pedir = secoes.filter(([zona, , secao]) => disponiveis.has(`${zona}/${secao}`));
     if (!pedir.length) return null;
 
-    const candidatos = await tabelaDeCandidatos(base, ufMinuscula);
+    const candidatos = await tabelaDeCandidatos(base, ufMinuscula, cfg);
 
     const boletins = await emLotes(pedir, EM_PARALELO, async ([zona, , secao]) => {
       try {
@@ -434,11 +439,11 @@ export async function agregadosAoVivo({ municipioIbge, uf, base = BASE_PUBLICADO
     const cfg = await configurar(base);
     if (!cfg) return null;
     const mapa = await comCache(`sec:${base}:${municipioIbge}`, Infinity,
-      () => json(`${base}secoes/${municipioIbge}.json`));
+      () => json(`${base}secoes/${municipioIbge}.json${doPleito(cfg)}`));
     if (!mapa) return null;
     const ufMinuscula = (uf ?? mapa.uf).toLowerCase();
 
-    const candidatos = await tabelaDeCandidatos(base, ufMinuscula);
+    const candidatos = await tabelaDeCandidatos(base, ufMinuscula, cfg);
     const niveis = {
       municipio: ufMinuscula + mapa.municipio_tse,
       uf: ufMinuscula,

@@ -216,6 +216,12 @@ def main() -> None:
     caminho = args.locais or (config.DIR_BRUTO / "locais_oficiais"
                               / f"eleitorado_local_votacao_{args.ano}.zip")
     bruto = p10.ler_arquivo(caminho)
+    # O arquivo do TSE ganha as linhas do 2º turno semanas depois do 1º, e entre
+    # os turnos há seção que muda de prédio (323 em 2026). O mapa é o do turno.
+    if "NR_TURNO" in bruto:
+        bruto = bruto[bruto["NR_TURNO"].astype(int) == args.turno]
+        if bruto.empty:
+            sys.exit(f"o arquivo de eleitorado não tem o {args.turno}º turno: baixe a versão nova")
     if args.uf:
         bruto = bruto[bruto["SG_UF"].str.strip().str.lower().isin(set(ufs))]
     de_para = pd.read_parquet(config.DIR_INTERMEDIARIO / "de_para_local_regiao.parquet")
