@@ -26,6 +26,7 @@ import ftplib
 import ssl
 import subprocess
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -130,16 +131,20 @@ def ler_env() -> dict[str, str]:
     return env
 
 
-def conectar(env: dict[str, str]) -> FTPS:
-    ftp = FTPS(context=ssl.create_default_context(), timeout=60)
-    try:
-        ftp.connect(env["FTP_HOST"], 21)
-        ftp.login(env["FTP_USER"], env["FTP_PASS"])
-    except ssl.SSLCertVerificationError as erro:
-        parar(f"o certificado TLS não confere com {env['FTP_HOST']} ({erro.verify_message}).\n"
-              "Use em FTP_HOST o nome do servidor que aparece no cPanel (ex.: gatorXXXX.hostgator.com).")
-    except ftplib.all_errors as erro:
-        parar(f"não consegui entrar no FTP: {erro}")
+def conectar(env: dict[str, str], tentativas: int = 1) -> FTPS:
+    for tentativa in range(1, tentativas + 1):
+        ftp = FTPS(context=ssl.create_default_context(), timeout=60)
+        try:
+            ftp.connect(env["FTP_HOST"], 21)
+            ftp.login(env["FTP_USER"], env["FTP_PASS"])
+            break
+        except ssl.SSLCertVerificationError as erro:
+            parar(f"o certificado TLS não confere com {env['FTP_HOST']} ({erro.verify_message}).\n"
+                  "Use em FTP_HOST o nome do servidor que aparece no cPanel (ex.: gatorXXXX.hostgator.com).")
+        except ftplib.all_errors as erro:
+            if tentativa == tentativas:
+                parar(f"não consegui entrar no FTP: {erro}")
+            time.sleep(10 * tentativa)
     ftp.prot_p()
     return ftp
 
@@ -219,16 +224,26 @@ def main() -> None:
         ftp.mkd(pasta)
         print(f"  pasta     {pasta}/")
 
+    # Cada arquivo abre uma conexão de dados nova, e com milhares de arquivos
+    # pequenos o servidor passa a deixar parte delas sem resposta (WinError
+    # 10060, em 23/10/2026). Desistir na segunda falha parava o deploy a cada
+    # poucas centenas de arquivos; esperar um pouco e tentar de novo, não.
     for i, (caminho, local, motivo) in enumerate(envios, 1):
-        for tentativa in (1, 2):
+        for tentativa in range(1, 6):
             try:
                 with open(local, "rb") as f:
                     ftp.storbinary(f"STOR {caminho}", f)
                 break
             except ftplib.all_errors as erro:
-                if tentativa == 2:
+                if tentativa == 5:
                     parar(f"falhou ao enviar {caminho}: {erro}. Rode de novo: o que já foi não é reenviado.")
-                ftp = conectar(env)  # a conexão caiu: reconecta e tenta mais uma vez
+                print(f"  [aviso] {caminho}: {erro} — nova tentativa em {10 * tentativa} s", flush=True)
+                time.sleep(10 * tentativa)
+                try:
+                    ftp.quit()
+                except ftplib.all_errors:
+                    pass
+                ftp = conectar(env, tentativas=5)
         if len(envios) <= 200 or i % 200 == 0 or i == len(envios):
             print(f"  [{i:,}/{len(envios):,}] {motivo:9} {caminho}")
 
