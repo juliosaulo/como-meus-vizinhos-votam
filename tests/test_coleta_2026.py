@@ -649,10 +649,10 @@ class TestMontarTabela:
 
 
 class TestMesclarNaBase:
-    def tabela(self, ano: int, votos: int) -> pd.DataFrame:
+    def tabela(self, ano: int, votos: int, turno: str = "1") -> pd.DataFrame:
         return pd.DataFrame([{
             "id_local_votacao": "RR_03018_1_1015", "sg_uf": "RR", "ano_eleicao": ano,
-            "turno": "1", "cargo": "PRESIDENTE", "sq_candidato": "1", "nr_votavel": "13",
+            "turno": turno, "cargo": "PRESIDENTE", "sq_candidato": "1", "nr_votavel": "13",
             "nm_votavel": "ALGUEM", "sg_partido": "PARTIDO", "tipo_voto": "nominal",
             "qt_votos": votos,
         }])
@@ -667,6 +667,14 @@ class TestMesclarNaBase:
         self.tabela(2022, 7).to_parquet(destino, index=False)
         converter.mesclar_na_base(self.tabela(2026, 10), destino, 2026)
         assert sorted(pd.read_parquet(destino)["ano_eleicao"]) == [2022, 2026]
+
+    def test_segundo_turno_preserva_o_primeiro(self, tmp_path):
+        """O 2º turno chega semanas depois; substituir o ano inteiro apagaria o 1º."""
+        destino = tmp_path / "votos.parquet"
+        converter.mesclar_na_base(self.tabela(2026, 10), destino, 2026)
+        converter.mesclar_na_base(self.tabela(2026, 8, "2"), destino, 2026, 2)
+        base = pd.read_parquet(destino).sort_values("turno")
+        assert list(base["turno"]) == ["1", "2"] and list(base["qt_votos"]) == [10, 8]
 
     def test_rodar_duas_vezes_nao_duplica(self, tmp_path):
         """Idempotência: domingo o conversor pode rodar mais de uma vez."""
@@ -995,19 +1003,25 @@ class TestConferirBase:
 
     def base(self, tmp_path, anos):
         caminho = tmp_path / "votos.parquet"
-        pd.DataFrame([{"ano_eleicao": a, "qt_votos": v} for a, v in anos]).to_parquet(
+        pd.DataFrame([{"ano_eleicao": a, "turno": "1", "qt_votos": v} for a, v in anos]).to_parquet(
             caminho, index=False)
         return caminho
 
     def test_passa_com_o_ano_presente(self, tmp_path, monkeypatch, capsys):
         monkeypatch.setattr(domingo, "BASE_DE_VOTOS", self.base(tmp_path, [(2022, 10), (2026, 7)]))
         domingo.conferir_base(2026)
-        assert "2026: 7" in capsys.readouterr().out
+        assert "2026, 1º turno: 7" in capsys.readouterr().out
 
     def test_para_se_o_ano_nao_entrou(self, tmp_path, monkeypatch):
         monkeypatch.setattr(domingo, "BASE_DE_VOTOS", self.base(tmp_path, [(2022, 10)]))
         with pytest.raises(SystemExit):
             domingo.conferir_base(2026)
+
+    def test_segundo_turno_nao_passa_so_com_o_primeiro(self, tmp_path, monkeypatch):
+        """No 2º turno o ano já está na base desde o 1º — a guarda tem de olhar o turno."""
+        monkeypatch.setattr(domingo, "BASE_DE_VOTOS", self.base(tmp_path, [(2026, 7)]))
+        with pytest.raises(SystemExit):
+            domingo.conferir_base(2026, 2)
 
     def test_para_se_a_base_nao_existe(self, tmp_path, monkeypatch):
         monkeypatch.setattr(domingo, "BASE_DE_VOTOS", tmp_path / "nao_existe.parquet")

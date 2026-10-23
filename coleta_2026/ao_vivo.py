@@ -172,8 +172,9 @@ def main() -> None:
     parser.add_argument("--ciclo", help="ensaio: ciclo explícito")
     parser.add_argument("--pleito", help="ensaio: pleito explícito")
     parser.add_argument("--candidatos", type=Path)
-    parser.add_argument("--cargo", type=int, nargs="+", default=CARGOS_PADRAO,
-                        help="códigos de cargo (ensaio com 2024: 11 13)")
+    parser.add_argument("--cargo", type=int, nargs="+",
+                        help="códigos de cargo (ensaio com 2024: 11 13); padrão: presidente "
+                             "e deputado federal, e só presidente no 2º turno")
     parser.add_argument("--locais", type=Path,
                         help="zip do eleitorado por seção (padrão: o do ano, em "
                              "dados/bruto/locais_oficiais)")
@@ -185,6 +186,10 @@ def main() -> None:
                         help="outra pasta de saída (o teste usa, para não "
                              "misturar com o que vai ao ar)")
     args = parser.parse_args()
+
+    # No 2º turno não há deputado federal: pedir o agregado dele no navegador do
+    # visitante seria um 404 por consulta, e 404 arrisca bloqueio do IP.
+    args.cargo = args.cargo or (CARGOS_PADRAO if args.turno == 1 else [1])
 
     global DESTINO
     if args.destino:

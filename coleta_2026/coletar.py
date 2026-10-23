@@ -46,6 +46,13 @@ import tse
 
 PASTA_PADRAO = Path(__file__).resolve().parents[1] / "dados" / "bruto" / "bu"
 
+
+def pasta_do_turno(turno: int) -> Path:
+    """O zip de cada UF guarda o BU por município/zona/seção, sem o pleito no nome.
+    No mesmo zip, o 2º turno encontraria todas as seções "já baixadas" pelo 1º e
+    não pediria nada — então cada turno além do primeiro tem a sua pasta."""
+    return PASTA_PADRAO if turno == 1 else PASTA_PADRAO / f"turno{turno}"
+
 # Quantas requisições em voo ao mesmo tempo. O teto de verdade é o limitador de
 # taxa do cliente; isto só define quantas esperas cabem em paralelo.
 LINHAS = 24
@@ -184,7 +191,7 @@ def main() -> None:
     parser.add_argument("--ano", type=int, default=2026)
     parser.add_argument("--turno", type=int, default=1)
     parser.add_argument("--uf", nargs="+", help="só estas UFs")
-    parser.add_argument("--pasta", type=Path, default=PASTA_PADRAO)
+    parser.add_argument("--pasta", type=Path, help="padrão: a pasta do turno")
     parser.add_argument("--ciclo", help="ensaio: ciclo explícito, ex. ele2024")
     parser.add_argument("--pleito", help="ensaio: pleito explícito, ex. 452")
     parser.add_argument("--eleicao", help="ensaio: código da eleição, ex. 619")
@@ -199,6 +206,7 @@ def main() -> None:
                         help="pede todas as seções principais, mesmo sem arquivo auxiliar "
                              "gerado (produz 404, que arrisca bloqueio — só para depuração)")
     args = parser.parse_args()
+    args.pasta = args.pasta or pasta_do_turno(args.turno)
 
     cliente = tse.Cliente(limite=tse.LimiteDeTaxa(args.taxa))
     if args.eleicao:

@@ -779,6 +779,26 @@ Três coisas que o desenho garante:
 Para ensaiar a cadeia inteira em miniatura: `--uf RR` passa o recorte para a coleta e a
 conversão.
 
+### O 2º turno
+
+Os mesmos comandos, com `--turno 2`:
+
+```bash
+python coleta_2026/ao_vivo.py --turno 2       # antes do dia: só presidente, dormente até a data
+python -u coleta_2026/domingo.py --turno 2    # na noite
+```
+
+O que muda por baixo, e por quê:
+
+- **Os BUs vão para `dados/bruto/bu/turno2/`.** O zip guarda a seção sem o pleito no nome; no
+  mesmo zip do 1º turno, a coleta acharia tudo "já baixado" e não pediria nada.
+- **A conversão substitui só o turno convertido**, não o ano: o 1º turno continua na base. A
+  saída própria vira `votos_local_votacao_2026_t2.parquet`, e a do 1º fica intacta.
+- **Só presidente.** Deputado federal não tem 2º turno; o governador que o boletim traz não é
+  publicado. A conferência de deputado é pulada.
+- O pleito 3221 também carrega eleições suplementares e consultas populares do mesmo dia. Elas
+  estão nos mesmos boletins, mas a conversão e a camada ao vivo filtram por cargo.
+
 A coleta pode ser adiantada para as 18h sem risco de bloqueio, porque o coletor só pede o que
 já existe (seção 5.1): a primeira passada pega o que estiver transmitido, as seguintes pegam o
 resto, e tudo fecha umas duas horas mais cedo. O que se paga por isso está na seção 5.3 — BU

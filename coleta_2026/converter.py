@@ -35,6 +35,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import bu
+from coletar import pasta_do_turno
 
 RAIZ = Path(__file__).resolve().parents[1]
 PASTA_BU = RAIZ / "dados" / "bruto" / "bu"
@@ -286,13 +287,14 @@ def montar_tabela(contagem: Counter, uf: str, ano: int, turno: int,
                "nr_votavel", "nm_votavel", "sg_partido", "tipo_voto", "qt_votos"]]
 
 
-def mesclar_na_base(df: pd.DataFrame, caminho: Path, ano: int) -> None:
+def mesclar_na_base(df: pd.DataFrame, caminho: Path, ano: int, turno: int = 1) -> None:
     """Grava o ano convertido na tabela que o pipeline já lê.
 
     O conversor entrega o arquivo que o passo 22 consome, em vez de um formato
     novo: assim nenhum passo do pipeline precisa saber que este ano veio por
     outro caminho. A operação é idempotente — rodar de novo substitui as linhas
-    do mesmo ano, em vez de duplicá-las.
+    do mesmo ano e turno, em vez de duplicá-las. Só do mesmo turno: o 2º turno
+    chega semanas depois, e substituir o ano inteiro apagaria o 1º.
 
     Atenção: rodar o passo 21 depois disto reescreve o arquivo a partir dos CSVs
     do TSE e leva junto o que foi mesclado. Basta rodar o conversor de novo — a
@@ -310,11 +312,12 @@ def mesclar_na_base(df: pd.DataFrame, caminho: Path, ano: int) -> None:
             f"base: {list(base.columns)} | conversão: {list(df.columns)}"
         )
 
-    anteriores = int((base["ano_eleicao"] == ano).sum())
-    base = base[base["ano_eleicao"] != ano]
+    mesmo = (base["ano_eleicao"] == ano) & (base["turno"] == str(turno))
+    anteriores = int(mesmo.sum())
+    base = base[~mesmo]
     junto = pd.concat([base, df], ignore_index=True)
     junto.to_parquet(caminho, index=False)
-    print(f"  mesclado em {caminho.name}: {len(df):,} linhas de {ano}"
+    print(f"  mesclado em {caminho.name}: {len(df):,} linhas de {ano}, {turno}º turno"
           + (f", substituindo {anteriores:,} já existentes" if anteriores else "")
           + f" | tabela com {len(junto):,} linhas, anos "
             f"{sorted(int(a) for a in junto['ano_eleicao'].unique())}")
@@ -326,10 +329,12 @@ def main() -> None:
     parser.add_argument("--ano", type=int, default=2026)
     parser.add_argument("--turno", type=int, default=1)
     parser.add_argument("--eleicao", type=int, help="código da eleição dentro do BU")
-    parser.add_argument("--cargo", type=int, nargs="+", default=[bu.PRESIDENTE, bu.DEPUTADO_FEDERAL])
+    parser.add_argument("--cargo", type=int, nargs="+",
+                        help="padrão: presidente e deputado federal; no 2º turno, só presidente")
     parser.add_argument("--uf", nargs="+")
-    parser.add_argument("--pasta", type=Path, default=PASTA_BU)
-    parser.add_argument("--saida", type=Path, default=SAIDA)
+    parser.add_argument("--pasta", type=Path, help="padrão: a pasta do turno, a mesma do coletor")
+    parser.add_argument("--saida", type=Path,
+                        help="padrão: votos_local_votacao_2026.parquet; _t2 no 2º turno")
     parser.add_argument("--candidatos", type=Path,
                         help="pasta do cadastro (padrão: dados/bruto/candidatos/<ano>)")
     parser.add_argument("--base", type=Path, default=BASE_DO_PIPELINE,
@@ -337,6 +342,13 @@ def main() -> None:
     parser.add_argument("--sem-mesclar", action="store_true",
                         help="só grava a saída própria, sem tocar na tabela do pipeline")
     args = parser.parse_args()
+    # Deputado federal não tem 2º turno; o governador que o boletim traz não é publicado.
+    args.cargo = args.cargo or ([bu.PRESIDENTE, bu.DEPUTADO_FEDERAL] if args.turno == 1
+                                else [bu.PRESIDENTE])
+    args.pasta = args.pasta or pasta_do_turno(args.turno)
+    # A saída do 1º turno é a cópia de segurança dele: não pode ser sobrescrita pelo 2º.
+    args.saida = args.saida or (SAIDA if args.turno == 1
+                                else SAIDA.with_name(f"{SAIDA.stem}_t{args.turno}.parquet"))
 
     if args.eleicao is None:
         sys.exit("informe --eleicao (o código que aparece dentro do BU; ver tse.eleicao_federal)")
@@ -378,7 +390,7 @@ def main() -> None:
     print(f"  salvo: {args.saida}")
 
     if not args.sem_mesclar:
-        mesclar_na_base(df, args.base, args.ano)
+        mesclar_na_base(df, args.base, args.ano, args.turno)
 
 
 if __name__ == "__main__":

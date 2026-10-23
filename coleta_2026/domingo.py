@@ -87,7 +87,7 @@ def rodar(descricao: str, argumentos: list[str]) -> float:
     return minutos
 
 
-def conferir_base(ano: int) -> None:
+def conferir_base(ano: int, turno: int = 1) -> None:
     """A conversão mesclou mesmo o ano na tabela que o pipeline lê?
 
     Vale a conferência boba: se a mesclagem não aconteceu, o pipeline rodaria
@@ -97,13 +97,15 @@ def conferir_base(ano: int) -> None:
 
     if not BASE_DE_VOTOS.exists():
         parar(f"{BASE_DE_VOTOS} não existe — a conversão não gravou a base do pipeline")
-    base = pd.read_parquet(BASE_DE_VOTOS, columns=["ano_eleicao", "qt_votos"])
-    por_ano = base.groupby("ano_eleicao")["qt_votos"].sum()
-    print("\n  votos na tabela do pipeline, por ano:")
-    for a, votos in por_ano.items():
-        print(f"    {int(a)}: {int(votos):,}")
-    if ano not in por_ano.index or por_ano.get(ano, 0) == 0:
-        parar(f"não há voto de {ano} em {BASE_DE_VOTOS.name}")
+    base = pd.read_parquet(BASE_DE_VOTOS, columns=["ano_eleicao", "turno", "qt_votos"])
+    por_ano = base.groupby(["ano_eleicao", "turno"])["qt_votos"].sum()
+    print("\n  votos na tabela do pipeline, por ano e turno:")
+    for (a, t), votos in por_ano.items():
+        print(f"    {int(a)}, {t}º turno: {int(votos):,}")
+    # Por turno, não só por ano: no 2º turno o ano já está lá desde o 1º, e a
+    # conferência passaria mesmo sem a conversão ter gravado nada.
+    if por_ano.get((ano, str(turno)), 0) == 0:
+        parar(f"não há voto de {ano}, {turno}º turno, em {BASE_DE_VOTOS.name}")
 
 
 def trocar_ano_de_referencia(ano: int) -> None:
@@ -167,16 +169,17 @@ def main() -> None:
         tempos["conversão"] = rodar("conversão para a tabela do pipeline", [
             "coleta_2026/converter.py", "--ano", str(args.ano), "--turno", str(args.turno),
             "--eleicao", codigo, *recorte])
-        conferir_base(args.ano)
+        conferir_base(args.ano, args.turno)
 
     if "conferencia" in etapas:
-        for cargo, nivel in CONFERENCIAS:
+        # Deputado federal não tem 2º turno: conferi-lo daria "nenhum voto" e pararia a noite.
+        for cargo, nivel in [(c, n) for c, n in CONFERENCIAS if args.turno == 1 or c == 1]:
             tempos[f"conferência cargo {cargo}"] = rodar(
                 f"conferência contra o TSE — cargo {cargo}, nível {nivel}", [
                     "coleta_2026/conferir.py", "--eleicao", codigo, "--ano", str(args.ano),
                     "--turno", str(args.turno), "--cargo", str(cargo), "--nivel", nivel,
                     "--resumido"])
-        print("\n  as duas conferências passaram — autorizado a seguir")
+        print("\n  as conferências passaram — autorizado a seguir")
 
     if "referencia" in etapas:
         print(f"\n{'=' * 70}\n  ano de referência da malha — {agora()}\n{'=' * 70}")

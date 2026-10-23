@@ -27,6 +27,7 @@ const estado = {
   // Ano da eleição que a camada ao vivo acompanha, para a tarja poder
   // nomeá-lo antes de existir qualquer resultado dele.
   anoAoVivo: null,
+  turnoAoVivo: null,
   agregados: { municipio: null, uf: null, brasil: null },
 };
 
@@ -463,6 +464,7 @@ async function buscarAoVivo(id, regiao, forcar) {
   // para a próxima tentativa poder acontecer.
   if (!cfg) { aoVivoPedidos.delete(String(id)); return; }
   estado.anoAoVivo = cfg.ano;
+  estado.turnoAoVivo = cfg.turno;
   // "Este ano já existe" vale para o arquivo publicado, não para o que esta
   // camada mesclou: o número mesclado é parcial e é justamente o que o botão
   // vem renovar. Sem `forcar`, o clique voltava aqui e saía sem buscar nada —
@@ -517,6 +519,11 @@ function mesclarAoVivo(regiao, vivo) {
     ((((resultados.total_votos ??= {})[cargo] ??= {})[vivo.ano]) ??= {})[vivo.turno] =
       total;
   }
+  // O arquivo de eleitorado do TSE sai antes com o 1º turno. O cadastro é o mesmo
+  // nos dois turnos: em 2018 e 2022, 99% das regiões ficam a menos de 1% de
+  // diferença — então, na falta do 2º, vale o do 1º.
+  const doAno = regiao.eleitorado?.[vivo.ano];
+  if (doAno && doAno[vivo.turno] == null && doAno["1"] != null) doAno[vivo.turno] = doAno["1"];
   // Abstenção dá para calcular: o eleitorado de 2026 já é publicado pelo passo 10.
   const eleitores = regiao.eleitorado?.[vivo.ano]?.[vivo.turno];
   const comparecimento = vivo.totais.presidente ?? Object.values(vivo.totais)[0];
@@ -557,7 +564,8 @@ function avisoAoVivo(id) {
     return `
       <p class="aviso-ao-vivo aguardando">
         <span class="marca" aria-hidden="true">◷</span>
-        <strong>${estado.anoAoVivo ? `${estado.anoAoVivo}: ` : ""}Nenhuma urna
+        <strong>${estado.anoAoVivo ? `${estado.anoAoVivo}${estado.turnoAoVivo === "2"
+          ? ", 2º turno" : ""}: ` : ""}Nenhuma urna
         deste local processada ainda.</strong>
         O resultado aparece aqui conforme as urnas forem sendo processadas.
         ${horaDaVerificacao(id)}
@@ -874,7 +882,9 @@ function blocoResultados(id) {
     // comparecimento é só o das urnas já processadas. Abstenção calculada
     // contra o eleitorado inteiro ficaria enorme e falsa — uma urna de nove
     // faria parecer que oito em cada nove eleitores não votaram.
-    emApuracao: aoVivoPorRegiao.has(String(id)) && estado.ano === estado.anoAoVivo,
+    // O turno também: no 2º turno, o 1º do mesmo ano já é resultado fechado.
+    emApuracao: aoVivoPorRegiao.has(String(id)) && estado.ano === estado.anoAoVivo
+      && estado.turno === estado.turnoAoVivo,
   };
 
   return `
