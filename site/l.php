@@ -106,17 +106,29 @@ $eleicao = $placar ? "Presidente {$local['ano']}, {$local['turno']}º turno" : '
 // o cartão é o que a maioria vê. Então, enquanto a camada ao vivo estiver
 // ligada e o ano dela não estiver publicado, a prévia fica neutra: a imagem
 // genérica do site, sem número, e o convite para abrir.
+//
+// O ano não basta: no 2º turno o 1º do mesmo ano já está publicado, e a prévia
+// mostraria o placar do 1º no meio da apuração do 2º. E, com a camada já
+// configurada dias antes, a data do pleito é que diz quando a apuração começa —
+// a mesma regra do navegador (`jaEhODia`, em js/ao_vivo.js).
 $ao_vivo = ler_json(__DIR__ . '/publicado/ao_vivo/config.json');
+$dia_do_pleito = is_array($ao_vivo)
+    ? DateTime::createFromFormat('!d/m/Y', (string) ($ao_vivo['data'] ?? ''),
+                                 new DateTimeZone('America/Sao_Paulo'))
+    : false;
 $apurando = is_array($ao_vivo)
     && !empty($ao_vivo['ativo'])
-    && (string) ($ao_vivo['ano'] ?? '') !== (string) ($local['ano'] ?? '');
+    && ($dia_do_pleito === false || $dia_do_pleito <= new DateTime('now', new DateTimeZone('America/Sao_Paulo')))
+    && ((string) ($ao_vivo['ano'] ?? '') !== (string) ($local['ano'] ?? '')
+        || (string) ($ao_vivo['turno'] ?? '') !== (string) ($local['turno'] ?? ''));
 
 // Sem placar, não há card: o de um local novo na malha sairia vazio. A prévia
 // fica igual à da apuração — imagem genérica e convite para abrir.
 $url = SITE . "/l/{$municipio}/{$id}";
 if ($apurando || !$placar) {
     $descricao = $apurando
-        ? 'Apuração de ' . (string) $ao_vivo['ano'] . ' em andamento. Abra para ver '
+        ? 'Apuração ' . ((string) ($ao_vivo['turno'] ?? '') === '2' ? 'do 2º turno ' : '')
+          . 'de ' . (string) $ao_vivo['ano'] . ' em andamento. Abra para ver '
           . 'como está votando o local de votação mais próximo do seu endereço.'
         : 'Veja como votou o local de votação mais próximo do seu endereço.';
     $card = SITE . '/img/og.png';
